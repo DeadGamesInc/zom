@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
     public static GameController Instance;
@@ -17,6 +19,8 @@ public class GameController : MonoBehaviour {
         
         InitializeCards();
         InitializeMultiplayer();
+        Thread.Sleep(3000);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     public void Update() { }
