@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,11 +17,19 @@ public class GameController : MonoBehaviour {
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        
+        StartCoroutine(Initialize());
+    }
+
+    private IEnumerator Initialize() {
+        var init = Task.Run(HandleInitialize);
+        while (!init.IsCompleted) yield return null;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+
+    private void HandleInitialize() {
         InitializeCards();
         InitializeMultiplayer();
         Thread.Sleep(3000);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     public void Update() { }
