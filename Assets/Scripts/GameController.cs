@@ -23,7 +23,7 @@ public class GameController : MonoBehaviour {
     private IEnumerator Initialize() {
         var init = Task.Run(HandleInitialize);
         while (!init.IsCompleted) yield return null;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadScene((int)SceneId.MENU);
     }
 
     private void HandleInitialize() {
