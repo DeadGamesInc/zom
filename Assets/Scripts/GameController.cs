@@ -7,7 +7,10 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
     public static GameController Instance;
-    public List<Card> CardDatabase;
+    
+    [field: SerializeField] public GameObject DeckController;
+    [field: SerializeField] public List<GameObject> CardDatabase = new();
+    public List<AvailableCard> AvailableCards = new();
 
     public void Start() {
         if (Instance != null) {
@@ -17,7 +20,14 @@ public class GameController : MonoBehaviour {
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        SceneManager.activeSceneChanged += HandleSceneChanged;
+        
         StartCoroutine(Initialize());
+    }
+
+    public void ExitGame() {
+        Application.Quit();
     }
 
     private IEnumerator Initialize() {
@@ -27,18 +37,26 @@ public class GameController : MonoBehaviour {
     }
 
     private void HandleInitialize() {
-        InitializeCards();
         InitializeMultiplayer();
+        InitializeCards();
         Thread.Sleep(3000);
     }
 
     public void Update() { }
 
-    private void InitializeCards() {
-        CardDatabase = new List<Card>();
-    }
-
     private void InitializeMultiplayer() {
         
+    }
+
+    private void InitializeCards() {
+        // Normally request from the multiplayer server, or check the blockchain, for now stuff the necessary cards in
+        foreach (var card in CardDatabase) {
+            var availableCard = new AvailableCard { Card = card, Quantity = 2 };
+            AvailableCards.Add(availableCard);
+        }
+    }
+
+    private void HandleSceneChanged(Scene current, Scene next) {
+        DeckController.GetComponent<DeckController>().HandPosition = GameObject.Find("HandPosition")?.transform;
     }
 }
