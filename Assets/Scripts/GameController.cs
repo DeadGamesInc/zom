@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour {
     public static GameController Instance;
     
-    [field: SerializeField] public GameObject DeckController;
+    [field: SerializeField] public GameObject Player;
     [field: SerializeField] public List<GameObject> CardDatabase = new();
     public List<AvailableCard> AvailableCards = new();
 
@@ -57,6 +57,6 @@ public class GameController : MonoBehaviour {
     }
 
     private void HandleSceneChanged(Scene current, Scene next) {
-        DeckController.GetComponent<DeckController>().HandPosition = GameObject.Find("HandPosition")?.transform;
+        Player.GetComponent<DeckController>().HandPosition = GameObject.Find("HandPosition")?.transform;
     }
 }

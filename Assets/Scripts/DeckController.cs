@@ -41,7 +41,7 @@ public class DeckController : MonoBehaviour {
     public bool DrawCard() {
         var card = DeckCards.FirstOrDefault();
         if (card == null) return false;
-        var drawn = Instantiate(card, HandPosition.position, Quaternion.Euler(new Vector3(-80.995f, 206.243f, -25.963f)));
+        var drawn = Instantiate(card, HandPosition.position, HandPosition.rotation);
         HandCards.Add(drawn);
         DeckCards.Remove(card);
         return true;
