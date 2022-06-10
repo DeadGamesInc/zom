@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7655786072300294462}
   - component: {fileID: 4339482319966458754}
   - component: {fileID: 5724887725960839719}
+  - component: {fileID: 8309122798008289593}
   m_Layer: 0
   m_Name: ZombieHordeCard
   m_TagString: Untagged
@@ -103,3 +104,18 @@ MonoBehaviour:
   Damage: 1
   MaxRange: 0
   NervosTestnetNFT: 
+  CardPreview: {fileID: 21300000, guid: 4e990215041b35b4cbffac0e2194b1ac, type: 3}
+--- !u!64 &8309122798008289593
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5037722887278209772}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}

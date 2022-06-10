@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 249727006980853337}
   - component: {fileID: 249727006980853338}
   - component: {fileID: 249727006980853339}
+  - component: {fileID: -5806327985612789236}
   m_Layer: 0
   m_Name: ChompersCard
   m_TagString: Untagged
@@ -103,3 +104,18 @@ MonoBehaviour:
   Damage: 2
   MaxRange: 0
   NervosTestnetNFT: 
+  CardPreview: {fileID: 21300000, guid: a12dbe82bcb91034e85e65379077678d, type: 3}
+--- !u!64 &-5806327985612789236
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 249727006980853332}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
