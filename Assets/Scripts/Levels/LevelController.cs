@@ -11,6 +11,8 @@ public class LevelController : MonoBehaviour {
 
     protected GameObject _handPosition;
     private GameObject _cardPreview;
+
+    private bool _lockPreview;
     
     // Start is called before the first frame update
     public void Start() {
@@ -26,8 +28,12 @@ public class LevelController : MonoBehaviour {
         
     }
 
+    public void SetPreviewLock(bool locked) {
+        _lockPreview = locked;
+    }
+
     public void SetCardPreview(Sprite sprite) {
-        if (_cardPreview == null) return;
+        if (_cardPreview == null || _lockPreview) return;
         var image = _cardPreview.GetComponent<Image>();
         image.sprite = sprite;
         _cardPreview.SetActive(sprite != null);

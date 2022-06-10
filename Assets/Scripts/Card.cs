@@ -36,7 +36,8 @@ public class Card : MonoBehaviour {
     }
 
     public void OnMouseDown() {
-        if (Camera.main == null) return;
+        if (Camera.main == null || _levelController == null) return;
+        _levelController.GetComponent<LevelController>().SetPreviewLock(true);
         _startPosition = transform.position;
     }
 
@@ -47,6 +48,8 @@ public class Card : MonoBehaviour {
     }
 
     public void OnMouseUp() {
+        if (_levelController == null) return;
+        _levelController.GetComponent<LevelController>().SetPreviewLock(false);
         transform.position = _startPosition;
     }
 }
