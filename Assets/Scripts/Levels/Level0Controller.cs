@@ -6,6 +6,7 @@ public class Level0Controller : LevelController {
     // Start is called before the first frame update
     public new void Start() {
         base.Start();
+        createMap();
         foreach (var card in _gameController.AvailableCards) 
             for (var i = 1; i <= card.Quantity; i++) _deckController.DeckCards.Add(card.Card);
     }
@@ -26,5 +27,10 @@ public class Level0Controller : LevelController {
         position.y += 0.01f;
         position.z -= 0.01f;
         _handPosition.transform.position = position;
+    }
+    
+    private void createMap() {
+        _map = new GameObject("Map");
+        _map.AddComponent<Map0>();
     }
 }

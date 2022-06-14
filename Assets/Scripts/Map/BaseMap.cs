@@ -5,18 +5,13 @@ using System.Linq;
 using UnityEngine;
 
 public abstract class BaseMap : MonoBehaviour {
-    [SerializeField] protected int length;
-    [SerializeField] protected int width;
-    [SerializeField] protected float cellSize;
+    [SerializeField] public int Length;
+    [SerializeField] public int Width;
+    [SerializeField] public float CellSize;
 
     public MapPath[] paths = Array.Empty<MapPath>();
-
-    // Expose readonly dimensions
-    public int Width => width;
-    public int Length => length;
     public MapGrid grid { get; private set; }
 
-    protected abstract MapPath[] InitializePaths();
 
     private void DrawPaths() {
         foreach (MapPath mapPath in paths) {
@@ -26,8 +21,8 @@ public abstract class BaseMap : MonoBehaviour {
                 MapNode nextNode = mapPath.path[i + 1];
 
                 Debug.DrawLine(
-                    GetCoordWorldPosition(node.x, node.y),
-                    GetCoordWorldPosition(nextNode.x, nextNode.y),
+                    GetNodeWorldPosition(node.x, node.z),
+                    GetNodeWorldPosition(nextNode.x, nextNode.z),
                     Color.red, 100f);
             }
         }
@@ -38,15 +33,14 @@ public abstract class BaseMap : MonoBehaviour {
         return new MapPath(nodes);
     }
 
-    public Vector3 GetCoordWorldPosition(int x, int z) {
+    public Vector3 GetNodeWorldPosition(int x, int z) {
         return grid.GetWorldPosition(x, z);
     }
 
     // Start is called before the first frame update
-    void Start() {
+    public void Start() {
         Vector3 globalPosition = gameObject.transform.position;
-        grid = new MapGrid(width, length, cellSize, globalPosition);
-        paths = InitializePaths();
+        grid = new MapGrid(Width, Length, CellSize, globalPosition);
         DrawPaths();
     }
 }

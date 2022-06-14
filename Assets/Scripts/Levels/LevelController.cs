@@ -11,6 +11,7 @@ public class LevelController : MonoBehaviour {
 
     protected GameObject _handPosition;
     private GameObject _cardPreview;
+    protected GameObject _map;
 
     private bool _lockPreview;
     
