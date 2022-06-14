@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public abstract class BaseMap : MonoBehaviour {
@@ -8,28 +9,33 @@ public abstract class BaseMap : MonoBehaviour {
     [SerializeField] protected int width;
     [SerializeField] protected float cellSize;
 
-    public (int, int)[][] paths = Array.Empty<(int, int)[]>();
+    public MapPath[] paths = Array.Empty<MapPath>();
 
     // Expose readonly dimensions
     public int Width => width;
     public int Length => length;
     public MapGrid grid { get; private set; }
 
-    protected abstract (int, int)[][] InitializePaths();
+    protected abstract MapPath[] InitializePaths();
 
     private void DrawPaths() {
-        foreach ((int, int)[] path in paths) {
-            for (int i = 0; i < path.Length; i++) {
-                if (i == path.Length - 1) break;
-                (int, int) node = path[i];
-                (int, int) nextNode = path[i + 1];
+        foreach (MapPath mapPath in paths) {
+            for (int i = 0; i < mapPath.path.Length; i++) {
+                if (i == mapPath.path.Length - 1) break;
+                MapNode node = mapPath.path[i];
+                MapNode nextNode = mapPath.path[i + 1];
 
                 Debug.DrawLine(
-                    GetCoordWorldPosition(node.Item1, node.Item2),
-                    GetCoordWorldPosition(nextNode.Item1, nextNode.Item2),
+                    GetCoordWorldPosition(node.x, node.y),
+                    GetCoordWorldPosition(nextNode.x, nextNode.y),
                     Color.red, 100f);
             }
         }
+    }
+
+    protected MapPath toPath(params (int, int)[] coords) {
+        MapNode[] nodes = coords.Select(coord => new MapNode(coord.Item1, coord.Item2)).ToArray();
+        return new MapPath(nodes);
     }
 
     public Vector3 GetCoordWorldPosition(int x, int z) {
