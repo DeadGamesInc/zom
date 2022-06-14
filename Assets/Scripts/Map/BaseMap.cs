@@ -12,6 +12,20 @@ public abstract class BaseMap : MonoBehaviour {
     public MapPath[] paths = Array.Empty<MapPath>();
     public MapGrid grid { get; private set; }
 
+    public Vector3 GetNodeWorldPosition(MapNode node) {
+        return grid.GetWorldPosition(node.x, node.z);
+    }
+
+    // Returns MapPath containing the specified nodes or null if one does not exist
+    public MapPath? GetPathByNodes(params MapNode[] nodes) {
+        foreach (MapPath mapPath in paths) {
+            if (nodes.All(node => mapPath.path.Contains(node))) {
+                return mapPath;
+            }
+        }
+
+        return null;
+    }
 
     private void DrawPaths() {
         foreach (MapPath mapPath in paths) {
@@ -21,8 +35,8 @@ public abstract class BaseMap : MonoBehaviour {
                 MapNode nextNode = mapPath.path[i + 1];
 
                 Debug.DrawLine(
-                    GetNodeWorldPosition(node.x, node.z),
-                    GetNodeWorldPosition(nextNode.x, nextNode.z),
+                    GetNodeWorldPosition(node),
+                    GetNodeWorldPosition(nextNode),
                     Color.red, 100f);
             }
         }
@@ -31,10 +45,6 @@ public abstract class BaseMap : MonoBehaviour {
     protected MapPath toPath(params (int, int)[] coords) {
         MapNode[] nodes = coords.Select(coord => new MapNode(coord.Item1, coord.Item2)).ToArray();
         return new MapPath(nodes);
-    }
-
-    public Vector3 GetNodeWorldPosition(int x, int z) {
-        return grid.GetWorldPosition(x, z);
     }
 
     // Start is called before the first frame update
