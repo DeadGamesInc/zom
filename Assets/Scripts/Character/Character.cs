@@ -4,16 +4,14 @@ using UnityEngine;
 
 public class Character : MonoBehaviour {
     private BaseMap map;
-
     [SerializeField] public float MovementSpeed = 1f;
     [SerializeField] public CharacterState State;
     public MapNode MapPosition { get; private set; }
-    public CharacterTarget Target { get; private set; }
+    public CharacterRoute Route { get; private set; }
 
     // Start is called before the first frame update
     void Start() {
         StartCoroutine(setMap());
-        MoveTowards(new MapNode(9, 5));
     }
 
     // Update is called once per frame
@@ -26,21 +24,18 @@ public class Character : MonoBehaviour {
     }
 
     public void MoveTowards(MapNode target) {
-        MapPath? path = map.GetPathByNodes(MapPosition, target);
-        if (path.HasValue) throw new MovementException("Path to target does not exist");
-        Target = new CharacterTarget(target, path.Value);
-        
-        // set movement direction / maybe only include nodes that need to be traverse
-
+        Route = new CharacterRoute(map, MapPosition, target);
         State = CharacterState.InTransit;
     }
 
     private void Move() {
-        Debug.Log("Moving");
-        Vector3 targetPos = map.GetNodeWorldPosition(Target);
-        transform.position = Vector3.MoveTowards(transform.position, map.GetNodeWorldPosition(Target), MovementSpeed);
-        Debug.Log(transform.position);
-        if (transform.position == map.GetNodeWorldPosition(Target)) State = CharacterState.Idle;
+        transform.position = Vector3.MoveTowards(transform.position, Route.CurrentTargetWorldPos, MovementSpeed);
+        if (transform.position == Route.CurrentTargetWorldPos) {
+            if (!Route.NextPosition()) {
+                State = CharacterState.Idle;
+                Route = null;
+            }
+        }
     }
 
     private IEnumerator setMap() {
@@ -49,6 +44,7 @@ public class Character : MonoBehaviour {
         map = mapObject.GetComponent<BaseMap>();
         // For testing purposes
         setMapPosition(new MapNode(5, 1));
+        MoveTowards(new MapNode(5, 9));
     }
 
     private Vector3 setMapPosition(MapNode node) {

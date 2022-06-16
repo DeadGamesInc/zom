@@ -27,6 +27,28 @@ public abstract class BaseMap : MonoBehaviour {
         return null;
     }
 
+    // This assumes the map loops when determining the shortest route direction
+    public MapPath? GetShortestPathBetweenNodes(MapNode node1, MapNode node2) {
+        MapPath? mapPath = GetPathByNodes(node1, node2);
+        if (mapPath == null) return null;
+        MapNode[] path = mapPath.Value.path;
+        int node1Index = Array.IndexOf(path, node1);
+        int node2Index = Array.IndexOf(path, node2);
+        int posDistance = node2Index - node1Index;
+        int negDistance = node1Index + (path.Length - 1) - node2Index;
+        MapNode[] shortestRoute;
+        if (posDistance <= negDistance) {
+            var lastNode = new[] { node2 };
+            shortestRoute = new ArraySegment<MapNode>(path, node1Index, node2Index - node1Index).Concat(lastNode).ToArray();
+        } else {
+            var seg1 = new ArraySegment<MapNode>(path, 0, node1Index).Reverse();
+            var seg2 = new ArraySegment<MapNode>(path, node2Index, path.Length - node2Index).Reverse();
+            shortestRoute = seg1.Concat(seg2).ToArray();
+        }
+
+        return new MapPath(shortestRoute);
+    }
+
     private void DrawPaths() {
         foreach (MapPath mapPath in paths) {
             for (int i = 0; i < mapPath.path.Length; i++) {
