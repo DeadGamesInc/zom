@@ -49,7 +49,7 @@ public abstract class BaseMap : MonoBehaviour {
         return new MapPath(shortestRoute);
     }
 
-    private void DrawPaths() {
+    private void drawPaths() {
         foreach (MapPath mapPath in paths) {
             for (int i = 0; i < mapPath.path.Length; i++) {
                 if (i == mapPath.path.Length - 1) break;
@@ -65,14 +65,18 @@ public abstract class BaseMap : MonoBehaviour {
     }
 
     protected MapPath toPath(params (int, int)[] coords) {
-        MapNode[] nodes = coords.Select(coord => new MapNode(coord.Item1, coord.Item2)).ToArray();
+        MapNode[] nodes = coords.Select(coord => new MapNode(coord.Item1, coord.Item2, grid, true)).ToArray();
         return new MapPath(nodes);
     }
+
+    protected abstract MapPath[] initializePaths();
 
     // Start is called before the first frame update
     public void Start() {
         Vector3 globalPosition = gameObject.transform.position;
         grid = new MapGrid(Width, Length, CellSize, globalPosition);
-        DrawPaths();
+        paths = initializePaths();
+
+        drawPaths();
     }
 }
