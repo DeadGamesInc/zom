@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,11 +10,21 @@ public class LevelController : MonoBehaviour {
     protected GameController _gameController;
     protected DeckController _deckController;
 
+    public GameObject selectedCharacter;
     protected GameObject _handPosition;
     private GameObject _cardPreview;
     protected GameObject _map;
-
+    
     private bool _lockPreview;
+
+    public static GameObject Get() {
+        GameObject levelController = GameObject.Find("LevelController");
+        if (levelController == null) {
+            return levelController;
+        } else {
+            throw new Exception("LevelController not found in scene");
+        }
+    }
     
     // Start is called before the first frame update
     public void Start() {
@@ -39,4 +50,6 @@ public class LevelController : MonoBehaviour {
         image.sprite = sprite;
         _cardPreview.SetActive(sprite != null);
     }
+    
+    
 }

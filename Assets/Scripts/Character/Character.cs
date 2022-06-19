@@ -31,6 +31,7 @@ public class Character : MonoBehaviour {
     private void Move() {
         transform.position = Vector3.MoveTowards(transform.position, Route.CurrentTargetWorldPos, MovementSpeed);
         if (transform.position == Route.CurrentTargetWorldPos) {
+            MapPosition = Route.CurrentTarget;
             if (!Route.NextPosition()) {
                 State = CharacterState.Idle;
                 Route = null;
@@ -43,8 +44,7 @@ public class Character : MonoBehaviour {
         while ((mapObject = GameObject.Find("Map")) == null) yield return null;
         map = mapObject.GetComponent<BaseMap>();
         // For testing purposes
-        setMapPosition(new MapNode(5, 1));
-        MoveTowards(new MapNode(5, 9));
+        setMapPosition(MapNode.Create(5, 1));
     }
 
     private Vector3 setMapPosition(MapNode node) {
