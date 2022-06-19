@@ -32,6 +32,7 @@ public class GameController : MonoBehaviour {
 
     private IEnumerator Initialize() {
         var init = Task.Run(HandleInitialize);
+        
         while (!init.IsCompleted) yield return null;
         SceneManager.LoadScene((int)SceneId.MENU);
     }
@@ -39,7 +40,7 @@ public class GameController : MonoBehaviour {
     private void HandleInitialize() {
         InitializeMultiplayer();
         InitializeCards();
-        Thread.Sleep(3000);
+        Thread.Sleep(500);
     }
 
     public void Update() { }

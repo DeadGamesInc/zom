@@ -1,46 +1,100 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public abstract class BaseMap : MonoBehaviour {
-    [SerializeField] protected int length;
-    [SerializeField] protected int width;
-    [SerializeField] protected float cellSize;
+    [SerializeField] public int Length;
+    [SerializeField] public int Width;
+    [SerializeField] public float CellSize;
 
-    public (int, int)[][] paths = Array.Empty<(int, int)[]>();
-
-    // Expose readonly dimensions
-    public int Width => width;
-    public int Length => length;
+    public MapPath[] paths = Array.Empty<MapPath>();
     public MapGrid grid { get; private set; }
 
-    protected abstract (int, int)[][] InitializePaths();
+    public Vector3 GetNodeWorldPosition(MapNode node) {
+        return grid.GetWorldPosition(node.x, node.z);
+    }
 
-    private void DrawPaths() {
-        foreach ((int, int)[] path in paths) {
-            for (int i = 0; i < path.Length; i++) {
-                if (i == path.Length - 1) break;
-                (int, int) node = path[i];
-                (int, int) nextNode = path[i + 1];
+    // Returns MapPath containing the specified nodes or null if one does not exist
+    public MapPath? GetPathByNodes(params MapNode[] nodes) {
+        foreach (MapPath mapPath in paths) {
+            if (nodes.All(node => mapPath.path.Contains(node))) {
+                return mapPath;
+            }
+        }
+
+        return null;
+    }
+
+    // This assumes the map loops when determining the shortest route direction
+    public MapPath? GetShortestPathBetweenNodes(MapNode node1, MapNode node2) {
+        MapPath? mapPath = GetPathByNodes(node1, node2);
+        if (mapPath == null) return null;
+        MapNode[] path = mapPath.Value.path;
+        int node1Index = Array.IndexOf(path, node1);
+        int node2Index = Array.IndexOf(path, node2);
+        bool innerMovingForward = node2Index > node1Index;
+        bool outerMovingForward = node2Index < node1Index;
+        int innerDistance = innerMovingForward ? node2Index - node1Index : node1Index - node2Index;
+        int outerDistance =
+            outerMovingForward ? node2Index + path.Length - node1Index : node1Index + path.Length - node2Index;
+
+        MapNode[] shortestRoute;
+        if (innerDistance <= outerDistance) {
+            if (innerMovingForward) {
+                shortestRoute = path[node1Index..(node2Index + 1)];
+            } else {
+                shortestRoute = path[node2Index..(node1Index + 1)].Reverse().ToArray();
+            }
+
+            foreach (var node in shortestRoute) {
+                Debug.Log($"{node.x}, {node.z}");
+            }
+        } else {
+            MapNode[] seg1, seg2;
+            if (outerMovingForward) {
+                seg1 = path[node1Index..path.Length];
+                seg2 = path[0..node2Index];
+            } else {
+                seg1 = path[0..(node1Index + 1)].Reverse().ToArray();
+                seg2 = path[node2Index..path.Length].Reverse().ToArray();
+            }
+
+            shortestRoute = seg1.Concat(seg2).ToArray();
+        }
+
+        return new MapPath(shortestRoute);
+    }
+
+    private void drawPaths() {
+        foreach (MapPath mapPath in paths) {
+            for (int i = 0; i < mapPath.path.Length; i++) {
+                if (i == mapPath.path.Length - 1) break;
+                MapNode node = mapPath.path[i];
+                MapNode nextNode = mapPath.path[i + 1];
 
                 Debug.DrawLine(
-                    GetCoordWorldPosition(node.Item1, node.Item2),
-                    GetCoordWorldPosition(nextNode.Item1, nextNode.Item2),
+                    GetNodeWorldPosition(node),
+                    GetNodeWorldPosition(nextNode),
                     Color.red, 100f);
             }
         }
     }
 
-    public Vector3 GetCoordWorldPosition(int x, int z) {
-        return grid.GetWorldPosition(x, z);
+    protected MapPath toPath(params (int, int)[] coords) {
+        MapNode[] nodes = coords.Select(coord => MapNode.Create(coord.Item1, coord.Item2, grid, true)).ToArray();
+        return new MapPath(nodes);
     }
 
+    protected abstract MapPath[] initializePaths();
+
     // Start is called before the first frame update
-    void Start() {
+    public void Start() {
         Vector3 globalPosition = gameObject.transform.position;
-        grid = new MapGrid(width, length, cellSize, globalPosition);
-        paths = InitializePaths();
-        DrawPaths();
+        grid = new MapGrid(Width, Length, CellSize, globalPosition);
+        paths = initializePaths();
+
+        drawPaths();
     }
 }
