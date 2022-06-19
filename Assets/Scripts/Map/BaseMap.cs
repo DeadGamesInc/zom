@@ -47,18 +47,14 @@ public abstract class BaseMap : MonoBehaviour {
             } else {
                 shortestRoute = path[node2Index..(node1Index + 1)].Reverse().ToArray();
             }
-
-            foreach (var node in shortestRoute) {
-                Debug.Log($"{node.x}, {node.z}");
-            }
         } else {
             MapNode[] seg1, seg2;
             if (outerMovingForward) {
                 seg1 = path[node1Index..path.Length];
-                seg2 = path[0..node2Index];
+                seg2 = path[1..(node2Index + 1)];
             } else {
                 seg1 = path[0..(node1Index + 1)].Reverse().ToArray();
-                seg2 = path[node2Index..path.Length].Reverse().ToArray();
+                seg2 = path[node2Index..].Reverse().ToArray();
             }
 
             shortestRoute = seg1.Concat(seg2).ToArray();
@@ -77,7 +73,7 @@ public abstract class BaseMap : MonoBehaviour {
                 Debug.DrawLine(
                     GetNodeWorldPosition(node),
                     GetNodeWorldPosition(nextNode),
-                    Color.red, 100f);
+                    Color.red, 1000f);
             }
         }
     }

@@ -20,7 +20,7 @@ public class MapNode : MonoBehaviour {
 
         return node;
     }
-    
+
     public void Start() {
     }
 
@@ -28,7 +28,7 @@ public class MapNode : MonoBehaviour {
         var renderer = GetComponent<Renderer>();
         renderer.material.SetColor("_Color", Color.green);
     }
-    
+
     public void OnMouseExit() {
         var renderer = GetComponent<Renderer>();
         renderer.material.SetColor("_Color", Color.white);
@@ -42,4 +42,5 @@ public class MapNode : MonoBehaviour {
 
     public override bool Equals(object? obj) => obj is MapNode other && equals(other);
     private bool equals(MapNode n) => x == n.x && z == n.z;
+    public override int GetHashCode() => (x, z).GetHashCode();
 }

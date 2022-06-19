@@ -44,7 +44,7 @@ public class Character : MonoBehaviour {
         while ((mapObject = GameObject.Find("Map")) == null) yield return null;
         map = mapObject.GetComponent<BaseMap>();
         // For testing purposes
-        setMapPosition(MapNode.Create(5, 1));
+        setMapPosition(MapNode.Create(7, 1));
     }
 
     private Vector3 setMapPosition(MapNode node) {
