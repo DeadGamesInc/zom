@@ -34,49 +34,35 @@ public abstract class BaseMap : MonoBehaviour {
         MapNode[] path = mapPath.Value.path;
         int node1Index = Array.IndexOf(path, node1);
         int node2Index = Array.IndexOf(path, node2);
-        bool movingForward = node2Index > node1Index;
-        int innerDistance = movingForward ? node2Index - node1Index : node1Index - node2Index;
-        int outerDistance = movingForward ? node1Index + path.Length - node2Index : node2Index + path.Length - node1Index;
-        
+        bool innerMovingForward = node2Index > node1Index;
+        bool outerMovingForward = node2Index < node1Index;
+        int innerDistance = innerMovingForward ? node2Index - node1Index : node1Index - node2Index;
+        int outerDistance =
+            outerMovingForward ? node2Index + path.Length - node1Index : node1Index + path.Length - node2Index;
+
         MapNode[] shortestRoute;
-        Debug.Log($"innerDistance: {innerDistance}");
-        Debug.Log($"outerDistance: {outerDistance}");
-        Debug.Log($"node1Index: {node1Index}");
-        Debug.Log($"node2Index: {node2Index}");
-        Debug.Log($"Node1: {node1.x}, {node1.z}");
-        Debug.Log($"Node2: {node2.x}, {node2.z}");
+        if (innerDistance <= outerDistance) {
+            if (innerMovingForward) {
+                shortestRoute = path[node1Index..(node2Index + 1)];
+            } else {
+                shortestRoute = path[node2Index..(node1Index + 1)].Reverse().ToArray();
+            }
 
-        
-        // if (innerDistance <= outerDistance) {
-        if (movingForward) {
-            shortestRoute = path[node1Index..(node2Index + 1)];
+            foreach (var node in shortestRoute) {
+                Debug.Log($"{node.x}, {node.z}");
+            }
         } else {
-            shortestRoute = path[node2Index..(node1Index + 1)].Reverse().ToArray();
-        }
+            MapNode[] seg1, seg2;
+            if (outerMovingForward) {
+                seg1 = path[node1Index..path.Length];
+                seg2 = path[0..node2Index];
+            } else {
+                seg1 = path[0..(node1Index + 1)].Reverse().ToArray();
+                seg2 = path[node2Index..path.Length].Reverse().ToArray();
+            }
 
-        foreach (var node in shortestRoute) {
-            Debug.Log($"{node.x}, {node.z}");
+            shortestRoute = seg1.Concat(seg2).ToArray();
         }
-        // } else {
-        //     var seg1 = new ArraySegment<MapNode>(path, 0, node1Index).Reverse();
-        //     var seg2 = new ArraySegment<MapNode>(path, node2Index, path.Length - node2Index).Reverse();
-        //     shortestRoute = seg1.Concat(seg2).ToArray();
-        // }
-        
-        
-        // int posDistance = node2Index - node1Index;
-        // int negDistance = node1Index + (path.Length - 1) - node2Index;
-        // MapNode[] shortestRoute;
-        // Debug.Log($"posDistance: {posDistance}");
-        // Debug.Log($"negDistance: {negDistance}");
-        // if (posDistance <= negDistance) {
-        //     var lastNode = new[] { node2 };
-        //     shortestRoute = new ArraySegment<MapNode>(path, node1Index, node2Index - node1Index).Concat(lastNode).ToArray();
-        // } else {
-        //     var seg1 = new ArraySegment<MapNode>(path, 0, node1Index).Reverse();
-        //     var seg2 = new ArraySegment<MapNode>(path, node2Index, path.Length - node2Index).Reverse();
-        //     shortestRoute = seg1.Concat(seg2).ToArray();
-        // }
 
         return new MapPath(shortestRoute);
     }
