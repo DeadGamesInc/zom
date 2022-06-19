@@ -9,7 +9,6 @@ public class CharacterRoute {
 
     public CharacterRoute(BaseMap map, MapNode start, MapNode end) {
         MapPath? path = map.GetShortestPathBetweenNodes(start, end);
-        Debug.Log(path.HasValue);
         if (!path.HasValue || (Path = path.Value).path.Length < 2) throw new MovementException("Path to target does not exist");
         CurrentPathIndex = 0;
         this.map = map;
