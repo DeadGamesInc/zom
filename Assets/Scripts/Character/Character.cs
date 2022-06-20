@@ -7,6 +7,7 @@ public class Character : MonoBehaviour {
     private BaseMap map;
     [SerializeField] public float MovementSpeed = 1f;
     [SerializeField] public CharacterState State;
+    [SerializeField] public GameObject Camera; 
     public MapNode MapPosition { get; private set; }
     public CharacterRoute Route { get; private set; }
 
@@ -18,7 +19,7 @@ public class Character : MonoBehaviour {
         character.MapPosition = node;
         newCharacterObject.transform.localScale = new Vector3(10, 10, 10);
         // Create Character Camera
-        CharacterCamera.Create(newCharacterObject);
+        character.Camera = CharacterCamera.Create(newCharacterObject);
 
         return newCharacterObject;
     }
@@ -51,6 +52,16 @@ public class Character : MonoBehaviour {
                 Route = null;
             }
         }
+    }
+    
+    public void OnMouseDown() {
+        var virtualCamera = Camera.GetComponent<CinemachineVirtualCamera>();
+        if (virtualCamera.Priority <= 10) {
+            virtualCamera.Priority = 11;
+        } else {
+            virtualCamera.Priority = 1;
+        }
+        
     }
 
     private IEnumerator setMap() {
