@@ -7,7 +7,8 @@ public class Character : MonoBehaviour {
     private BaseMap map;
     [SerializeField] public float MovementSpeed = 1f;
     [SerializeField] public CharacterState State;
-    [SerializeField] public GameObject Camera; 
+    [SerializeField] public GameObject Camera;
+    [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
     public MapNode MapPosition { get; private set; }
     public CharacterRoute Route { get; private set; }
 
@@ -44,8 +45,9 @@ public class Character : MonoBehaviour {
     }
 
     private void Move() {
-        transform.position = Vector3.MoveTowards(transform.position, Route.CurrentTargetWorldPos, MovementSpeed);
-        if (transform.position == Route.CurrentTargetWorldPos) {
+        Vector3 targetWorldPosWithOffset = Route.CurrentTargetWorldPos + yOffset;
+        transform.position = Vector3.MoveTowards(transform.position, targetWorldPosWithOffset, MovementSpeed);
+        if (transform.position == targetWorldPosWithOffset) {
             MapPosition = Route.CurrentTarget;
             if (!Route.NextPosition()) {
                 State = CharacterState.Idle;
@@ -73,6 +75,6 @@ public class Character : MonoBehaviour {
 
     private Vector3 setMapPosition(MapNode node) {
         MapPosition = node;
-        return transform.position = map.GetNodeWorldPosition(node);
+        return transform.position = map.GetNodeWorldPosition(node) + yOffset;
     }
 }
