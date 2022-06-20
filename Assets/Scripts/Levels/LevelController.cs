@@ -50,7 +50,7 @@ public class LevelController : MonoBehaviour {
         Setup();
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
-        Character.Create(MapNode.Create(7, 1));
+        Character.Create(MapNode.Create(8, 2));
     }
 
     // Update is called once per frame
