@@ -1,32 +1,34 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Level0Controller : LevelController {
-    // Start is called before the first frame update
-    public new void Start() {
-        base.Start();
+    protected override void Setup() {
         createMap();
+        
         foreach (var card in _gameController.AvailableCards) 
             for (var i = 1; i <= card.Quantity; i++) _deckController.DeckCards.Add(card.Card);
-    }
-
-    // Update is called once per frame
-    public new void Update() {
-        base.Update();
+        
+        _deckController.Shuffle();
+        
+        for (var i = _deckController.HandCards.Count; i < HandCardsTarget; i++) {
+            if (!_deckController.DeckCards.Any()) break;
+            DrawCard();
+        }
     }
 
     public void ClickShuffle() {
+        if (CurrentPhase != PhaseId.STRATEGIC) return;
         _deckController.Shuffle();
     }
 
     public void ClickDraw() {
-        if (!_deckController.DrawCard()) return;
-        var position = _handPosition.transform.position;
-        position.x += 1f;
-        position.y += 0.01f;
-        position.z -= 0.01f;
-        _handPosition.transform.position = position;
+        if (CurrentPhase != PhaseId.STRATEGIC) return;
+        DrawCard();
+    }
+
+    public void ClickEndTurn() {
+        if (CurrentPhase != PhaseId.STRATEGIC) return;
+        EndTurn();
     }
     
     private void createMap() {

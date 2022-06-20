@@ -15,10 +15,10 @@ public class Card : MonoBehaviour {
     [field: SerializeField] public Sprite CardPreview;
 
     private Vector3 _startPosition;
-    private GameObject _levelController;
+    private LevelController _levelController;
     
     public void Start() {
-        _levelController = GameObject.Find("LevelController");
+        _levelController = GameObject.Find("LevelController")?.GetComponent<LevelController>();
     }
 
     public void Update() {
@@ -27,29 +27,29 @@ public class Card : MonoBehaviour {
 
     public void OnMouseEnter() {
         if (_levelController == null) return;
-        _levelController.GetComponent<LevelController>().SetCardPreview(CardPreview);
+        _levelController.SetCardPreview(CardPreview);
     }
 
     public void OnMouseExit() {
         if (_levelController == null) return;
-        _levelController.GetComponent<LevelController>().SetCardPreview(null);
+        _levelController.SetCardPreview(null);
     }
 
     public void OnMouseDown() {
-        if (Camera.main == null || _levelController == null) return;
-        _levelController.GetComponent<LevelController>().SetPreviewLock(true);
+        if (Camera.main == null || _levelController == null || _levelController.CurrentPhase != PhaseId.STRATEGIC) return;
+        _levelController.SetPreviewLock(true);
         _startPosition = transform.position;
     }
 
     public void OnMouseDrag() {
-        if (Camera.main == null) return;
+        if (Camera.main == null || _levelController == null || _levelController.CurrentPhase != PhaseId.STRATEGIC) return;
         var distance = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
         transform.position = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distance));
     }
 
     public void OnMouseUp() {
-        if (_levelController == null) return;
-        _levelController.GetComponent<LevelController>().SetPreviewLock(false);
+        if (_levelController == null || _levelController.CurrentPhase != PhaseId.STRATEGIC) return;
+        _levelController.SetPreviewLock(false);
         transform.position = _startPosition;
     }
 }
