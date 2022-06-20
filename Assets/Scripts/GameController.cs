@@ -52,7 +52,7 @@ public class GameController : MonoBehaviour {
     private void InitializeCards() {
         // Normally request from the multiplayer server, or check the blockchain, for now stuff the necessary cards in
         foreach (var card in CardDatabase) {
-            var availableCard = new AvailableCard { Card = card, Quantity = 2 };
+            var availableCard = new AvailableCard { Card = card, Quantity = 4 };
             AvailableCards.Add(availableCard);
         }
     }
