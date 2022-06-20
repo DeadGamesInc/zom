@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Character : MonoBehaviour {
     private BaseMap map;
-    [SerializeField] public float MovementSpeed = 1f;
+    [SerializeField] public float MovementSpeed = 3f;
     [SerializeField] public CharacterState State;
     [SerializeField] public GameObject Camera;
     [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
@@ -31,7 +31,7 @@ public class Character : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
+    void FixedUpdate() {
         switch (State) {
             case CharacterState.InTransit:
                 Move();
@@ -63,7 +63,6 @@ public class Character : MonoBehaviour {
         } else {
             virtualCamera.Priority = 1;
         }
-        
     }
 
     private IEnumerator setMap() {

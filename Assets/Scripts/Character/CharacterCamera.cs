@@ -28,7 +28,7 @@ public class CharacterCamera : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
+    void FixedUpdate() {
         orbitalTransposer.m_Heading.m_Bias += 0.1f;
     }
 }
