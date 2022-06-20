@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
 
 public class Character : MonoBehaviour {
@@ -9,6 +10,19 @@ public class Character : MonoBehaviour {
     public MapNode MapPosition { get; private set; }
     public CharacterRoute Route { get; private set; }
 
+    public static GameObject Create(MapNode node) {
+        // Create Character
+        GameObject newCharacterObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        newCharacterObject.name = "Character"; // can remove once move logic is moved from MapNode to LevelController
+        Character character = newCharacterObject.AddComponent<Character>();
+        character.MapPosition = node;
+        newCharacterObject.transform.localScale = new Vector3(10, 10, 10);
+        // Create Character Camera
+        CharacterCamera.Create(newCharacterObject);
+
+        return newCharacterObject;
+    }
+    
     // Start is called before the first frame update
     void Start() {
         StartCoroutine(setMap());
@@ -41,10 +55,9 @@ public class Character : MonoBehaviour {
 
     private IEnumerator setMap() {
         GameObject mapObject;
-        while ((mapObject = GameObject.Find("Map")) == null) yield return null;
+        while ((mapObject = BaseMap.Get()) == null) yield return null;
         map = mapObject.GetComponent<BaseMap>();
-        // For testing purposes
-        setMapPosition(MapNode.Create(7, 1));
+        setMapPosition(MapPosition);
     }
 
     private Vector3 setMapPosition(MapNode node) {

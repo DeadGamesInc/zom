@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public abstract class BaseMap : MonoBehaviour {
@@ -12,10 +13,21 @@ public abstract class BaseMap : MonoBehaviour {
     public MapPath[] paths = Array.Empty<MapPath>();
     public MapGrid grid { get; private set; }
 
+    [CanBeNull]
+    public static GameObject? Get() {
+        GameObject map;
+
+        if ((map = GameObject.Find("Map")) == null || map.GetComponent<BaseMap>().grid == null) {
+            return null;
+        }
+
+        return map;
+    }
+
     public Vector3 GetNodeWorldPosition(MapNode node) {
         return grid.GetWorldPosition(node.x, node.z);
     }
-
+    
     // Returns MapPath containing the specified nodes or null if one does not exist
     public MapPath? GetPathByNodes(params MapNode[] nodes) {
         foreach (MapPath mapPath in paths) {

@@ -33,6 +33,8 @@ public class LevelController : MonoBehaviour {
         _handPosition = GameObject.Find("HandPosition");
         _cardPreview = GameObject.Find("CardPreview");
         if (_cardPreview != null) _cardPreview.SetActive(false);
+
+        Character.Create(MapNode.Create(7, 1));
     }
 
     // Update is called once per frame
