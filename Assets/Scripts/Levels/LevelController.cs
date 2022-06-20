@@ -46,9 +46,11 @@ public class LevelController : MonoBehaviour {
         _cardPreview = GameObject.Find("CardPreview");
         _phaseName = GameObject.Find("PhaseName")?.GetComponent<TextMeshProUGUI>();
         if (_cardPreview != null) _cardPreview.SetActive(false);
+
         Setup();
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
+        Character.Create(MapNode.Create(7, 1));
     }
 
     // Update is called once per frame
