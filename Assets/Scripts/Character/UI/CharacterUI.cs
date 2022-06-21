@@ -19,11 +19,11 @@ public class CharacterUI : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-        gameObject.transform.position = TargetCharacter.transform.position;
     }
 
     // Update is called once per frame
     void Update() {
+        gameObject.transform.position = TargetCharacter.transform.position;
         transform.rotation = Camera.transform.rotation;
     }
 }

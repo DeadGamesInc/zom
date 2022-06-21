@@ -11,6 +11,8 @@ using UnityEngine.UI;
 public class LevelController : MonoBehaviour {
     [SerializeField] public LevelId Id;
     [SerializeField] public GameObject EmptyLocation;
+    public GameObject PrimaryCamera;
+    public GameObject CharacterUI;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
     [SerializeField] public static int CameraActive = 20;
     [SerializeField] public static int CameraInActive = 0;
@@ -25,9 +27,7 @@ public class LevelController : MonoBehaviour {
     public GameObject selectedCharacter;
     public PlayerCommand currentCommand = PlayerCommand.None;
     public GameObject currentCommandSource;
-
-    public GameObject PrimaryCamera;
-    public GameObject CharacterUI;
+    
     public GameObject SelectedCard;
     public GameObject SelectedEmptyLocation;
     public GameObject SelectedLocation;
@@ -78,6 +78,7 @@ public class LevelController : MonoBehaviour {
         switch (command) {
             case PlayerCommand.MoveCharacter:
                 UnselectCharacter();
+                SetStatusText($"MOVING {source.name}");
                 currentCommand = PlayerCommand.MoveCharacter;
                 currentCommandSource = source;
                 break;
@@ -101,6 +102,7 @@ public class LevelController : MonoBehaviour {
 
         currentCommand = PlayerCommand.None;
         currentCommandSource = null;
+        SetStatusText("");
     }
 
     public void ToggleCharacter(Character character) {
@@ -115,11 +117,12 @@ public class LevelController : MonoBehaviour {
         if (selectedCharacter != null) throw new Exception("A character is already selected");
         CinemachineVirtualCamera characterCamera = character.Camera.GetComponent<CinemachineVirtualCamera>();
         CinemachineVirtualCamera primaryCamera = PrimaryCamera.GetComponent<CinemachineVirtualCamera>();
-
+        
         selectedCharacter = character.gameObject;
         characterCamera.Priority = CameraActive;
         primaryCamera.Priority = CameraInActive;
         CharacterUI.SetActive(true);
+        CharacterUI.GetComponent<CharacterUI>().TargetCharacter = character.gameObject;
     }
 
     public void UnselectCharacter() {
@@ -131,6 +134,7 @@ public class LevelController : MonoBehaviour {
         selectedCharacter = null;
         characterCamera.Priority = CameraInActive;
         primaryCamera.Priority = CameraActive;
+        CharacterUI.GetComponent<CharacterUI>().TargetCharacter = null;
         CharacterUI.SetActive(false);
     }
 
@@ -155,6 +159,7 @@ public class LevelController : MonoBehaviour {
     }
 
     public void SetStatusText(string text) {
+        if(currentCommand != PlayerCommand.None) return;
         _statusText.text = text;
     }
 
