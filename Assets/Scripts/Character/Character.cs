@@ -8,6 +8,7 @@ public class Character : MonoBehaviour {
     [SerializeField] public float MovementSpeed = 3f;
     [SerializeField] public CharacterState State;
     [SerializeField] public GameObject Camera;
+    [SerializeField] public GameObject UI;
     [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
     public MapNode MapPosition { get; private set; }
     public CharacterRoute Route { get; private set; }
@@ -21,7 +22,8 @@ public class Character : MonoBehaviour {
     
     // Start is called before the first frame update
     void Start() {
-        
+        // For testing
+        Setup(null);
     }
 
     // Update is called once per frame
@@ -51,12 +53,7 @@ public class Character : MonoBehaviour {
     }
     
     public void OnMouseDown() {
-        var virtualCamera = Camera.GetComponent<CinemachineVirtualCamera>();
-        if (virtualCamera.Priority <= 10) {
-            virtualCamera.Priority = 11;
-        } else {
-            virtualCamera.Priority = 1;
-        }
+        LevelController.Get().ToggleCharacter(this);
     }
 
     private IEnumerator setMap() {
