@@ -107,7 +107,7 @@ MonoBehaviour:
   NervosTestnetNFT: 
   CardPreview: {fileID: 21300000, guid: 12a2bef67dbf2064ebef8521d6e476e7, type: 3}
   CharacterPrefab: {fileID: 0}
-  LocationPrefab: {fileID: 7653262448485921641, guid: e055c0c1fa0b8f24c9cce4f6e02a28dc, type: 3}
+  LocationPrefab: {fileID: 6189811462899777865, guid: 85c365a1dfa954aeb88d86bf46efcd79, type: 3}
   ItemPrefab: {fileID: 0}
 --- !u!61 &-5316576325805047144
 BoxCollider2D:

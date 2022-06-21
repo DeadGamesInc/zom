@@ -4,11 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EmptyLocation : MonoBehaviour {
-    public MapNode Location;
     private LevelController _levelController;
 
-    public void Setup(MapNode location) {
-        Location = location;
+    public void Start() {
         _levelController = GameObject.Find("LevelController")?.GetComponent<LevelController>();
     }
 
