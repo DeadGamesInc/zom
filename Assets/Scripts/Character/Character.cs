@@ -23,7 +23,7 @@ public class Character : MonoBehaviour {
     // Start is called before the first frame update
     void Start() {
         // For testing
-        Setup(null);
+        // Setup(null);
     }
 
     // Update is called once per frame

@@ -23,6 +23,8 @@ public class LevelController : MonoBehaviour {
     protected DeckController _deckController;
 
     public GameObject selectedCharacter;
+    public PlayerCommand currentCommand = PlayerCommand.None;
+    public GameObject currentCommandSource;
 
     public GameObject PrimaryCamera;
     public GameObject CharacterUI;
@@ -53,12 +55,12 @@ public class LevelController : MonoBehaviour {
 
     // Start is called before the first frame update
     public void Start() {
-        // _gameController = GameObject.Find("GameController").GetComponent<GameController>();
-        // _deckController = GameObject.Find("Player").GetComponent<DeckController>();
-        // _handPosition = GameObject.Find("HandPosition");
-        // _cardPreview = GameObject.Find("CardPreview");
-        // _phaseName = GameObject.Find("PhaseName")?.GetComponent<TextMeshProUGUI>();
-        // _statusText = GameObject.Find("StatusText")?.GetComponent<TextMeshProUGUI>();
+        _gameController = GameObject.Find("GameController").GetComponent<GameController>();
+        _deckController = GameObject.Find("Player").GetComponent<DeckController>();
+        _handPosition = GameObject.Find("HandPosition");
+        _cardPreview = GameObject.Find("CardPreview");
+        _phaseName = GameObject.Find("PhaseName")?.GetComponent<TextMeshProUGUI>();
+        _statusText = GameObject.Find("StatusText")?.GetComponent<TextMeshProUGUI>();
         if (_cardPreview != null) _cardPreview.SetActive(false);
         if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
         if (CharacterUI != null) CharacterUI.SetActive(false);
@@ -70,6 +72,35 @@ public class LevelController : MonoBehaviour {
 
     // Update is called once per frame
     public void Update() {
+    }
+
+    public void StartCommand(PlayerCommand command, GameObject source) {
+        switch (command) {
+            case PlayerCommand.MoveCharacter:
+                UnselectCharacter();
+                currentCommand = PlayerCommand.MoveCharacter;
+                currentCommandSource = source;
+                break;
+        }
+    }
+
+
+    public void ExecuteCommand(PlayerCommand command, GameObject target) {
+        if (currentCommand != command) return;
+        switch (command) {
+            case PlayerCommand.MoveCharacter:
+                try {
+                    var character = currentCommandSource.GetComponent<Character>();
+                    var mapNode = target.GetComponent<MapNode>();
+                    character.MoveTowards(mapNode);
+                } catch (MovementException e) {
+                    Debug.Log(e);
+                }
+                break;
+        }
+
+        currentCommand = PlayerCommand.None;
+        currentCommandSource = null;
     }
 
     public void ToggleCharacter(Character character) {
@@ -93,9 +124,10 @@ public class LevelController : MonoBehaviour {
 
     public void UnselectCharacter() {
         if (selectedCharacter == null) throw new Exception("No characters are selected");
-        CinemachineVirtualCamera characterCamera = selectedCharacter.GetComponent<Character>().Camera.GetComponent<CinemachineVirtualCamera>();
+        CinemachineVirtualCamera characterCamera =
+            selectedCharacter.GetComponent<Character>().Camera.GetComponent<CinemachineVirtualCamera>();
         CinemachineVirtualCamera primaryCamera = PrimaryCamera.GetComponent<CinemachineVirtualCamera>();
-        
+
         selectedCharacter = null;
         characterCamera.Priority = CameraInActive;
         primaryCamera.Priority = CameraActive;

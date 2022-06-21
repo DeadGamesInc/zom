@@ -8,9 +8,14 @@ public class CharacterUI : MonoBehaviour {
     [SerializeField] public GameObject TargetCharacter;
     [SerializeField] public GameObject Camera;
 
-    // private void Awake() {
-    //     image = GetComponent<Image>();
-    // }
+    public static CharacterUI Get() {
+        GameObject characterUI = GameObject.Find("CharacterUI");
+        if (characterUI != null) {
+            return characterUI.GetComponent<CharacterUI>();
+        }
+
+        throw new Exception("CharacterUI not found in scene");
+    }
 
     // Start is called before the first frame update
     void Start() {
