@@ -2,6 +2,8 @@ using System.Linq;
 using UnityEngine;
 
 public class Level0Controller : LevelController {
+    private Map0 _mapControl;
+    
     protected override void Setup() {
         createMap();
         
@@ -13,6 +15,13 @@ public class Level0Controller : LevelController {
         for (var i = _deckController.HandCards.Count; i < HandCardsTarget; i++) {
             if (!_deckController.DeckCards.Any()) break;
             DrawCard();
+        }
+        
+        if (EmptyLocation != null) {
+            var empty1Location = MapNode.Create(7, 1);
+            var empty1 = Instantiate(EmptyLocation, new Vector3(0, 0, 0), new Quaternion());
+            empty1.GetComponent<EmptyLocation>().Setup(empty1Location);
+            empty1.transform.position = GetNodePosition(empty1Location) + yOffset;
         }
     }
 
@@ -33,6 +42,11 @@ public class Level0Controller : LevelController {
     
     private void createMap() {
         _map = new GameObject("Map");
-        _map.AddComponent<Map0>();
+        _mapControl = _map.AddComponent<Map0>();
+        _mapControl.Initialize();
+    }
+    
+    private Vector3 GetNodePosition(MapNode node) {
+        return _mapControl.GetNodeWorldPosition(MapNode.Create(node.x, node.z));
     }
 }
