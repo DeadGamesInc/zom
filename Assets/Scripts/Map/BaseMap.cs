@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public abstract class BaseMap : MonoBehaviour {
@@ -10,9 +11,11 @@ public abstract class BaseMap : MonoBehaviour {
     [SerializeField] public int Width;
     [SerializeField] public float CellSize;
 
+    protected GameObject locationSpawner;
     public MapPath[] paths = Array.Empty<MapPath>();
+    public GameObject[] locations = Array.Empty<GameObject>();
     public MapGrid grid { get; private set; }
-
+    
     [CanBeNull]
     public static GameObject? Get() {
         GameObject map;
@@ -26,6 +29,15 @@ public abstract class BaseMap : MonoBehaviour {
 
     public Vector3 GetNodeWorldPosition(MapNode node) {
         return grid.GetWorldPosition(node.x, node.z);
+    }
+
+    public MapNode? GetNode(int x, int z) {
+        foreach (MapPath mapPath in paths) {
+            MapNode node = mapPath.path.FirstOrDefault(n => n.GetHashCode() == (x, z).GetHashCode());
+            if (node) return node;
+        }
+
+        return null;
     }
     
     // Returns MapPath containing the specified nodes or null if one does not exist
@@ -96,13 +108,14 @@ public abstract class BaseMap : MonoBehaviour {
     }
 
     protected abstract MapPath[] initializePaths();
+    protected abstract IEnumerator initializeLocations();
 
     // Start is called before the first frame update
     protected void Initialize() {
         Vector3 globalPosition = gameObject.transform.position;
         grid = new MapGrid(Width, Length, CellSize, globalPosition);
         paths = initializePaths();
-
         drawPaths();
+        StartCoroutine(initializeLocations());
     }
 }

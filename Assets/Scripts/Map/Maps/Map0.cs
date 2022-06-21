@@ -1,9 +1,12 @@
+using System.Collections;
+using UnityEngine;
+
 public class Map0 : BaseMap {
     public new void Initialize() {
         // Set Map Size
-        Length = 14;
-        Width = 14;
-        CellSize = 35;
+        Length = 16;
+        Width = 16;
+        CellSize = 30;
 
         base.Initialize();
     }
@@ -11,8 +14,18 @@ public class Map0 : BaseMap {
     // Specify map paths
     protected override MapPath[] initializePaths() {
         return new MapPath[] {
-            toPath((7, 1),(9, 3), (11, 5), (13, 7), (11, 9), (9, 11), (7, 13), (5, 11), (3, 9), (1, 7), (3, 5), (5, 3), (7, 1)),
-            toPath((1, 2), (2, 3), (2, 2), (3, 2))
+            toPath((8, 2),(10, 4), (12, 6), (14, 8), (12, 10), (10, 12), (8, 14), (6, 12), (4, 10), (2, 8), (4, 6), (6, 4), (8, 2)),
+        };
+    }
+
+    protected override IEnumerator  initializeLocations() {
+        while ((locationSpawner = GameObject.Find("LocationSpawner")) == null) yield return null;
+        LocationSpawner spawner = locationSpawner.GetComponent<LocationSpawner>();
+        locations = new GameObject[] {
+            spawner.CreateGraveyard(grid, (8, 1), GetNode(8, 2)),
+            spawner.CreateEmpty(grid, (15, 8), GetNode(14, 8)),
+            spawner.CreateGraveyard(grid, (8, 15), GetNode(8, 14)),
+            spawner.CreateEmpty(grid, (1, 8), GetNode(2, 8))
         };
     }
 }

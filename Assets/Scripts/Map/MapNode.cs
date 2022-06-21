@@ -5,6 +5,7 @@ using UnityEngine;
 public class MapNode : MonoBehaviour {
     private const int SIZE = 15;
     public int x, z;
+    [SerializeField] public GameObject location;
 
     public static MapNode Create(int x, int z, MapGrid grid = null, bool draw = false) {
         GameObject newGameObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
