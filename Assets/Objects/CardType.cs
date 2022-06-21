@@ -1,5 +1,6 @@
 ﻿public enum CardType {
     CHARACTER,
     LOCATION,
-    ITEM
+    ITEM,
+    RESOURCE
 }
