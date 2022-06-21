@@ -22,8 +22,11 @@ public class LevelController : MonoBehaviour {
     protected DeckController _deckController;
 
     public GameObject selectedCharacter;
-    [SerializeField] public GameObject SelectedCard;
-    [SerializeField] public GameObject SelectedEmptyLocation;
+    
+    public GameObject SelectedCard;
+    public GameObject SelectedEmptyLocation;
+    public GameObject SelectedLocation;
+    
     protected GameObject _handPosition;
     private GameObject _cardPreview;
     private TextMeshProUGUI _phaseName;
@@ -64,6 +67,24 @@ public class LevelController : MonoBehaviour {
     public void Update() {
         
     }
+    
+    public void CreateEmpty(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
+        var locationObject = Instantiate(EmptyLocation);
+        ConfigureLocation(locationObject, grid, mapPosition, activeNode);
+    }
+    
+    public void CreateLocation(GameObject location, MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
+        var locationObject = Instantiate(location);
+        ConfigureLocation(locationObject, grid, mapPosition, activeNode);
+    }
+
+    private static void ConfigureLocation(GameObject locationObject, MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
+        var location = locationObject.GetComponent<LocationBase>();
+        location.MapPosition = mapPosition;
+        location.ActiveNode = activeNode;
+        locationObject.transform.position = grid.GetWorldPosition(mapPosition.Item1, mapPosition.Item2);
+        activeNode.location = locationObject;
+    }
 
     public void SetStatusText(string text) {
         _statusText.text = text;
@@ -87,18 +108,31 @@ public class LevelController : MonoBehaviour {
         if (SelectedCard == null) return false;
         var card = SelectedCard.GetComponent<Card>();
 
-        if (SelectedEmptyLocation != null && card.Type == CardType.CHARACTER) {
+        if (SelectedLocation != null && card.Type == CardType.CHARACTER) {
             var character = Instantiate(card.CharacterPrefab, new Vector3(0, 0, 0), new Quaternion());
-            character.GetComponent<Character>().Setup(SelectedEmptyLocation.GetComponent<EmptyLocation>().Location);
-            _deckController.DrawnCard(SelectedCard);
-            Destroy(SelectedCard);
-            ResetHandCardPositions();
-            SetCardLock(false);
-            SetCard(null, null);
+            character.GetComponent<Character>().Setup(SelectedLocation.GetComponent<LocationBase>().ActiveNode);
+            CardPlayed();
+            return true;
+        }
+
+        if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION) {
+            var map = _map.GetComponent<BaseMap>();
+            var location = SelectedEmptyLocation.GetComponent<LocationBase>();
+            CreateLocation(card.LocationPrefab, map.grid, location.MapPosition, location.ActiveNode);
+            Destroy(SelectedEmptyLocation);
+            CardPlayed();
             return true;
         }
         
         return false;
+    }
+
+    private void CardPlayed() {
+        _deckController.DrawnCard(SelectedCard);
+        Destroy(SelectedCard);
+        ResetHandCardPositions();
+        SetCardLock(false);
+        SetCard(null, null);
     }
     
     protected void DrawCard() {

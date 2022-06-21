@@ -16,13 +16,6 @@ public class Level0Controller : LevelController {
             if (!_deckController.DeckCards.Any()) break;
             DrawCard();
         }
-        
-        if (EmptyLocation != null) {
-            var empty1Location = MapNode.Create(7, 1);
-            var empty1 = Instantiate(EmptyLocation, new Vector3(0, 0, 0), new Quaternion());
-            empty1.GetComponent<EmptyLocation>().Setup(empty1Location);
-            empty1.transform.position = GetNodePosition(empty1Location) + yOffset;
-        }
     }
 
     public void ClickShuffle() {
