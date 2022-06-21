@@ -31,7 +31,8 @@ public class LevelController : MonoBehaviour {
     public GameObject SelectedCard;
     public GameObject SelectedEmptyLocation;
     public GameObject SelectedLocation;
-
+    public GameObject SelectedBrainsNode;
+    
     protected GameObject _handPosition;
     private GameObject _cardPreview;
     private TextMeshProUGUI _phaseName;
@@ -197,6 +198,14 @@ public class LevelController : MonoBehaviour {
             return true;
         }
 
+        if (SelectedBrainsNode != null && card.Type == CardType.RESOURCE) {
+            var brains = Instantiate(card.ResourcePrefab, new Vector3(0, 0, 0), new Quaternion());
+            brains.GetComponent<Brains>().Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<BaseMap>());
+            Destroy(SelectedBrainsNode);
+            CardPlayed();
+            return true;
+        }
+        
         return false;
     }
 

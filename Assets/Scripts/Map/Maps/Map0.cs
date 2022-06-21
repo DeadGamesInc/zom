@@ -25,4 +25,15 @@ public class Map0 : BaseMap {
         _levelController.CreateEmpty(grid, (8, 15), GetNode(8, 14));
         _levelController.CreateEmpty(grid, (1, 8), GetNode(2, 8));
     }
+
+    protected override void InitializeBrainsNodes() {
+        BrainsNode.Create(7, 1, grid, true);
+        BrainsNode.Create(9, 1, grid, true);
+        BrainsNode.Create(15, 7, grid, true);
+        BrainsNode.Create(15, 9, grid, true);
+        BrainsNode.Create(7, 15, grid, true);
+        BrainsNode.Create(9, 15, grid, true);
+        BrainsNode.Create(1, 7, grid, true);
+        BrainsNode.Create(1, 9, grid, true);
+    }
 }

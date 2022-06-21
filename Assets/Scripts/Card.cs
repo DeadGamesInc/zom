@@ -17,6 +17,7 @@ public class Card : MonoBehaviour {
     [SerializeField] public GameObject CharacterPrefab;
     [SerializeField] public GameObject LocationPrefab;
     [SerializeField] public GameObject ItemPrefab;
+    [SerializeField] public GameObject ResourcePrefab;
 
     private Vector3 _startPosition;
     private Vector3 _startScale;

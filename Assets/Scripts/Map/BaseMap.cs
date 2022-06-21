@@ -30,6 +30,8 @@ public abstract class BaseMap : MonoBehaviour {
         return grid.GetWorldPosition(node.x, node.z);
     }
 
+    public Vector3 GetWorldPosition(int x, int z) => grid.GetWorldPosition(x, z);
+
     public MapNode? GetNode(int x, int z) {
         foreach (MapPath mapPath in paths) {
             MapNode node = mapPath.path.FirstOrDefault(n => n.GetHashCode() == (x, z).GetHashCode());
@@ -108,6 +110,7 @@ public abstract class BaseMap : MonoBehaviour {
 
     protected abstract MapPath[] initializePaths();
     protected abstract void InitializeLocations();
+    protected abstract void InitializeBrainsNodes();
 
     // Start is called before the first frame update
     protected void Initialize() {
@@ -117,5 +120,6 @@ public abstract class BaseMap : MonoBehaviour {
         paths = initializePaths();
         drawPaths();
         InitializeLocations();
+        InitializeBrainsNodes();
     }
 }
