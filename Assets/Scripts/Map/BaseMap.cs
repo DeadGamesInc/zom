@@ -11,10 +11,11 @@ public abstract class BaseMap : MonoBehaviour {
     [SerializeField] public int Width;
     [SerializeField] public float CellSize;
 
+    protected GameObject locationSpawner;
     public MapPath[] paths = Array.Empty<MapPath>();
     public GameObject[] locations = Array.Empty<GameObject>();
     public MapGrid grid { get; private set; }
-
+    
     [CanBeNull]
     public static GameObject? Get() {
         GameObject map;
@@ -107,15 +108,14 @@ public abstract class BaseMap : MonoBehaviour {
     }
 
     protected abstract MapPath[] initializePaths();
-    protected abstract GameObject[] initializeLocations();
+    protected abstract IEnumerator initializeLocations();
 
     // Start is called before the first frame update
     public void Start() {
         Vector3 globalPosition = gameObject.transform.position;
         grid = new MapGrid(Width, Length, CellSize, globalPosition);
         paths = initializePaths();
-        locations = initializeLocations();
-
         drawPaths();
+        StartCoroutine(initializeLocations());
     }
 }
