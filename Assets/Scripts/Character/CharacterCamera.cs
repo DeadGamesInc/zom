@@ -23,7 +23,7 @@ public class CharacterCamera : MonoBehaviour {
     
     // Start is called before the first frame update
     void Start() {
-        orbitalTransposer.m_FollowOffset = new Vector3(0, 20, -50);
+        orbitalTransposer.m_FollowOffset = new Vector3(0, 20, -100);
         orbitalTransposer.m_XAxis = new AxisState(); // Disables mouse affect on camera
     }
 

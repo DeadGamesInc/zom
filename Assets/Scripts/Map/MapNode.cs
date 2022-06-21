@@ -36,9 +36,7 @@ public class MapNode : MonoBehaviour {
     }
 
     public void OnMouseDown() {
-        // This logic will move to the level controller & character will be selected before moving
-        Character character = GameObject.Find("Character").GetComponent<Character>();
-        character.MoveTowards(this);
+        LevelController.Get().ExecuteCommand(PlayerCommand.MoveCharacter, gameObject);
     }
 
     public override bool Equals(object? obj) => obj is MapNode other && equals(other);
