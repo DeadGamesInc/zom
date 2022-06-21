@@ -46,4 +46,8 @@ public class DeckController : MonoBehaviour {
         DeckCards.Remove(card);
         return true;
     }
+
+    public void DrawnCard(GameObject card) {
+        HandCards.Remove(card);
+    }
 }

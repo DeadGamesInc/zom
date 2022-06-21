@@ -4,17 +4,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Card : MonoBehaviour {
-    [field: SerializeField] public CardId Id;
-    [field: SerializeField] public string Name;
-    [field: SerializeField] public string Series;
-    [field: SerializeField] public float MaxHealth;
-    [field: SerializeField] public float Damage;
-    [field: SerializeField] public int MaxRange;
-    [field: SerializeField] public string NervosTestnetNFT;
+    [SerializeField] public CardId Id;
+    [SerializeField] public CardType Type;
+    [SerializeField] public string Name;
+    [SerializeField] public string Series;
+    [SerializeField] public float MaxHealth;
+    [SerializeField] public float Damage;
+    [SerializeField] public int MaxRange;
+    [SerializeField] public string NervosTestnetNFT;
 
-    [field: SerializeField] public Sprite CardPreview;
+    [SerializeField] public Sprite CardPreview;
+    [SerializeField] public GameObject CharacterPrefab;
+    [SerializeField] public GameObject LocationPrefab;
+    [SerializeField] public GameObject ItemPrefab;
 
     private Vector3 _startPosition;
+    private Vector3 _startScale;
     private LevelController _levelController;
     
     public void Start() {
@@ -27,18 +32,22 @@ public class Card : MonoBehaviour {
 
     public void OnMouseEnter() {
         if (_levelController == null) return;
-        _levelController.SetCardPreview(CardPreview);
+        _levelController.SetCard(CardPreview, gameObject);
     }
 
     public void OnMouseExit() {
         if (_levelController == null) return;
-        _levelController.SetCardPreview(null);
+        _levelController.SetCard(null, null);
     }
 
     public void OnMouseDown() {
         if (Camera.main == null || _levelController == null || _levelController.CurrentPhase != PhaseId.STRATEGIC) return;
-        _levelController.SetPreviewLock(true);
-        _startPosition = transform.position;
+        _levelController.SetCardLock(true);
+        var transformInfo = transform;
+        _startPosition = transformInfo.position;
+        _startScale = transformInfo.localScale;
+        var targetScale = new Vector3(_startScale.x / 3, _startScale.y / 3, _startScale.z / 3);
+        transformInfo.localScale = targetScale;
     }
 
     public void OnMouseDrag() {
@@ -49,7 +58,14 @@ public class Card : MonoBehaviour {
 
     public void OnMouseUp() {
         if (_levelController == null || _levelController.CurrentPhase != PhaseId.STRATEGIC) return;
-        _levelController.SetPreviewLock(false);
-        transform.position = _startPosition;
+        
+        if (!_levelController.TryPlayCard()) {
+            var setTransform = transform;
+            setTransform.position = _startPosition;
+            setTransform.localScale = _startScale;
+        }
+        
+        _levelController.SelectedCard = null;
+        _levelController.SetCardLock(false);
     }
 }

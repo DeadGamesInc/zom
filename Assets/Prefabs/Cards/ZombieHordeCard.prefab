@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 7655786072300294462}
   - component: {fileID: 4339482319966458754}
   - component: {fileID: 5724887725960839719}
-  - component: {fileID: 8309122798008289593}
+  - component: {fileID: 4468954650662836187}
   m_Layer: 0
   m_Name: ZombieHordeCard
-  m_TagString: Untagged
+  m_TagString: Card
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -105,17 +105,32 @@ MonoBehaviour:
   MaxRange: 0
   NervosTestnetNFT: 
   CardPreview: {fileID: 21300000, guid: 4e990215041b35b4cbffac0e2194b1ac, type: 3}
---- !u!64 &8309122798008289593
-MeshCollider:
+  CharacterPrefab: {fileID: 8518191389144219464, guid: d406ac5c828c6924fa7720240c65a24f, type: 3}
+  LocationPrefab: {fileID: 0}
+  ItemPrefab: {fileID: 0}
+--- !u!61 &4468954650662836187
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5037722887278209772}
+  m_Enabled: 1
+  m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 0.99999994}
+  m_EdgeRadius: 0

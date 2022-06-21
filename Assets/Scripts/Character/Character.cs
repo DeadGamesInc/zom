@@ -12,22 +12,16 @@ public class Character : MonoBehaviour {
     public MapNode MapPosition { get; private set; }
     public CharacterRoute Route { get; private set; }
 
-    public static GameObject Create(MapNode node) {
-        // Create Character
-        GameObject newCharacterObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        newCharacterObject.name = "Character"; // can remove once move logic is moved from MapNode to LevelController
-        Character character = newCharacterObject.AddComponent<Character>();
-        character.MapPosition = node;
-        newCharacterObject.transform.localScale = new Vector3(10, 10, 10);
-        // Create Character Camera
-        character.Camera = CharacterCamera.Create(newCharacterObject);
-
-        return newCharacterObject;
+    public void Setup(MapNode node) {
+        MapPosition = node;
+        transform.localScale = new Vector3(20, 20, 20);
+        Camera = CharacterCamera.Create(gameObject);
+        StartCoroutine(setMap());
     }
     
     // Start is called before the first frame update
     void Start() {
-        StartCoroutine(setMap());
+        
     }
 
     // Update is called once per frame

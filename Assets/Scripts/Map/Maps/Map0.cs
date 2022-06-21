@@ -1,12 +1,11 @@
 public class Map0 : BaseMap {
-    public new void Start() {
+    public new void Initialize() {
         // Set Map Size
         Length = 14;
         Width = 14;
         CellSize = 35;
 
-        // Run BaseMap Start()
-        base.Start();
+        base.Initialize();
     }
 
     // Specify map paths

@@ -10,7 +10,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class LevelController : MonoBehaviour {
-    [field: SerializeField] public LevelId Id;
+    [SerializeField] public LevelId Id;
+    [SerializeField] public GameObject EmptyLocation;
+    [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
 
     public PhaseId CurrentPhase;
 
@@ -20,12 +22,16 @@ public class LevelController : MonoBehaviour {
     protected DeckController _deckController;
 
     public GameObject selectedCharacter;
+    [SerializeField] public GameObject SelectedCard;
+    [SerializeField] public GameObject SelectedEmptyLocation;
     protected GameObject _handPosition;
     private GameObject _cardPreview;
     private TextMeshProUGUI _phaseName;
+    private TextMeshProUGUI _statusText;
     protected GameObject _map;
+    private Vector3 _initialHandPosition;
     
-    private bool _lockPreview;
+    private bool _lockCard;
     
     protected virtual void Setup() { }
 
@@ -45,12 +51,13 @@ public class LevelController : MonoBehaviour {
         _handPosition = GameObject.Find("HandPosition");
         _cardPreview = GameObject.Find("CardPreview");
         _phaseName = GameObject.Find("PhaseName")?.GetComponent<TextMeshProUGUI>();
+        _statusText = GameObject.Find("StatusText")?.GetComponent<TextMeshProUGUI>();
         if (_cardPreview != null) _cardPreview.SetActive(false);
+        if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
 
         Setup();
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
-        Character.Create(MapNode.Create(7, 1));
     }
 
     // Update is called once per frame
@@ -58,19 +65,57 @@ public class LevelController : MonoBehaviour {
         
     }
 
-    public void SetPreviewLock(bool locked) {
-        _lockPreview = locked;
+    public void SetStatusText(string text) {
+        _statusText.text = text;
     }
 
-    public void SetCardPreview(Sprite sprite) {
-        if (_cardPreview == null || _lockPreview) return;
-        var image = _cardPreview.GetComponent<Image>();
-        image.sprite = sprite;
-        _cardPreview.SetActive(sprite != null);
+    public void SetCardLock(bool locked) {
+        _lockCard = locked;
     }
 
+    public void SetCard(Sprite sprite, GameObject card) {
+        if (_lockCard) return;
+        SelectedCard = card;
+        if (_cardPreview != null) {
+            var image = _cardPreview.GetComponent<Image>();
+            image.sprite = sprite;
+            _cardPreview.SetActive(sprite != null);
+        }
+    }
+
+    public bool TryPlayCard() {
+        if (SelectedCard == null) return false;
+        var card = SelectedCard.GetComponent<Card>();
+
+        if (SelectedEmptyLocation != null && card.Type == CardType.CHARACTER) {
+            var character = Instantiate(card.CharacterPrefab, new Vector3(0, 0, 0), new Quaternion());
+            character.GetComponent<Character>().Setup(SelectedEmptyLocation.GetComponent<EmptyLocation>().Location);
+            _deckController.DrawnCard(SelectedCard);
+            Destroy(SelectedCard);
+            ResetHandCardPositions();
+            SetCardLock(false);
+            SetCard(null, null);
+            return true;
+        }
+        
+        return false;
+    }
+    
     protected void DrawCard() {
         if (!_deckController.DrawCard()) return;
+        UpdateHandPosition();
+    }
+
+    private void ResetHandCardPositions() {
+        if (!_deckController.HandCards.Any()) return;
+        _handPosition.transform.position = _initialHandPosition;
+        foreach (var card in _deckController.HandCards) {
+            card.transform.position = _handPosition.transform.position;
+            UpdateHandPosition();
+        }
+    }
+
+    private void UpdateHandPosition() {
         var position = _handPosition.transform.position;
         position.x += 1f;
         position.y += 0.01f;

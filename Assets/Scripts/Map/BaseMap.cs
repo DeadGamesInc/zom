@@ -98,7 +98,7 @@ public abstract class BaseMap : MonoBehaviour {
     protected abstract MapPath[] initializePaths();
 
     // Start is called before the first frame update
-    public void Start() {
+    protected void Initialize() {
         Vector3 globalPosition = gameObject.transform.position;
         grid = new MapGrid(Width, Length, CellSize, globalPosition);
         paths = initializePaths();
