@@ -1895,7 +1895,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 2.0971732, y: 1}
+    m_SensorSize: {x: 1.849711, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -2875,8 +2875,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 43.390625}
-  m_SizeDelta: {x: 200, y: 86.7812}
+  m_AnchoredPosition: {x: -0.34459686, y: 46.784393}
+  m_SizeDelta: {x: 188.9881, y: 85.7889}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1662950787
 MonoBehaviour:
@@ -3620,8 +3620,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 40.732788}
-  m_SizeDelta: {x: 200, y: 81.4656}
+  m_AnchoredPosition: {x: 0.41950226, y: 43.412903}
+  m_SizeDelta: {x: 187.5342, y: 76.1053}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1833011564
 MonoBehaviour:

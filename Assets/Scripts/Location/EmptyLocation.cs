@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EmptyLocation : MonoBehaviour {
+public class EmptyLocation : LocationBase {
     private LevelController _levelController;
 
     public void Start() {
