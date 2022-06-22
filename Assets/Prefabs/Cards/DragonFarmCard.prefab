@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 5
   Type: 0
+  BrainsValue: 4
   Name: Dragon Farm
   Series: RugZombie
   MaxHealth: 0
@@ -109,6 +110,8 @@ MonoBehaviour:
   CharacterPrefab: {fileID: 452789242873338610, guid: f0dadddb970c8cd429c253f6b3f5c65d, type: 3}
   LocationPrefab: {fileID: 0}
   ItemPrefab: {fileID: 0}
+  ResourcePrefab: {fileID: 0}
+  StartScale: {x: 0, y: 0, z: 0}
 --- !u!61 &8492309436726840734
 BoxCollider2D:
   m_ObjectHideFlags: 0

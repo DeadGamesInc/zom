@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 3
   Type: 0
+  BrainsValue: 2
   Name: Slow Zombie
   Series: RugZombie
   MaxHealth: 0
@@ -109,6 +110,8 @@ MonoBehaviour:
   CharacterPrefab: {fileID: 8345261161078099225, guid: 21fd837c4288db34880d6bbe424d688e, type: 3}
   LocationPrefab: {fileID: 0}
   ItemPrefab: {fileID: 0}
+  ResourcePrefab: {fileID: 0}
+  StartScale: {x: 0, y: 0, z: 0}
 --- !u!61 &7818649051601721902
 BoxCollider2D:
   m_ObjectHideFlags: 0
