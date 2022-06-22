@@ -50,6 +50,8 @@ MonoBehaviour:
   MovementSpeed: 3
   State: 0
   Camera: {fileID: 0}
+  UI: {fileID: 0}
+  InfoCard: {fileID: 21300000, guid: 223038262c4bfa945a573daadcded859, type: 3}
 --- !u!33 &8345261161078099220
 MeshFilter:
   m_ObjectHideFlags: 0

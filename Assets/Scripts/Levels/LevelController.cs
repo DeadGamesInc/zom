@@ -48,6 +48,7 @@ public class LevelController : MonoBehaviour {
 
     protected GameObject _handPosition;
     private GameObject _cardPreview;
+    private GameObject _infoWindow;
     private GameObject _waitText;
     private TextMeshProUGUI _phaseName;
     private TextMeshProUGUI _statusText;
@@ -80,6 +81,7 @@ public class LevelController : MonoBehaviour {
         _roundTimerBarScript = _roundTimerBar.GetComponent<ProgressBar>();
         _enemyHealthBar = GameObject.Find("EnemyHealthBar")?.GetComponent<ProgressBar>();
         _waitText = GameObject.Find("WaitText");
+        _infoWindow = GameObject.Find("InfoWindow");
 
         if (_cardPreview != null) _cardPreview.SetActive(false);
         if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
@@ -88,6 +90,7 @@ public class LevelController : MonoBehaviour {
         if (_roundTimerBar != null) _roundTimerBar.SetActive(false);
         if (_roundTimerBarScript != null) _roundTimerBarScript.Maximum = StrategicPhaseLength;
         if (_waitText != null) _waitText.SetActive(false);
+        if (_infoWindow != null) _infoWindow.SetActive(false);
 
         if (_enemyHealthBar != null) {
             _enemyHealthBar.Maximum = PlayerMaxHealth;
@@ -234,6 +237,15 @@ public class LevelController : MonoBehaviour {
             var image = _cardPreview.GetComponent<Image>();
             image.sprite = sprite;
             _cardPreview.SetActive(sprite != null);
+        }
+    }
+
+    public void SetInfoWindow(Sprite sprite) {
+        if (_lockCard) return;
+        if (_infoWindow != null) {
+            var image = _infoWindow.GetComponent<Image>();
+            image.sprite = sprite;
+            _infoWindow.SetActive(sprite != null);
         }
     }
 
