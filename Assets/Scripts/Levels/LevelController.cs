@@ -3,23 +3,34 @@ using System.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 
 using TMPro;
 
 using UnityEngine;
 using UnityEngine.UI;
 
+using Timer = System.Timers.Timer;
+
 public class LevelController : MonoBehaviour {
     [SerializeField] public LevelId Id;
     [SerializeField] public GameObject EmptyLocation;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
-
+    
     public PhaseId CurrentPhase;
 
-    public int HandCardsTarget = 5;
+    [SerializeField] public int HandCardsTarget = 5;
+    [SerializeField] public int PlayerMaxHealth = 20;
+    [SerializeField] public int StrategicPhaseLength = 90;
+    [SerializeField] public Transform DiscardPosition;
     
     protected GameController _gameController;
     protected DeckController _deckController;
+    protected GameObject _roundTimerBar;
+    protected ProgressBar _roundTimerBarScript;
+    protected Player _player;
+
+    private DateTime _roundEnd;
 
     public GameObject selectedCharacter;
     
@@ -34,6 +45,7 @@ public class LevelController : MonoBehaviour {
     private TextMeshProUGUI _statusText;
     protected GameObject _map;
     private Vector3 _initialHandPosition;
+    private ProgressBar _enemyHealthBar;
     
     private bool _lockCard;
     
@@ -56,17 +68,41 @@ public class LevelController : MonoBehaviour {
         _cardPreview = GameObject.Find("CardPreview");
         _phaseName = GameObject.Find("PhaseName")?.GetComponent<TextMeshProUGUI>();
         _statusText = GameObject.Find("StatusText")?.GetComponent<TextMeshProUGUI>();
+        _player = GameObject.Find("Player")?.GetComponent<Player>();
+        _roundTimerBar = GameObject.Find("RoundTimer");
+        _roundTimerBarScript = _roundTimerBar.GetComponent<ProgressBar>();
+        _enemyHealthBar = GameObject.Find("EnemyHealthBar")?.GetComponent<ProgressBar>();
+        
         if (_cardPreview != null) _cardPreview.SetActive(false);
         if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
+        if (_player != null) _player.SetMaxHealth(PlayerMaxHealth);
+        if (_roundTimerBar != null) _roundTimerBar.SetActive(false);
+        if (_roundTimerBarScript != null) _roundTimerBarScript.Maximum = StrategicPhaseLength;
 
+        if (_enemyHealthBar != null) {
+            _enemyHealthBar.Maximum = PlayerMaxHealth;
+            _enemyHealthBar.Set(PlayerMaxHealth);
+        }
+        
         Setup();
+        
+        if (_deckController != null) _deckController.PlaceDeckCards();
+        
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
     }
 
-    // Update is called once per frame
-    public void Update() {
-        
+    public void FixedUpdate() {
+        if (CurrentPhase == PhaseId.STRATEGIC) {
+            if (DateTime.Now > _roundEnd) {
+                print("ROUND TIMER EXPIRED");
+                EndTurn();
+            }
+            else {
+                var left = (_roundEnd - DateTime.Now).TotalSeconds;
+                _roundTimerBarScript.Set((int) left);
+            }
+        }
     }
     
     public void CreateEmpty(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
@@ -137,8 +173,16 @@ public class LevelController : MonoBehaviour {
     }
 
     private void CardPlayed() {
-        _deckController.DrawnCard(SelectedCard);
-        Destroy(SelectedCard);
+        _deckController.PlayedCard(SelectedCard);
+        var script = SelectedCard.GetComponent<Card>();
+        var boxCollider = SelectedCard.GetComponent<BoxCollider2D>();
+        var position = DiscardPosition.position;
+        boxCollider.enabled = false;
+        SelectedCard.transform.position = DiscardPosition.position;
+        SelectedCard.transform.localScale = script.StartScale;
+        position.y += 0.03f;
+        position.z -= 0.03f;
+        DiscardPosition.position = position;
         ResetHandCardPositions();
         SetCardLock(false);
         SetCard(null, null);
@@ -167,6 +211,7 @@ public class LevelController : MonoBehaviour {
     }
 
     protected void EndTurn() {
+        _roundTimerBar.SetActive(false);
         CurrentPhase = PhaseId.DEFENCE;
         HandlePhase();
     }
@@ -180,6 +225,8 @@ public class LevelController : MonoBehaviour {
             
             case PhaseId.STRATEGIC:
                 if (_phaseName != null) _phaseName.text = "STRATEGIC PHASE";
+                _roundTimerBar.SetActive(true);
+                _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
                 break;
             
             case PhaseId.DEFENCE:

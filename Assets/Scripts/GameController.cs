@@ -8,8 +8,9 @@ using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour {
     public static GameController Instance;
     
-    [field: SerializeField] public GameObject Player;
-    [field: SerializeField] public List<GameObject> CardDatabase = new();
+    [SerializeField] public GameObject Player;
+    [SerializeField] public Player PlayerScript;
+    [SerializeField] public List<GameObject> CardDatabase = new();
     public List<AvailableCard> AvailableCards = new();
 
     public void Start() {
@@ -21,6 +22,7 @@ public class GameController : MonoBehaviour {
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        PlayerScript = Player.GetComponent<Player>();
         SceneManager.activeSceneChanged += HandleSceneChanged;
         
         StartCoroutine(Initialize());
@@ -58,6 +60,9 @@ public class GameController : MonoBehaviour {
     }
 
     private void HandleSceneChanged(Scene current, Scene next) {
-        Player.GetComponent<DeckController>().HandPosition = GameObject.Find("HandPosition")?.transform;
+        var deckController = Player.GetComponent<DeckController>();
+        deckController.HandPosition = GameObject.Find("HandPosition")?.transform;
+        deckController.DeckPosition = GameObject.Find("DeckPosition")?.transform;
+        PlayerScript.HealthBar = GameObject.Find("HealthBar")?.GetComponentInChildren<ProgressBar>();
     }
 }

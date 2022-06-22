@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
+    [SerializeField] public int MaxHealth;
+    [SerializeField] public int Health;
+
+    public ProgressBar HealthBar;
+
     private static Player Instance;
     
     // Start is called before the first frame update
@@ -14,6 +19,13 @@ public class Player : MonoBehaviour {
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    public void SetMaxHealth(int health) {
+        MaxHealth = health;
+        Health = health;
+        HealthBar.Maximum = health;
+        HealthBar.Set(health);
     }
 
     // Update is called once per frame
