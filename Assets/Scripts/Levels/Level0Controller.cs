@@ -1,10 +1,12 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 public class Level0Controller : LevelController {
     private Map0 _mapControl;
     
     protected override void Setup() {
+        LocalTurn = true;
         createMap();
         
         foreach (var card in _gameController.AvailableCards) 
@@ -29,8 +31,8 @@ public class Level0Controller : LevelController {
     }
 
     public void ClickEndTurn() {
-        if (CurrentPhase != PhaseId.STRATEGIC) return;
-        EndTurn();
+        if ((CurrentPhase == PhaseId.STRATEGIC && LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && !LocalTurn)) 
+            EndTurn();
     }
     
     private void createMap() {
