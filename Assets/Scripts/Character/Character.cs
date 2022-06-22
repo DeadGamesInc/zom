@@ -58,11 +58,11 @@ public class Character : MonoBehaviour {
     }
     
     public void OnMouseEnter() {
-        LevelController.Get().SetInfoWindow(InfoCard);
+        LevelController.Get().SetInfoWindow(InfoCard, "");
     }
 
     public void OnMouseExit() {
-        LevelController.Get().SetInfoWindow(null);
+        LevelController.Get().SetInfoWindow(null, "");
     }
 
     private IEnumerator setMap() {

@@ -19,7 +19,8 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
     [SerializeField] public static int CameraActive = 20;
     [SerializeField] public static int CameraInActive = 0;
-
+    [SerializeField] public int BrainsAmount;
+    
     public PhaseId CurrentPhase;
     public bool LocalTurn;
 
@@ -56,6 +57,8 @@ public class LevelController : MonoBehaviour {
     private Vector3 _initialHandPosition;
     private ProgressBar _enemyHealthBar;
     private bool _lockCard;
+    private List<GameObject> _brainLocations = new();
+    [SerializeField] public TextMeshProUGUI BrainsCounterText;
 
     protected virtual void Setup() {}
 
@@ -103,6 +106,18 @@ public class LevelController : MonoBehaviour {
 
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
+    }
+
+    public void AddBrains(int amount) {
+        BrainsAmount += amount;
+        BrainsCounterText.text = BrainsAmount.ToString();
+    }
+
+    public bool SubtractBrains(int amount) {
+        if (amount > BrainsAmount) return false;
+        BrainsAmount -= amount;
+        BrainsCounterText.text = BrainsAmount.ToString();
+        return true;
     }
 
     public void StartCommand(PlayerCommand command, GameObject source) {
@@ -240,11 +255,12 @@ public class LevelController : MonoBehaviour {
         }
     }
 
-    public void SetInfoWindow(Sprite sprite) {
+    public void SetInfoWindow(Sprite sprite, string text) {
         if (_lockCard) return;
         if (_infoWindow != null) {
             var image = _infoWindow.GetComponent<Image>();
             image.sprite = sprite;
+            _infoWindow.GetComponentInChildren<TextMeshProUGUI>().text = text;
             _infoWindow.SetActive(sprite != null);
         }
     }
@@ -286,8 +302,8 @@ public class LevelController : MonoBehaviour {
 
         if (SelectedBrainsNode != null && card.Type == CardType.RESOURCE) {
             var brains = Instantiate(card.ResourcePrefab, new Vector3(0, 0, 0), new Quaternion());
-            brains.GetComponent<Brains>()
-                .Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<BaseMap>());
+            brains.GetComponent<Brains>().Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<BaseMap>(), card.BrainsValue);
+            _brainLocations.Add(brains);
             Destroy(SelectedBrainsNode);
             CardPlayed();
             return true;
@@ -430,6 +446,12 @@ public class LevelController : MonoBehaviour {
     }
 
     private IEnumerator HandleEndTurn() {
+        if (LocalTurn) {
+            foreach (var brain in _brainLocations) brain.GetComponent<Brains>().UpdateBrains();
+        }
+
+        SubtractBrains(BrainsAmount);
+
         yield return Wait();
 
         LocalTurn = !LocalTurn;
