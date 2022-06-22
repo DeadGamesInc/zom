@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Cinemachine;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
 
 public class LevelController : MonoBehaviour {
@@ -19,6 +20,7 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public static int CameraInActive = 0;
 
     public PhaseId CurrentPhase;
+    public bool LocalTurn;
 
     [SerializeField] public int HandCardsTarget = 5;
     [SerializeField] public int PlayerMaxHealth = 20;
@@ -45,6 +47,7 @@ public class LevelController : MonoBehaviour {
 
     protected GameObject _handPosition;
     private GameObject _cardPreview;
+    private GameObject _waitText;
     private TextMeshProUGUI _phaseName;
     private TextMeshProUGUI _statusText;
     protected GameObject _map;
@@ -52,8 +55,7 @@ public class LevelController : MonoBehaviour {
     private ProgressBar _enemyHealthBar;
     private bool _lockCard;
 
-    protected virtual void Setup() {
-    }
+    protected virtual void Setup() {}
 
     public static LevelController Get() {
         GameObject levelController = GameObject.Find("LevelController");
@@ -76,6 +78,7 @@ public class LevelController : MonoBehaviour {
         _roundTimerBar = GameObject.Find("RoundTimer");
         _roundTimerBarScript = _roundTimerBar.GetComponent<ProgressBar>();
         _enemyHealthBar = GameObject.Find("EnemyHealthBar")?.GetComponent<ProgressBar>();
+        _waitText = GameObject.Find("WaitText");
 
         if (_cardPreview != null) _cardPreview.SetActive(false);
         if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
@@ -83,6 +86,7 @@ public class LevelController : MonoBehaviour {
         if (_player != null) _player.SetMaxHealth(PlayerMaxHealth);
         if (_roundTimerBar != null) _roundTimerBar.SetActive(false);
         if (_roundTimerBarScript != null) _roundTimerBarScript.Maximum = StrategicPhaseLength;
+        if (_waitText != null) _waitText.SetActive(false);
 
         if (_enemyHealthBar != null) {
             _enemyHealthBar.Maximum = PlayerMaxHealth;
@@ -164,7 +168,7 @@ public class LevelController : MonoBehaviour {
     }
 
     public void FixedUpdate() {
-        if (CurrentPhase == PhaseId.STRATEGIC) {
+        if ((CurrentPhase == PhaseId.STRATEGIC && LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && !LocalTurn)) {
             if (DateTime.Now > _roundEnd) {
                 print("ROUND TIMER EXPIRED");
                 EndTurn();
@@ -299,11 +303,16 @@ public class LevelController : MonoBehaviour {
 
     protected void EndTurn() {
         _roundTimerBar.SetActive(false);
-        CurrentPhase = PhaseId.DEFENCE;
+        
+        if (CurrentPhase == PhaseId.STRATEGIC) CurrentPhase = PhaseId.DEFENCE;
+        else if (CurrentPhase == PhaseId.DEFENCE) CurrentPhase = PhaseId.BATTLE;
+        
         HandlePhase();
     }
 
     private void HandlePhase() {
+        if (_waitText != null) _waitText.SetActive(false);
+        
         switch (CurrentPhase) {
             case PhaseId.SPAWN:
                 if (_phaseName != null) _phaseName.text = "SPAWN PHASE";
@@ -312,13 +321,29 @@ public class LevelController : MonoBehaviour {
 
             case PhaseId.STRATEGIC:
                 if (_phaseName != null) _phaseName.text = "STRATEGIC PHASE";
-                _roundTimerBar.SetActive(true);
-                _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
+                
+                if (LocalTurn) {
+                    _roundTimerBar.SetActive(true);
+                    _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);                    
+                }
+                else {
+                    if (_waitText != null) _waitText.SetActive(true);
+                    StartCoroutine(HandleStrategicPhase()); // Generally this is where the AI / remote player would be playing
+                }
+                
                 break;
 
             case PhaseId.DEFENCE:
                 if (_phaseName != null) _phaseName.text = "DEFENSE PHASE";
-                StartCoroutine(HandleDefense()); // Generally this is where the AI / remote player would be playing
+
+                if (!LocalTurn) {
+                    _roundTimerBar.SetActive(true);
+                    _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
+                }
+                else {
+                    if (_waitText != null) _waitText.SetActive(true);
+                    StartCoroutine(HandleDefense()); // Generally this is where the AI / remote player would be playing
+                }
                 break;
 
             case PhaseId.BATTLE:
@@ -345,6 +370,13 @@ public class LevelController : MonoBehaviour {
         HandlePhase();
     }
 
+    private IEnumerator HandleStrategicPhase() {
+        yield return Wait();
+
+        CurrentPhase = PhaseId.DEFENCE;
+        HandlePhase();
+    }
+
     private IEnumerator HandleBattlePhase() {
         yield return Wait();
 
@@ -367,6 +399,7 @@ public class LevelController : MonoBehaviour {
     private IEnumerator HandleEndTurn() {
         yield return Wait();
 
+        LocalTurn = !LocalTurn;
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
     }
