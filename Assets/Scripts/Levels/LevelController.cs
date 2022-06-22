@@ -13,6 +13,7 @@ using UnityEngine.UI;
 public class LevelController : MonoBehaviour {
     [SerializeField] public LevelId Id;
     [SerializeField] public GameObject EmptyLocation;
+    [SerializeField] public GameObject BasicLocation;
     public GameObject PrimaryCamera;
     public GameObject CharacterUI;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
@@ -193,9 +194,14 @@ public class LevelController : MonoBehaviour {
     }
 
 
-    public void CreateEmpty(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
+    public void CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
         var locationObject = Instantiate(EmptyLocation);
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
+    }
+
+    public void CreateBasicLocation(MapGrid grid, (int, int) position, MapNode activeNode) {
+        var locationObject = Instantiate(BasicLocation);
+        ConfigureLocation(locationObject, grid, position, activeNode);
     }
 
     public void CreateLocation(GameObject location, MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
@@ -234,10 +240,25 @@ public class LevelController : MonoBehaviour {
     public bool TryPlayCard() {
         if (SelectedCard == null) return false;
         var card = SelectedCard.GetComponent<Card>();
+        var basicLocation = false;
+        
+        if (SelectedLocation != null) {
+            var script = SelectedLocation.GetComponent<LocationControl>();
+            basicLocation = script.BasicLocation;
+        }
 
         if (SelectedLocation != null && card.Type == CardType.CHARACTER) {
             var character = Instantiate(card.CharacterPrefab, new Vector3(0, 0, 0), new Quaternion());
             character.GetComponent<Character>().Setup(SelectedLocation.GetComponent<LocationBase>().ActiveNode);
+            CardPlayed();
+            return true;
+        }
+
+        if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation) {
+            var map = _map.GetComponent<BaseMap>();
+            var location = SelectedLocation.GetComponent<LocationBase>();
+            CreateLocation(card.LocationPrefab, map.grid, location.MapPosition, location.ActiveNode);
+            Destroy(SelectedLocation);
             CardPlayed();
             return true;
         }

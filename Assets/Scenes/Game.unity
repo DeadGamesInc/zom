@@ -3703,6 +3703,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 0
   EmptyLocation: {fileID: 6189811462899777865, guid: 467ae5c6680434965a8b3233a0d7e005, type: 3}
+  BasicLocation: {fileID: 5034779662152398573, guid: a61ce19e4ab5c6c4a86ea987cddb3052, type: 3}
   PrimaryCamera: {fileID: 994091969}
   CharacterUI: {fileID: 1707800303}
   CurrentPhase: 0
