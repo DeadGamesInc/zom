@@ -20,7 +20,7 @@ public class Card : MonoBehaviour {
     [SerializeField] public GameObject ResourcePrefab;
 
     private Vector3 _startPosition;
-    private Vector3 _startScale;
+    public Vector3 StartScale;
     private LevelController _levelController;
     
     public void Start() {
@@ -46,8 +46,8 @@ public class Card : MonoBehaviour {
         _levelController.SetCardLock(true);
         var transformInfo = transform;
         _startPosition = transformInfo.position;
-        _startScale = transformInfo.localScale;
-        var targetScale = new Vector3(_startScale.x / 3, _startScale.y / 3, _startScale.z / 3);
+        StartScale = transformInfo.localScale;
+        var targetScale = new Vector3(StartScale.x / 3, StartScale.y / 3, StartScale.z / 3);
         transformInfo.localScale = targetScale;
     }
 
@@ -63,7 +63,7 @@ public class Card : MonoBehaviour {
         if (!_levelController.TryPlayCard()) {
             var setTransform = transform;
             setTransform.position = _startPosition;
-            setTransform.localScale = _startScale;
+            setTransform.localScale = StartScale;
         }
         
         _levelController.SelectedCard = null;

@@ -35,6 +35,7 @@ public class Level0Controller : LevelController {
     
     private void createMap() {
         _map = new GameObject("Map");
+        _map.transform.position = new Vector3(0, 75, 0);
         _mapControl = _map.AddComponent<Map0>();
         _mapControl.Initialize();
     }
