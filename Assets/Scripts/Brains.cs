@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Brains : MonoBehaviour {
+    [SerializeField] public Sprite InfoCard;
     public static Vector3 yOffset = new(0f, 5f, 0f);
     
     private LevelController _levelController;
@@ -15,9 +16,11 @@ public class Brains : MonoBehaviour {
     
     public void OnMouseEnter() {
         _levelController.SetStatusText("BRAINS");
+        _levelController.SetInfoWindow(InfoCard);
     }
 
     public void OnMouseExit() {
         _levelController.SetStatusText("");
+        _levelController.SetInfoWindow(null);
     }
 }

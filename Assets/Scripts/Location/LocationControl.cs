@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class LocationControl : MonoBehaviour {
     [SerializeField] public bool BasicLocation;
+    [SerializeField] public Sprite InfoCard;
     private LevelController _levelController;
 
     public void Start() {
@@ -15,11 +16,13 @@ public class LocationControl : MonoBehaviour {
         var basic = BasicLocation ? "BASIC " : "";
         _levelController.SetStatusText($"{basic}LOCATION SELECTED");
         _levelController.SelectedLocation = gameObject;
+        _levelController.SetInfoWindow(InfoCard);
     }
 
     public void OnMouseExit() {
         if (_levelController == null) return;
         _levelController.SetStatusText("");
         _levelController.SelectedLocation = null;
+        _levelController.SetInfoWindow(null);
     }
 }

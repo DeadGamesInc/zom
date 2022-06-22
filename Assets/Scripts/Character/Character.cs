@@ -10,6 +10,7 @@ public class Character : MonoBehaviour {
     [SerializeField] public GameObject Camera;
     [SerializeField] public GameObject UI;
     [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
+    [SerializeField] public Sprite InfoCard;
     public MapNode MapPosition { get; private set; }
     public CharacterRoute Route { get; private set; }
 
@@ -54,6 +55,14 @@ public class Character : MonoBehaviour {
     
     public void OnMouseDown() {
         LevelController.Get().ToggleCharacter(this);
+    }
+    
+    public void OnMouseEnter() {
+        LevelController.Get().SetInfoWindow(InfoCard);
+    }
+
+    public void OnMouseExit() {
+        LevelController.Get().SetInfoWindow(null);
     }
 
     private IEnumerator setMap() {

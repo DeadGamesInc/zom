@@ -127,3 +127,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BasicLocation: 1
+  InfoCard: {fileID: 21300000, guid: 719655b5ac1a04549afe069558348ff2, type: 3}
