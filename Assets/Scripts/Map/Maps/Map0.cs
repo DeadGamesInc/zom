@@ -20,10 +20,10 @@ public class Map0 : BaseMap {
 
     protected override void InitializeLocations() {
         if (_levelController == null) return;
-        _levelController.CreateEmpty(grid, (8, 1), GetNode(8, 2));
-        _levelController.CreateEmpty(grid, (15, 8), GetNode(14, 8));
-        _levelController.CreateEmpty(grid, (8, 15), GetNode(8, 14));
-        _levelController.CreateEmpty(grid, (1, 8), GetNode(2, 8));
+        _levelController.CreateBasicLocation(grid, (8, 1), GetNode(8, 2));
+        _levelController.CreateEmptyLocation(grid, (15, 8), GetNode(14, 8));
+        _levelController.CreateBasicLocation(grid, (8, 15), GetNode(8, 14));
+        _levelController.CreateEmptyLocation(grid, (1, 8), GetNode(2, 8));
     }
 
     protected override void InitializeBrainsNodes() {
