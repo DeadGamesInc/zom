@@ -2,27 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LocationControl : MonoBehaviour {
+public class LocationControl : LocationBase {
     [SerializeField] public bool BasicLocation;
     [SerializeField] public Sprite InfoCard;
-    private LevelController _levelController;
-
-    public void Start() {
-        _levelController = GameObject.Find("LevelController")?.GetComponent<LevelController>();
-    }
 
     public void OnMouseEnter() {
-        if (_levelController == null) return;
         var basic = BasicLocation ? "BASIC " : "";
-        _levelController.SetStatusText($"{basic}LOCATION SELECTED");
-        _levelController.SelectedLocation = gameObject;
-        _levelController.SetInfoWindow(InfoCard, "");
+        var spawnTime = !Spawned ? $"{SpawnTime} turns before ready" : "";
+        var controller = LevelController.Get();
+        controller.SetStatusText($"{basic}LOCATION SELECTED");
+        controller.SetInfoWindow(InfoCard, spawnTime);
+        if (Spawned) controller.SelectedLocation = gameObject;
     }
 
     public void OnMouseExit() {
-        if (_levelController == null) return;
-        _levelController.SetStatusText("");
-        _levelController.SelectedLocation = null;
-        _levelController.SetInfoWindow(null, "");
+        var controller = LevelController.Get();
+        controller.SetStatusText("");
+        controller.SetInfoWindow(null, "");
+        if (Spawned) controller.SelectedLocation = null;
     }
 }

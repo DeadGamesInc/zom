@@ -100,6 +100,7 @@ MonoBehaviour:
   Id: 5
   Type: 0
   BrainsValue: 4
+  SpawnTime: 1
   Name: Dragon Farm
   Series: RugZombie
   MaxHealth: 0

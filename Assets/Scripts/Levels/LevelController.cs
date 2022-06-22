@@ -58,6 +58,7 @@ public class LevelController : MonoBehaviour {
     private ProgressBar _enemyHealthBar;
     private bool _lockCard;
     private List<GameObject> _brainLocations = new();
+    private List<GameObject> _locations = new();
     [SerializeField] public TextMeshProUGUI BrainsCounterText;
 
     protected virtual void Setup() {}
@@ -219,12 +220,15 @@ public class LevelController : MonoBehaviour {
 
     public void CreateBasicLocation(MapGrid grid, (int, int) position, MapNode activeNode) {
         var locationObject = Instantiate(BasicLocation);
+        locationObject.GetLocationBase().Setup();
         ConfigureLocation(locationObject, grid, position, activeNode);
     }
 
     public void CreateLocation(GameObject location, MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
         var locationObject = Instantiate(location);
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
+        locationObject.GetLocationBase().Setup();
+        _locations.Add(locationObject);
     }
 
     private static void ConfigureLocation(GameObject locationObject, MapGrid grid, (int, int) mapPosition,
@@ -276,7 +280,7 @@ public class LevelController : MonoBehaviour {
             basicLocation = script.BasicLocation;
         }
 
-        if (SelectedLocation != null && card.Type == CardType.CHARACTER && SubtractBrains(card.BrainsValue)) {
+        if (SelectedLocation != null && card.Type == CardType.CHARACTER && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
             var character = Instantiate(card.CharacterPrefab, new Vector3(0, 0, 0), new Quaternion());
             character.GetComponent<Character>().Setup(SelectedLocation.GetComponent<LocationBase>().ActiveNode);
             CardPlayed();
@@ -448,7 +452,11 @@ public class LevelController : MonoBehaviour {
 
     private IEnumerator HandleEndTurn() {
         if (LocalTurn) {
-            foreach (var brain in _brainLocations) brain.GetComponent<Brains>().UpdateBrains();
+            foreach (var brain in _brainLocations) 
+                brain.GetComponent<Brains>().UpdateBrains();
+            
+            foreach (var location in _locations.Where(location => !location.GetLocationBase().Spawned)) 
+                location.GetLocationBase().SpawnTick();
         }
 
         SubtractBrains(BrainsAmount);

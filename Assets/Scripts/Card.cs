@@ -7,6 +7,7 @@ public class Card : MonoBehaviour {
     [SerializeField] public CardId Id;
     [SerializeField] public CardType Type;
     [SerializeField] public int BrainsValue;
+    [SerializeField] public int SpawnTime;
     [SerializeField] public string Name;
     [SerializeField] public string Series;
     [SerializeField] public float MaxHealth;
@@ -33,13 +34,11 @@ public class Card : MonoBehaviour {
     }
 
     public void OnMouseEnter() {
-        if (_levelController == null) return;
-        _levelController.SetCard(CardPreview, gameObject, $"Cost: {BrainsValue}");
+        LevelController.Get().SetCard(CardPreview, gameObject, $"Cost: {BrainsValue}");
     }
 
     public void OnMouseExit() {
-        if (_levelController == null) return;
-        _levelController.SetCard(null, null, "");
+        LevelController.Get().SetCard(null, null, "");
     }
 
     public void OnMouseDown() {

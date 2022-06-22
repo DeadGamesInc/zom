@@ -100,6 +100,7 @@ MonoBehaviour:
   Id: 8
   Type: 0
   BrainsValue: 7
+  SpawnTime: 2
   Name: Young Fool
   Series: RugZombie
   MaxHealth: 0
