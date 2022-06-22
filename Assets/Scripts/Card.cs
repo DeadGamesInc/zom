@@ -6,6 +6,7 @@ using UnityEngine;
 public class Card : MonoBehaviour {
     [SerializeField] public CardId Id;
     [SerializeField] public CardType Type;
+    [SerializeField] public int BrainsValue;
     [SerializeField] public string Name;
     [SerializeField] public string Series;
     [SerializeField] public float MaxHealth;
