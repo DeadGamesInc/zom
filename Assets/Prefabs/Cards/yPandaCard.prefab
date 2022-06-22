@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 6
   Type: 0
+  BrainsValue: 4
   Name: yPanda
   Series: RugZombie
   MaxHealth: 0
@@ -109,6 +110,8 @@ MonoBehaviour:
   CharacterPrefab: {fileID: 9102496475582203610, guid: 3ddb1e4a69858534e96b109bc480e6d5, type: 3}
   LocationPrefab: {fileID: 0}
   ItemPrefab: {fileID: 0}
+  ResourcePrefab: {fileID: 0}
+  StartScale: {x: 0, y: 0, z: 0}
 --- !u!61 &2304601565324856267
 BoxCollider2D:
   m_ObjectHideFlags: 0

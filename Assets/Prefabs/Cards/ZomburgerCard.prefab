@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 7
   Type: 2
+  BrainsValue: 3
   Name: Zomburger
   Series: RugZombie
   MaxHealth: 0
@@ -109,6 +110,8 @@ MonoBehaviour:
   CharacterPrefab: {fileID: 0}
   LocationPrefab: {fileID: 0}
   ItemPrefab: {fileID: 0}
+  ResourcePrefab: {fileID: 0}
+  StartScale: {x: 0, y: 0, z: 0}
 --- !u!61 &2102857974556160613
 BoxCollider2D:
   m_ObjectHideFlags: 0

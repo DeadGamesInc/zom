@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 9
   Type: 0
+  BrainsValue: 4
   Name: Polar Ice Zombie
   Series: RugZombie
   MaxHealth: 0
@@ -109,6 +110,8 @@ MonoBehaviour:
   CharacterPrefab: {fileID: 2871946023116852452, guid: b8637c1df99389940a658740e170cd42, type: 3}
   LocationPrefab: {fileID: 0}
   ItemPrefab: {fileID: 0}
+  ResourcePrefab: {fileID: 0}
+  StartScale: {x: 0, y: 0, z: 0}
 --- !u!61 &6201834010217938723
 BoxCollider2D:
   m_ObjectHideFlags: 0

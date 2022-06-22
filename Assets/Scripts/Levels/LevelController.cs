@@ -245,12 +245,13 @@ public class LevelController : MonoBehaviour {
         _lockCard = locked;
     }
 
-    public void SetCard(Sprite sprite, GameObject card) {
+    public void SetCard(Sprite sprite, GameObject card, string text) {
         if (_lockCard) return;
         SelectedCard = card;
         if (_cardPreview != null) {
             var image = _cardPreview.GetComponent<Image>();
             image.sprite = sprite;
+            _cardPreview.GetComponentInChildren<TextMeshProUGUI>().text = text;
             _cardPreview.SetActive(sprite != null);
         }
     }
@@ -275,14 +276,14 @@ public class LevelController : MonoBehaviour {
             basicLocation = script.BasicLocation;
         }
 
-        if (SelectedLocation != null && card.Type == CardType.CHARACTER) {
+        if (SelectedLocation != null && card.Type == CardType.CHARACTER && SubtractBrains(card.BrainsValue)) {
             var character = Instantiate(card.CharacterPrefab, new Vector3(0, 0, 0), new Quaternion());
             character.GetComponent<Character>().Setup(SelectedLocation.GetComponent<LocationBase>().ActiveNode);
             CardPlayed();
             return true;
         }
 
-        if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation) {
+        if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<BaseMap>();
             var location = SelectedLocation.GetComponent<LocationBase>();
             CreateLocation(card.LocationPrefab, map.grid, location.MapPosition, location.ActiveNode);
@@ -291,7 +292,7 @@ public class LevelController : MonoBehaviour {
             return true;
         }
 
-        if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION) {
+        if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<BaseMap>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
             CreateLocation(card.LocationPrefab, map.grid, location.MapPosition, location.ActiveNode);
@@ -325,7 +326,7 @@ public class LevelController : MonoBehaviour {
         DiscardPosition.position = position;
         ResetHandCardPositions();
         SetCardLock(false);
-        SetCard(null, null);
+        SetCard(null, null, "");
     }
 
     protected void DrawCard() {

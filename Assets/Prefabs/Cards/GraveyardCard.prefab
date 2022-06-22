@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 0
   Type: 1
+  BrainsValue: 6
   Name: Graveyard
   Series: RugZombie
   MaxHealth: 0
@@ -109,6 +110,8 @@ MonoBehaviour:
   CharacterPrefab: {fileID: 0}
   LocationPrefab: {fileID: 6189811462899777865, guid: 85c365a1dfa954aeb88d86bf46efcd79, type: 3}
   ItemPrefab: {fileID: 0}
+  ResourcePrefab: {fileID: 0}
+  StartScale: {x: 0, y: 0, z: 0}
 --- !u!61 &6164708626585673643
 BoxCollider2D:
   m_ObjectHideFlags: 0

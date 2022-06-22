@@ -34,6 +34,11 @@ public class Level0Controller : LevelController {
         if ((CurrentPhase == PhaseId.STRATEGIC && LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && !LocalTurn)) 
             EndTurn();
     }
+
+    public void ClickAddBrains() {
+        if ((CurrentPhase == PhaseId.STRATEGIC && LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && !LocalTurn))
+            AddBrains(10);
+    }
     
     private void createMap() {
         _map = new GameObject("Map");

@@ -34,12 +34,12 @@ public class Card : MonoBehaviour {
 
     public void OnMouseEnter() {
         if (_levelController == null) return;
-        _levelController.SetCard(CardPreview, gameObject);
+        _levelController.SetCard(CardPreview, gameObject, $"Cost: {BrainsValue}");
     }
 
     public void OnMouseExit() {
         if (_levelController == null) return;
-        _levelController.SetCard(null, null);
+        _levelController.SetCard(null, null, "");
     }
 
     public void OnMouseDown() {
