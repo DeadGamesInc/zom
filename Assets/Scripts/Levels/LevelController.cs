@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public int PlayerMaxHealth = 20;
     [SerializeField] public int StrategicPhaseLength = 90;
     [SerializeField] public Transform DiscardPosition;
-    
+
     protected GameController _gameController;
     protected DeckController _deckController;
     protected GameObject _roundTimerBar;
@@ -33,14 +34,15 @@ public class LevelController : MonoBehaviour {
     private DateTime _roundEnd;
 
     public GameObject selectedCharacter;
-    public PlayerCommand currentCommand = PlayerCommand.None;
     public GameObject currentCommandSource;
-    
+    public PlayerCommand currentCommand = PlayerCommand.None;
+    public List<QueuedCommand> commands = new List<QueuedCommand>();
+
     public GameObject SelectedCard;
     public GameObject SelectedEmptyLocation;
     public GameObject SelectedLocation;
     public GameObject SelectedBrainsNode;
-    
+
     protected GameObject _handPosition;
     private GameObject _cardPreview;
     private TextMeshProUGUI _phaseName;
@@ -74,7 +76,7 @@ public class LevelController : MonoBehaviour {
         _roundTimerBar = GameObject.Find("RoundTimer");
         _roundTimerBarScript = _roundTimerBar.GetComponent<ProgressBar>();
         _enemyHealthBar = GameObject.Find("EnemyHealthBar")?.GetComponent<ProgressBar>();
-        
+
         if (_cardPreview != null) _cardPreview.SetActive(false);
         if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
         if (CharacterUI != null) CharacterUI.SetActive(false);
@@ -86,11 +88,11 @@ public class LevelController : MonoBehaviour {
             _enemyHealthBar.Maximum = PlayerMaxHealth;
             _enemyHealthBar.Set(PlayerMaxHealth);
         }
-        
+
         Setup();
-        
+
         if (_deckController != null) _deckController.PlaceDeckCards();
-        
+
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
     }
@@ -106,24 +108,39 @@ public class LevelController : MonoBehaviour {
         }
     }
 
-
-    public void ExecuteCommand(PlayerCommand command, GameObject target) {
+    public void QueueCommand(PlayerCommand command, GameObject target) {
         if (currentCommand != command) return;
         switch (command) {
             case PlayerCommand.MoveCharacter:
-                try {
-                    var character = currentCommandSource.GetComponent<Character>();
-                    var mapNode = target.GetComponent<MapNode>();
-                    character.MoveTowards(mapNode);
-                } catch (MovementException e) {
-                    Debug.Log(e);
-                }
+                commands.Add(new QueuedCommand(currentCommandSource, target, PlayerCommand.MoveCharacter));
                 break;
         }
 
         currentCommand = PlayerCommand.None;
         currentCommandSource = null;
         SetStatusText("");
+    }
+
+    public void ExecuteCommand(QueuedCommand command) {
+        switch (command.Command) {
+            case PlayerCommand.MoveCharacter:
+                try {
+                    var character = command.Source.GetComponent<Character>();
+                    var mapNode = command.Target.GetComponent<MapNode>();
+                    character.MoveTowards(mapNode);
+                } catch (MovementException e) {
+                    Debug.Log(e);
+                }
+
+                break;
+        }
+    }
+
+    public void ExecuteQueuedCommands() {
+        foreach (var command in commands) {
+            ExecuteCommand(command);
+        }
+        commands.Clear();
     }
 
     public void ToggleCharacter(Character character) {
@@ -151,10 +168,9 @@ public class LevelController : MonoBehaviour {
             if (DateTime.Now > _roundEnd) {
                 print("ROUND TIMER EXPIRED");
                 EndTurn();
-            }
-            else {
+            } else {
                 var left = (_roundEnd - DateTime.Now).TotalSeconds;
-                _roundTimerBarScript.Set((int) left);
+                _roundTimerBarScript.Set((int)left);
             }
         }
     }
@@ -193,7 +209,7 @@ public class LevelController : MonoBehaviour {
     }
 
     public void SetStatusText(string text) {
-        if(currentCommand != PlayerCommand.None) return;
+        if (currentCommand != PlayerCommand.None) return;
         _statusText.text = text;
     }
 
@@ -233,12 +249,13 @@ public class LevelController : MonoBehaviour {
 
         if (SelectedBrainsNode != null && card.Type == CardType.RESOURCE) {
             var brains = Instantiate(card.ResourcePrefab, new Vector3(0, 0, 0), new Quaternion());
-            brains.GetComponent<Brains>().Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<BaseMap>());
+            brains.GetComponent<Brains>()
+                .Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<BaseMap>());
             Destroy(SelectedBrainsNode);
             CardPlayed();
             return true;
         }
-        
+
         return false;
     }
 
@@ -356,7 +373,7 @@ public class LevelController : MonoBehaviour {
 
     private IEnumerator HandleDefense() {
         yield return Wait();
-
+        ExecuteQueuedCommands();
         CurrentPhase = PhaseId.BATTLE;
         HandlePhase();
     }

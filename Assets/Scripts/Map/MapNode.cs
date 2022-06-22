@@ -36,7 +36,7 @@ public class MapNode : MonoBehaviour {
     }
 
     public void OnMouseDown() {
-        LevelController.Get().ExecuteCommand(PlayerCommand.MoveCharacter, gameObject);
+        LevelController.Get().QueueCommand(PlayerCommand.MoveCharacter, gameObject);
     }
 
     public override bool Equals(object? obj) => obj is MapNode other && equals(other);
