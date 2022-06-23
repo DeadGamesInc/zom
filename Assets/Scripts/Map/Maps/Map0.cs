@@ -15,7 +15,7 @@ public class Map0 : MapBase {
     // Specify map paths
     protected override MapPath[] initializePaths() {
         return new MapPath[] {
-            toPath((8, 2),(10, 4), (12, 6), (14, 8), (12, 10), (10, 12), (8, 14), (6, 12), (4, 10), (2, 8), (4, 6), (6, 4), (8, 2)),
+            toPath((8, 2),(10, 4), (12, 6), (14, 8), (12, 10), (10, 12), (8, 14), (6, 12), (4, 10), (2, 8), (4, 6), (6, 4)),
         };
     }
 
