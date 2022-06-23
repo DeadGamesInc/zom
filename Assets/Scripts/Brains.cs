@@ -7,6 +7,7 @@ public class Brains : MonoBehaviour {
     [SerializeField] public int BrainsValue;
     [SerializeField] public int StoredBrains;
     [SerializeField] public Sprite InfoCard;
+    [SerializeField] public int Owner;
     public static Vector3 yOffset = new(0f, 5f, 0f);
 
     public GameObject Card;

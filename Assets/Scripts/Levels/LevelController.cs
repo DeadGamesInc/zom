@@ -14,6 +14,7 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public LevelId Id;
     [SerializeField] public GameObject EmptyLocation;
     [SerializeField] public GameObject BasicLocation;
+    [SerializeField] public GameObject Opponent;
     public GameObject PrimaryCamera;
     public GameObject CharacterUI;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
@@ -106,6 +107,8 @@ public class LevelController : MonoBehaviour {
 
         if (_deckController != null) _deckController.PlaceDeckCards();
 
+        Opponent.GetOpponent().Initialize();
+        
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
     }
@@ -242,6 +245,16 @@ public class LevelController : MonoBehaviour {
         _locations.Add(locationObject);
     }
 
+    public void CreateBrainsNode(GameObject cardObject, int owner) {
+        var card = cardObject.GetCard();
+        var brains = Instantiate(card.ResourcePrefab, new Vector3(0, 0, 0), new Quaternion());
+        var script = brains.GetComponent<Brains>();
+        script.Card = cardObject;
+        script.Owner = owner;
+        script.Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<MapBase>(), card.BrainsValue);
+        _brainLocations.Add(brains);
+    }
+
     private static void ConfigureLocation(GameObject locationObject, MapGrid grid, (int, int) mapPosition,
         MapNode activeNode) {
         var location = locationObject.GetComponent<LocationBase>();
@@ -346,6 +359,16 @@ public class LevelController : MonoBehaviour {
         card.SetActive(true);
     }
 
+    public void OtherPlayerPhaseComplete(PhaseId phase) {
+        switch (phase) {
+            case PhaseId.DEFENCE:
+                CurrentPhase = PhaseId.BATTLE;
+                break;
+        }
+        
+        HandlePhase();
+    }
+
     private void CardPlayed(bool discard) {
         _deckController.PlayedCard(SelectedCard);
 
@@ -403,29 +426,12 @@ public class LevelController : MonoBehaviour {
 
             case PhaseId.STRATEGIC:
                 if (_phaseName != null) _phaseName.text = "STRATEGIC PHASE";
-                
-                if (LocalTurn) {
-                    _roundTimerBar.SetActive(true);
-                    _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);                    
-                }
-                else {
-                    if (_waitText != null) _waitText.SetActive(true);
-                    StartCoroutine(HandleStrategicPhase()); // Generally this is where the AI / remote player would be playing
-                }
-                
+                HandleStrategicPhase();
                 break;
 
             case PhaseId.DEFENCE:
                 if (_phaseName != null) _phaseName.text = "DEFENSE PHASE";
-
-                if (!LocalTurn) {
-                    _roundTimerBar.SetActive(true);
-                    _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
-                }
-                else {
-                    if (_waitText != null) _waitText.SetActive(true);
-                    StartCoroutine(HandleDefense()); // Generally this is where the AI / remote player would be playing
-                }
+                HandleDefense();
                 break;
 
             case PhaseId.BATTLE:
@@ -446,64 +452,81 @@ public class LevelController : MonoBehaviour {
     }
 
     private IEnumerator HandleSpawnPhase() {
-        yield return Wait();
-
-        CurrentPhase = PhaseId.STRATEGIC;
-        HandlePhase();
-    }
-
-    private IEnumerator HandleStrategicPhase() {
-        yield return Wait();
-
-        CurrentPhase = PhaseId.DEFENCE;
-        HandlePhase();
-    }
-
-    private IEnumerator HandleBattlePhase() {
-        yield return Wait();
-
-        CurrentPhase = PhaseId.DRAW;
-        HandlePhase();
-    }
-
-    private IEnumerator HandleDrawPhase() {
-        for (var i = _deckController.HandCards.Count; i < HandCardsTarget; i++) {
-            if (!_deckController.DeckCards.Any()) break;
-            DrawCard();
-        }
-
-        yield return Wait();
-
-        CurrentPhase = PhaseId.END_TURN;
-        HandlePhase();
-    }
-
-    private IEnumerator HandleEndTurn() {
         if (LocalTurn) {
-            foreach (var brain in _brainLocations) 
-                brain.GetComponent<Brains>().UpdateBrains();
+            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.SPAWN);
             
             foreach (var location in _locations.Where(location => !location.GetLocationBase().Spawned)) 
                 location.GetLocationBase().SpawnTick();
             
             foreach (var character in _characters.Where(character => !character.GetCharacter().Spawned))
                 character.GetCharacter().SpawnTick();
+            
+            yield return Wait();
+
+            CurrentPhase = PhaseId.STRATEGIC;
+            HandlePhase();
         }
-
-        SubtractBrains(BrainsAmount);
-
-        yield return Wait();
-
-        LocalTurn = !LocalTurn;
-        CurrentPhase = PhaseId.SPAWN;
-        HandlePhase();
     }
 
-    private IEnumerator HandleDefense() {
-        yield return Wait();
-        ExecuteQueuedCommands();
-        CurrentPhase = PhaseId.BATTLE;
-        HandlePhase();
+    private void HandleStrategicPhase() {
+        if (LocalTurn) {
+            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.STRATEGIC);
+            _roundTimerBar.SetActive(true);
+            _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
+        }
+        else {
+            if (_waitText != null) _waitText.SetActive(true);
+        }
+    }
+    
+    private void HandleDefense() {
+        if (LocalTurn) {
+            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
+            if (_waitText != null) _waitText.SetActive(true);
+            ExecuteQueuedCommands();
+        }
+        else {
+            _roundTimerBar.SetActive(true);
+            _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
+        }
+    }
+
+    private IEnumerator HandleBattlePhase() {
+        if (LocalTurn) {
+            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.BATTLE);
+            yield return Wait();
+
+            CurrentPhase = PhaseId.DRAW;
+            HandlePhase();
+        }
+    }
+
+    private IEnumerator HandleDrawPhase() {
+        if (LocalTurn) {
+            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DRAW);
+            
+            for (var i = _deckController.HandCards.Count; i < HandCardsTarget; i++) {
+                if (!_deckController.DeckCards.Any()) break;
+                DrawCard();
+            }
+
+            yield return Wait();
+
+            CurrentPhase = PhaseId.END_TURN;
+            HandlePhase();
+        }
+    }
+
+    private IEnumerator HandleEndTurn() {
+        if (LocalTurn) {
+            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.END_TURN);
+            foreach (var brain in _brainLocations) brain.GetComponent<Brains>().UpdateBrains();
+            yield return Wait();
+        }
+        
+        SubtractBrains(BrainsAmount);
+        LocalTurn = !LocalTurn;
+        if (!LocalTurn) Opponent.GetOpponent().StartTurn();
     }
 
     private static IEnumerator Wait() {
