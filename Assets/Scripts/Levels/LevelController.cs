@@ -59,6 +59,7 @@ public class LevelController : MonoBehaviour {
     private bool _lockCard;
     private List<GameObject> _brainLocations = new();
     private List<GameObject> _locations = new();
+    private List<GameObject> _characters = new();
     [SerializeField] public TextMeshProUGUI BrainsCounterText;
 
     protected virtual void Setup() {}
@@ -295,6 +296,7 @@ public class LevelController : MonoBehaviour {
             var script = character.GetCharacter();
             script.Card = SelectedCard;
             script.Setup(SelectedLocation.GetComponent<LocationBase>().ActiveNode);
+            _characters.Add(character);
             CardPlayed(false);
             return true;
         }
@@ -483,6 +485,9 @@ public class LevelController : MonoBehaviour {
             
             foreach (var location in _locations.Where(location => !location.GetLocationBase().Spawned)) 
                 location.GetLocationBase().SpawnTick();
+            
+            foreach (var character in _characters.Where(character => !character.GetCharacter().Spawned))
+                character.GetCharacter().SpawnTick();
         }
 
         SubtractBrains(BrainsAmount);

@@ -15,6 +15,8 @@ public class Character : MonoBehaviour {
     [SerializeField] public QueuedCommand? CurrentCommand;
     [SerializeField] public Sprite InfoCard;
     [SerializeField] public GameObject Card;
+    [SerializeField] public int SpawnTime;
+    [SerializeField] public bool Spawned;
 
     private static float characterTranslationSpeed = 3f;
     
@@ -22,6 +24,8 @@ public class Character : MonoBehaviour {
     public CharacterRoute Route { get; private set; }
 
     public void Setup(MapNode node) {
+        if (SpawnTime == 0) SetSpawned();
+        else SetSpawning();
         MapPosition = node;
         transform.localScale = new Vector3(20, 20, 20);
         Camera = CharacterCamera.Create(gameObject);
@@ -41,6 +45,22 @@ public class Character : MonoBehaviour {
                 Move();
                 break;
         }
+    }
+    
+    public void SpawnTick() {
+        if (SpawnTime == 0) return;
+        SpawnTime--;
+        if (SpawnTime == 0) SetSpawned();
+    }
+
+    public void SetSpawning() {
+        gameObject.GetComponent<Renderer>().material.ChangeAlpha(0.25f);
+        Spawned = false;
+    }
+
+    public void SetSpawned() {
+        gameObject.GetComponent<Renderer>().material.ChangeAlpha(1.0f);
+        Spawned = true;
     }
 
     public void MoveTowards(MapNode target) {
@@ -80,11 +100,12 @@ public class Character : MonoBehaviour {
     }
 
     public void OnMouseDown() {
-        LevelController.Get().ToggleCharacter(this);
+        if (Spawned) LevelController.Get().ToggleCharacter(this);
     }
     
     public void OnMouseEnter() {
-        LevelController.Get().SetInfoWindow(InfoCard, "");
+        var spawnTime = !Spawned ? $"{SpawnTime} turns before ready" : "";
+        LevelController.Get().SetInfoWindow(InfoCard, spawnTime);
     }
 
     public void OnMouseExit() {
