@@ -22,7 +22,7 @@ public class CharacterUI : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
+    private void FixedUpdate() {
         gameObject.transform.position = TargetCharacter.transform.position;
         transform.rotation = Camera.transform.rotation;
     }

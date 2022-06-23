@@ -1,4 +1,5 @@
 public enum PlayerCommand {
     None,
-    MoveCharacter
+    MoveCharacter,
+    AttackLocation
 }

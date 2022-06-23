@@ -18,7 +18,10 @@ public class CharacterUIButton : MonoBehaviour {
         
         switch (Type) {
             case PlayerCommand.MoveCharacter:
-                levelController.StartCommand(Type, characterUI.TargetCharacter);
+                levelController.StartCommand(PlayerCommand.MoveCharacter, characterUI.TargetCharacter);
+                break;
+            case PlayerCommand.AttackLocation:
+                levelController.StartCommand(PlayerCommand.AttackLocation, characterUI.TargetCharacter);
                 break;
         }
     }
