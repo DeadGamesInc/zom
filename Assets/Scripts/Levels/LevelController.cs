@@ -232,8 +232,10 @@ public class LevelController : MonoBehaviour {
         ConfigureLocation(locationObject, grid, position, activeNode);
     }
 
-    public void CreateLocation(GameObject location, MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
-        var locationObject = Instantiate(location);
+    public void CreateLocation(GameObject cardObj, MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
+        var card = cardObj.GetCard();
+        var locationObject = Instantiate(card.LocationPrefab);
+        locationObject.GetLocationBase().Card = cardObj;
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
         locationObject.GetLocationBase().Setup();
         _locations.Add(locationObject);
@@ -256,7 +258,7 @@ public class LevelController : MonoBehaviour {
     public void SetCardLock(bool locked) {
         _lockCard = locked;
     }
-
+    
     public void SetCard(Sprite sprite, GameObject card, string text) {
         if (_lockCard) return;
         SelectedCard = card;
@@ -290,52 +292,68 @@ public class LevelController : MonoBehaviour {
 
         if (SelectedLocation != null && card.Type == CardType.CHARACTER && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
             var character = Instantiate(card.CharacterPrefab, new Vector3(0, 0, 0), new Quaternion());
-            character.GetComponent<Character>().Setup(SelectedLocation.GetComponent<LocationBase>().ActiveNode);
-            CardPlayed();
+            var script = character.GetCharacter();
+            script.Card = SelectedCard;
+            script.Setup(SelectedLocation.GetComponent<LocationBase>().ActiveNode);
+            CardPlayed(false);
             return true;
         }
 
         if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
-            CreateLocation(card.LocationPrefab, map.grid, location.MapPosition, location.ActiveNode);
+            CreateLocation(SelectedCard, map.grid, location.MapPosition, location.ActiveNode);
             Destroy(SelectedLocation);
-            CardPlayed();
+            CardPlayed(false);
             return true;
         }
 
         if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
-            CreateLocation(card.LocationPrefab, map.grid, location.MapPosition, location.ActiveNode);
+            CreateLocation(SelectedCard, map.grid, location.MapPosition, location.ActiveNode);
             Destroy(SelectedEmptyLocation);
-            CardPlayed();
+            CardPlayed(false);
             return true;
         }
 
         if (SelectedBrainsNode != null && card.Type == CardType.RESOURCE) {
             var brains = Instantiate(card.ResourcePrefab, new Vector3(0, 0, 0), new Quaternion());
-            brains.GetComponent<Brains>().Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<MapBase>(), card.BrainsValue);
+            var script = brains.GetComponent<Brains>();
+            script.Card = SelectedCard;
+            script.Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<MapBase>(), card.BrainsValue);
             _brainLocations.Add(brains);
             Destroy(SelectedBrainsNode);
-            CardPlayed();
+            CardPlayed(false);
             return true;
         }
 
         return false;
     }
 
-    private void CardPlayed() {
-        _deckController.PlayedCard(SelectedCard);
-        var script = SelectedCard.GetComponent<Card>();
-        var boxCollider = SelectedCard.GetComponent<BoxCollider2D>();
+    public void DiscardCard(GameObject card) {
+        var script = card.GetCard();
+        var boxCollider = card.GetComponent<BoxCollider2D>();
         var position = DiscardPosition.position;
         boxCollider.enabled = false;
-        SelectedCard.transform.position = DiscardPosition.position;
-        SelectedCard.transform.localScale = script.StartScale;
+        card.transform.position = DiscardPosition.position;
+        card.transform.localScale = script.StartScale;
         position.y += 0.03f;
         position.z -= 0.03f;
         DiscardPosition.position = position;
+        card.SetActive(true);
+    }
+
+    private void CardPlayed(bool discard) {
+        _deckController.PlayedCard(SelectedCard);
+
+        if (discard) DiscardCard(SelectedCard);
+        else {
+            SelectedCard.SetActive(false);
+            SelectedCard.transform.position = new Vector3(0, 0, 0);
+            SelectedCard.transform.localScale = new Vector3(0, 0, 0);
+        }
+        
         ResetHandCardPositions();
         SetCardLock(false);
         SetCard(null, null, "");

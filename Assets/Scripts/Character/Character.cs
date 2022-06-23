@@ -14,6 +14,7 @@ public class Character : MonoBehaviour {
     [SerializeField] public int DistanceTravelledThisTurn = 0;
     [SerializeField] public QueuedCommand? CurrentCommand;
     [SerializeField] public Sprite InfoCard;
+    [SerializeField] public GameObject Card;
 
     private static float characterTranslationSpeed = 3f;
     
