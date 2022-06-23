@@ -8,6 +8,8 @@ public class Brains : MonoBehaviour {
     [SerializeField] public int StoredBrains;
     [SerializeField] public Sprite InfoCard;
     public static Vector3 yOffset = new(0f, 5f, 0f);
+
+    public GameObject Card;
     
     private LevelController _levelController;
 

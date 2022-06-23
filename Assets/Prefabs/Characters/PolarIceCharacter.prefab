@@ -53,6 +53,9 @@ MonoBehaviour:
   ExecutedActionThisTurn: 0
   DistanceTravelledThisTurn: 0
   InfoCard: {fileID: 21300000, guid: 7fb09bd340813244287e3c3cf9a5c9bb, type: 3}
+  Card: {fileID: 0}
+  SpawnTime: 1
+  Spawned: 0
 --- !u!33 &2871946023116852457
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -81,7 +84,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: d4d0dd9f6c416e4449441fb730c81ba2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
