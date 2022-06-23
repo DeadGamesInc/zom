@@ -18,3 +18,4 @@ public class ActionPointer : MonoBehaviour {
         transform.Rotate(1f, 0f, 0f);
     }
 }
+
