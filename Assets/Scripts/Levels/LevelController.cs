@@ -21,7 +21,7 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public static int CameraActive = 20;
     [SerializeField] public static int CameraInActive = 0;
     [SerializeField] public int BrainsAmount;
-    
+
     public PhaseId CurrentPhase;
     public bool LocalTurn;
 
@@ -54,7 +54,7 @@ public class LevelController : MonoBehaviour {
     private GameObject _waitText;
     private TextMeshProUGUI _phaseName;
     private TextMeshProUGUI _statusText;
-    protected GameObject _map;
+    public GameObject _map;
     private Vector3 _initialHandPosition;
     private ProgressBar _enemyHealthBar;
     private bool _lockCard;
@@ -62,7 +62,8 @@ public class LevelController : MonoBehaviour {
     private List<GameObject> _locations = new();
     [SerializeField] public TextMeshProUGUI BrainsCounterText;
 
-    protected virtual void Setup() {}
+    protected virtual void Setup() {
+    }
 
     public static LevelController Get() {
         GameObject levelController = GameObject.Find("LevelController");
@@ -130,20 +131,22 @@ public class LevelController : MonoBehaviour {
                 currentCommand = PlayerCommand.MoveCharacter;
                 currentCommandSource = source;
                 break;
+            case PlayerCommand.AttackLocation:
+                UnselectCharacter();
+                SetStatusText($"DECLARING ATTACKER {source.name}");
+                currentCommand = PlayerCommand.AttackLocation;
+                currentCommandSource = source;
+                break;
         }
     }
 
     public void QueueCommand(PlayerCommand command, GameObject target) {
         if (currentCommand != command) return;
-        switch (command) {
-            case PlayerCommand.MoveCharacter:
-                var newCommand = new QueuedCommand(currentCommandSource, target, PlayerCommand.MoveCharacter);
-                Character source = currentCommandSource.GetComponent<Character>();
-                source.CurrentCommand = newCommand;
-                source.OnQueueCommand(newCommand);
-                commands.Add(newCommand);
-                break;
-        }
+
+        QueuedCommand newCommand = new QueuedCommand(currentCommandSource, target, command);
+        Character source = currentCommandSource.GetComponent<Character>();
+        source.OnQueueCommand(newCommand);
+        commands.Add(newCommand);
 
         currentCommand = PlayerCommand.None;
         currentCommandSource = null;
@@ -155,27 +158,15 @@ public class LevelController : MonoBehaviour {
     }
 
     public void ExecuteCommand(QueuedCommand command) {
-        switch (command.Command) {
-            case PlayerCommand.MoveCharacter:
-                try {
-                    var character = command.Source.GetComponent<Character>();
-                    var mapNode = command.Target.GetComponent<MapNode>();
-                    
-                    character.OnExecuteCommand(command);
-                    character.MoveTowards(mapNode);
-                } catch (MovementException e) {
-                    Debug.Log(e);
-                }
-
-                break;
-        }
+        var character = command.Source.GetComponent<Character>();
+        character.OnExecuteCommand(command);
     }
 
     public void ExecuteQueuedCommands() {
         foreach (var command in commands) {
             ExecuteCommand(command);
         }
-        
+
         commands.Clear();
     }
 
@@ -286,20 +277,22 @@ public class LevelController : MonoBehaviour {
         if (SelectedCard == null) return false;
         var card = SelectedCard.GetComponent<Card>();
         var basicLocation = false;
-        
+
         if (SelectedLocation != null) {
             var script = SelectedLocation.GetComponent<LocationControl>();
             basicLocation = script.BasicLocation;
         }
 
-        if (SelectedLocation != null && card.Type == CardType.CHARACTER && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
+        if (SelectedLocation != null && card.Type == CardType.CHARACTER && SelectedLocation.GetLocationBase().Spawned &&
+            SubtractBrains(card.BrainsValue)) {
             var character = Instantiate(card.CharacterPrefab, new Vector3(0, 0, 0), new Quaternion());
             character.GetComponent<Character>().Setup(SelectedLocation.GetComponent<LocationBase>().ActiveNode);
             CardPlayed();
             return true;
         }
 
-        if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && SubtractBrains(card.BrainsValue)) {
+        if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation &&
+            SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
             CreateLocation(card.LocationPrefab, map.grid, location.MapPosition, location.ActiveNode);
@@ -319,7 +312,8 @@ public class LevelController : MonoBehaviour {
 
         if (SelectedBrainsNode != null && card.Type == CardType.RESOURCE) {
             var brains = Instantiate(card.ResourcePrefab, new Vector3(0, 0, 0), new Quaternion());
-            brains.GetComponent<Brains>().Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<MapBase>(), card.BrainsValue);
+            brains.GetComponent<Brains>().Setup(SelectedBrainsNode.GetComponent<BrainsNode>(),
+                _map.GetComponent<MapBase>(), card.BrainsValue);
             _brainLocations.Add(brains);
             Destroy(SelectedBrainsNode);
             CardPlayed();
@@ -369,16 +363,17 @@ public class LevelController : MonoBehaviour {
 
     protected void EndTurn() {
         _roundTimerBar.SetActive(false);
-        
-        if (CurrentPhase == PhaseId.STRATEGIC) CurrentPhase = PhaseId.DEFENCE;
+
+        if (CurrentPhase == PhaseId.STRATEGIC)
+            CurrentPhase = PhaseId.DEFENCE;
         else if (CurrentPhase == PhaseId.DEFENCE) CurrentPhase = PhaseId.BATTLE;
-        
+
         HandlePhase();
     }
 
     private void HandlePhase() {
         if (_waitText != null) _waitText.SetActive(false);
-        
+
         switch (CurrentPhase) {
             case PhaseId.SPAWN:
                 if (_phaseName != null) _phaseName.text = "SPAWN PHASE";
@@ -387,16 +382,16 @@ public class LevelController : MonoBehaviour {
 
             case PhaseId.STRATEGIC:
                 if (_phaseName != null) _phaseName.text = "STRATEGIC PHASE";
-                
+
                 if (LocalTurn) {
                     _roundTimerBar.SetActive(true);
-                    _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);                    
-                }
-                else {
+                    _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
+                } else {
                     if (_waitText != null) _waitText.SetActive(true);
-                    StartCoroutine(HandleStrategicPhase()); // Generally this is where the AI / remote player would be playing
+                    StartCoroutine(
+                        HandleStrategicPhase()); // Generally this is where the AI / remote player would be playing
                 }
-                
+
                 break;
 
             case PhaseId.DEFENCE:
@@ -405,11 +400,11 @@ public class LevelController : MonoBehaviour {
                 if (!LocalTurn) {
                     _roundTimerBar.SetActive(true);
                     _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
-                }
-                else {
+                } else {
                     if (_waitText != null) _waitText.SetActive(true);
                     StartCoroutine(HandleDefense()); // Generally this is where the AI / remote player would be playing
                 }
+
                 break;
 
             case PhaseId.BATTLE:
@@ -445,6 +440,7 @@ public class LevelController : MonoBehaviour {
 
     private IEnumerator HandleBattlePhase() {
         yield return Wait();
+        ExecuteQueuedCommands();
 
         CurrentPhase = PhaseId.DRAW;
         HandlePhase();
@@ -464,10 +460,9 @@ public class LevelController : MonoBehaviour {
 
     private IEnumerator HandleEndTurn() {
         if (LocalTurn) {
-            foreach (var brain in _brainLocations) 
-                brain.GetComponent<Brains>().UpdateBrains();
-            
-            foreach (var location in _locations.Where(location => !location.GetLocationBase().Spawned)) 
+            foreach (var brain in _brainLocations) brain.GetComponent<Brains>().UpdateBrains();
+
+            foreach (var location in _locations.Where(location => !location.GetLocationBase().Spawned))
                 location.GetLocationBase().SpawnTick();
         }
 
@@ -482,7 +477,6 @@ public class LevelController : MonoBehaviour {
 
     private IEnumerator HandleDefense() {
         yield return Wait();
-        ExecuteQueuedCommands();
         CurrentPhase = PhaseId.BATTLE;
         HandlePhase();
     }

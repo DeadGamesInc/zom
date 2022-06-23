@@ -31,7 +31,12 @@ public class LocationBase : MonoBehaviour {
         gameObject.GetComponent<Renderer>().material.ChangeAlpha(1.0f);
         Spawned = true;
     }
-    
+
+    public void OnMouseDown() {
+        LevelController.Get().QueueCommand(PlayerCommand.AttackLocation, gameObject);
+
+    }
+
     // Start is called before the first frame update
     void Start() {
     }

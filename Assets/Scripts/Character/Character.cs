@@ -72,28 +72,48 @@ public class Character : MonoBehaviour {
         }
     }
 
-    private IEnumerator RequeueUnfinishedCommand(QueuedCommand command) {
-        var levelController = LevelController.Get();
-        // Wait for the current phase to end before requeue-ing
-        while (levelController.CurrentPhase != PhaseId.BATTLE) yield return null;
-        OnQueueCommand(command);
-        LevelController.Get().RequeueCommand(command);
+    public void Attack(GameObject target) {
+        
     }
 
     public void OnQueueCommand(QueuedCommand command) {
+        if (ActionIndicator != null) Destroy(ActionIndicator);
         switch (command.Command) {
             case PlayerCommand.MoveCharacter:
-                if (ActionIndicator != null) Destroy(ActionIndicator);
                 ActionIndicator = Instantiate(LevelController.Get().ActionIndicator);
                 ActionIndicator.GetComponent<ActionPointer>().Command = command;
+                CurrentCommand = command;
+                break;
+            case PlayerCommand.AttackLocation:
+                ActionIndicator = Instantiate(LevelController.Get().ActionIndicator);
+                ActionIndicator.GetComponent<ActionPointer>().Command = command;
+                CurrentCommand = command;
                 break;
         }
+    }
+    
+    private IEnumerator RequeueUnfinishedCommand(QueuedCommand command) {
+        var levelController = LevelController.Get();
+        // Wait for the current phase to end before requeue-ing
+        while (levelController.CurrentPhase != PhaseId.DRAW) yield return null;
+        OnQueueCommand(command);
+        LevelController.Get().RequeueCommand(command);
     }
     
     public void OnExecuteCommand(QueuedCommand command) {
         switch (command.Command) {
             case PlayerCommand.MoveCharacter:
+                try {
+                    if (ActionIndicator != null) Destroy(ActionIndicator);
+                    var mapNode = command.Target.GetComponent<MapNode>();
+                    MoveTowards(mapNode);
+                } catch (MovementException e) {
+                    Debug.Log(e);
+                }
+                break;
+            case PlayerCommand.AttackLocation:
                 if (ActionIndicator != null) Destroy(ActionIndicator);
+                Attack(command.Target);
                 break;
         }
     }
