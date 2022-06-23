@@ -6,10 +6,11 @@ using JetBrains.Annotations;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
-public abstract class BaseMap : MonoBehaviour {
+public abstract class MapBase : MonoBehaviour {
     [SerializeField] public int Length;
     [SerializeField] public int Width;
     [SerializeField] public float CellSize;
+    [SerializeField] public int DistanceUnit; // Multiplied by character movement value to determine how many nodes can be traveled / turn
 
     protected LevelController _levelController;
     public MapPath[] paths = Array.Empty<MapPath>();
@@ -19,7 +20,7 @@ public abstract class BaseMap : MonoBehaviour {
     public static GameObject? Get() {
         GameObject map;
 
-        if ((map = GameObject.Find("Map")) == null || map.GetComponent<BaseMap>().grid == null) {
+        if ((map = GameObject.Find("Map")) == null || map.GetComponent<MapBase>().grid == null) {
             return null;
         }
 

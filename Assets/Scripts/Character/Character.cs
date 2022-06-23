@@ -1,16 +1,22 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 
 public class Character : MonoBehaviour {
-    private BaseMap map;
-    [SerializeField] public float MovementSpeed = 3f;
+    private MapBase map;
+    [SerializeField] public int MovementSpeed = 1;
     [SerializeField] public CharacterState State;
     [SerializeField] public GameObject Camera;
-    [SerializeField] public GameObject UI;
     [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
+    [SerializeField] public bool ExecutedActionThisTurn = false;
+    [SerializeField] public int DistanceTravelledThisTurn = 0;
+    [SerializeField] public QueuedCommand? CurrentCommand;
     [SerializeField] public Sprite InfoCard;
+
+    private static float characterTranslationSpeed = 3f;
+    
     public MapNode MapPosition { get; private set; }
     public CharacterRoute Route { get; private set; }
 
@@ -43,16 +49,35 @@ public class Character : MonoBehaviour {
 
     private void Move() {
         Vector3 targetWorldPosWithOffset = Route.CurrentTargetWorldPos + yOffset;
-        transform.position = Vector3.MoveTowards(transform.position, targetWorldPosWithOffset, MovementSpeed);
+        transform.position = Vector3.MoveTowards(transform.position, targetWorldPosWithOffset, characterTranslationSpeed);
         if (transform.position == targetWorldPosWithOffset) {
             MapPosition = Route.CurrentTarget;
-            if (!Route.NextPosition()) {
+            DistanceTravelledThisTurn += 1;
+            bool onLastNode = !Route.NextPosition();
+            bool outOfMoves = DistanceTravelledThisTurn == (map.DistanceUnit * MovementSpeed) - 1;
+            if (onLastNode) {
                 State = CharacterState.Idle;
                 Route = null;
+                CurrentCommand = null;
+                ExecutedActionThisTurn = true;
+            } else if (outOfMoves) {
+                ExecutedActionThisTurn = true;
+                State = CharacterState.Idle;
+                if (CurrentCommand.HasValue) throw new Exception("Character command is null");
+                StartCoroutine(RequeueUnfinishedCommand(CurrentCommand.Value));
             }
         }
     }
-    
+
+    private IEnumerator RequeueUnfinishedCommand(QueuedCommand command) {
+        var levelController = LevelController.Get();
+        // Wait for the current phase to end before requeue-ing
+        while (levelController.CurrentPhase != PhaseId.BATTLE) yield return null;
+        Debug.Log("Requeue");
+        LevelController.Get().RequeueCommand(command);
+
+    }
+
     public void OnMouseDown() {
         LevelController.Get().ToggleCharacter(this);
     }
@@ -67,8 +92,8 @@ public class Character : MonoBehaviour {
 
     private IEnumerator setMap() {
         GameObject mapObject;
-        while ((mapObject = BaseMap.Get()) == null) yield return null;
-        map = mapObject.GetComponent<BaseMap>();
+        while ((mapObject = MapBase.Get()) == null) yield return null;
+        map = mapObject.GetComponent<MapBase>();
         setMapPosition(MapPosition);
     }
 
