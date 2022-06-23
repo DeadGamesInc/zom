@@ -11,6 +11,8 @@ public class LocationBase : MonoBehaviour {
     [SerializeField] public int SpawnTime;
     [SerializeField] public bool Spawned;
 
+    public GameObject Card;
+
     public void Setup() {
         if (SpawnTime == 0) SetSpawned();
         else SetSpawning();
