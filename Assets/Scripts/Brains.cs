@@ -7,13 +7,15 @@ public class Brains : MonoBehaviour {
     [SerializeField] public int BrainsValue;
     [SerializeField] public int StoredBrains;
     [SerializeField] public Sprite InfoCard;
+    [SerializeField] public int Owner;
     public static Vector3 yOffset = new(0f, 5f, 0f);
 
     public GameObject Card;
     
     private LevelController _levelController;
 
-    public void Setup(BrainsNode node, MapBase map, int value) {
+    public void Setup(BrainsNode node, MapBase map, int owner, int value) {
+        Owner = owner;
         BrainsValue = value;
         transform.localScale = new Vector3(10, 10, 10);
         transform.position = map.GetWorldPosition(node.x, node.z) + yOffset;

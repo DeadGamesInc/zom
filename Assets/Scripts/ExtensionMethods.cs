@@ -6,6 +6,7 @@ public static class ExtensionMethods {
     public static LocationBase GetLocationBase(this GameObject obj) => obj.GetComponent<LocationBase>();
     public static Character GetCharacter(this GameObject obj) => obj.GetComponent<Character>();
     public static Card GetCard(this GameObject obj) => obj.GetComponent<Card>();
+    public static Opponent GetOpponent(this GameObject obj) => obj.GetComponent<Opponent>();
     
     public static void ChangeAlpha(this Material material, float alpha) {
         var oldColor = material.color;

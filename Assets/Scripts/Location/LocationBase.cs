@@ -13,7 +13,8 @@ public class LocationBase : MonoBehaviour {
 
     public GameObject Card;
 
-    public void Setup() {
+    public void Setup(int owner) {
+        Owner = owner;
         if (SpawnTime == 0) SetSpawned();
         else SetSpawning();
     }
