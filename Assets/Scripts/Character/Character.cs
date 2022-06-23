@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Character : MonoBehaviour {
@@ -9,6 +10,7 @@ public class Character : MonoBehaviour {
     [SerializeField] public int MovementSpeed = 1;
     [SerializeField] public CharacterState State;
     [SerializeField] public GameObject Camera;
+    [SerializeField] public GameObject ActionIndicator;
     [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
     [SerializeField] public bool ExecutedActionThisTurn = false;
     [SerializeField] public int DistanceTravelledThisTurn = 0;
@@ -16,7 +18,7 @@ public class Character : MonoBehaviour {
     [SerializeField] public Sprite InfoCard;
 
     private static float characterTranslationSpeed = 3f;
-    
+
     public MapNode MapPosition { get; private set; }
     public CharacterRoute Route { get; private set; }
 
@@ -26,7 +28,7 @@ public class Character : MonoBehaviour {
         Camera = CharacterCamera.Create(gameObject);
         StartCoroutine(setMap());
     }
-    
+
     // Start is called before the first frame update
     void Start() {
         // For testing
@@ -49,7 +51,8 @@ public class Character : MonoBehaviour {
 
     private void Move() {
         Vector3 targetWorldPosWithOffset = Route.CurrentTargetWorldPos + yOffset;
-        transform.position = Vector3.MoveTowards(transform.position, targetWorldPosWithOffset, characterTranslationSpeed);
+        transform.position =
+            Vector3.MoveTowards(transform.position, targetWorldPosWithOffset, characterTranslationSpeed);
         if (transform.position == targetWorldPosWithOffset) {
             MapPosition = Route.CurrentTarget;
             DistanceTravelledThisTurn += 1;
@@ -63,7 +66,7 @@ public class Character : MonoBehaviour {
             } else if (outOfMoves) {
                 ExecutedActionThisTurn = true;
                 State = CharacterState.Idle;
-                if (CurrentCommand.HasValue) throw new Exception("Character command is null");
+                if (!CurrentCommand.HasValue) throw new Exception("Character command is null");
                 StartCoroutine(RequeueUnfinishedCommand(CurrentCommand.Value));
             }
         }
@@ -73,15 +76,32 @@ public class Character : MonoBehaviour {
         var levelController = LevelController.Get();
         // Wait for the current phase to end before requeue-ing
         while (levelController.CurrentPhase != PhaseId.BATTLE) yield return null;
-        Debug.Log("Requeue");
+        OnQueueCommand(command);
         LevelController.Get().RequeueCommand(command);
+    }
 
+    public void OnQueueCommand(QueuedCommand command) {
+        switch (command.Command) {
+            case PlayerCommand.MoveCharacter:
+                if (ActionIndicator != null) Destroy(ActionIndicator);
+                ActionIndicator = Instantiate(LevelController.Get().ActionIndicator);
+                ActionIndicator.GetComponent<ActionPointer>().Command = command;
+                break;
+        }
+    }
+    
+    public void OnExecuteCommand(QueuedCommand command) {
+        switch (command.Command) {
+            case PlayerCommand.MoveCharacter:
+                if (ActionIndicator != null) Destroy(ActionIndicator);
+                break;
+        }
     }
 
     public void OnMouseDown() {
         LevelController.Get().ToggleCharacter(this);
     }
-    
+
     public void OnMouseEnter() {
         LevelController.Get().SetInfoWindow(InfoCard, "");
     }

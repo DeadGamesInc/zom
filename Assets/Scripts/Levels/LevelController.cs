@@ -16,6 +16,7 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public GameObject BasicLocation;
     public GameObject PrimaryCamera;
     public GameObject CharacterUI;
+    public GameObject ActionIndicator;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
     [SerializeField] public static int CameraActive = 20;
     [SerializeField] public static int CameraInActive = 0;
@@ -137,7 +138,9 @@ public class LevelController : MonoBehaviour {
         switch (command) {
             case PlayerCommand.MoveCharacter:
                 var newCommand = new QueuedCommand(currentCommandSource, target, PlayerCommand.MoveCharacter);
-                currentCommandSource.GetComponent<Character>().CurrentCommand = newCommand;
+                Character source = currentCommandSource.GetComponent<Character>();
+                source.CurrentCommand = newCommand;
+                source.OnQueueCommand(newCommand);
                 commands.Add(newCommand);
                 break;
         }
@@ -158,6 +161,7 @@ public class LevelController : MonoBehaviour {
                     var character = command.Source.GetComponent<Character>();
                     var mapNode = command.Target.GetComponent<MapNode>();
                     
+                    character.OnExecuteCommand(command);
                     character.MoveTowards(mapNode);
                 } catch (MovementException e) {
                     Debug.Log(e);
