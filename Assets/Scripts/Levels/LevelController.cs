@@ -135,7 +135,9 @@ public class LevelController : MonoBehaviour {
         if (currentCommand != command) return;
         switch (command) {
             case PlayerCommand.MoveCharacter:
-                commands.Add(new QueuedCommand(currentCommandSource, target, PlayerCommand.MoveCharacter));
+                var newCommand = new QueuedCommand(currentCommandSource, target, PlayerCommand.MoveCharacter);
+                currentCommandSource.GetComponent<Character>().CurrentCommand = newCommand;
+                commands.Add(newCommand);
                 break;
         }
 
@@ -144,12 +146,17 @@ public class LevelController : MonoBehaviour {
         SetStatusText("");
     }
 
+    public void RequeueCommand(QueuedCommand command) {
+        commands.Add(command);
+    }
+
     public void ExecuteCommand(QueuedCommand command) {
         switch (command.Command) {
             case PlayerCommand.MoveCharacter:
                 try {
                     var character = command.Source.GetComponent<Character>();
                     var mapNode = command.Target.GetComponent<MapNode>();
+                    
                     character.MoveTowards(mapNode);
                 } catch (MovementException e) {
                     Debug.Log(e);
@@ -163,6 +170,7 @@ public class LevelController : MonoBehaviour {
         foreach (var command in commands) {
             ExecuteCommand(command);
         }
+        
         commands.Clear();
     }
 
@@ -284,7 +292,7 @@ public class LevelController : MonoBehaviour {
         }
 
         if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && SubtractBrains(card.BrainsValue)) {
-            var map = _map.GetComponent<BaseMap>();
+            var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
             CreateLocation(card.LocationPrefab, map.grid, location.MapPosition, location.ActiveNode);
             Destroy(SelectedLocation);
@@ -293,7 +301,7 @@ public class LevelController : MonoBehaviour {
         }
 
         if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
-            var map = _map.GetComponent<BaseMap>();
+            var map = _map.GetComponent<MapBase>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
             CreateLocation(card.LocationPrefab, map.grid, location.MapPosition, location.ActiveNode);
             Destroy(SelectedEmptyLocation);
@@ -303,7 +311,7 @@ public class LevelController : MonoBehaviour {
 
         if (SelectedBrainsNode != null && card.Type == CardType.RESOURCE) {
             var brains = Instantiate(card.ResourcePrefab, new Vector3(0, 0, 0), new Quaternion());
-            brains.GetComponent<Brains>().Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<BaseMap>(), card.BrainsValue);
+            brains.GetComponent<Brains>().Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<MapBase>(), card.BrainsValue);
             _brainLocations.Add(brains);
             Destroy(SelectedBrainsNode);
             CardPlayed();

@@ -47,10 +47,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd5430799b71f41a4ac5d074a5748bbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementSpeed: 3
+  MovementSpeed: 1
   State: 0
   Camera: {fileID: 0}
-  UI: {fileID: 0}
+  ExecutedActionThisTurn: 0
+  DistanceTravelledThisTurn: 0
   InfoCard: {fileID: 21300000, guid: 223038262c4bfa945a573daadcded859, type: 3}
 --- !u!33 &8345261161078099220
 MeshFilter:

@@ -1,12 +1,13 @@
 using System.Collections;
 using UnityEngine;
 
-public class Map0 : BaseMap {
+public class Map0 : MapBase {
     public new void Initialize() {
-        // Set Map Size
+        // Set Map Attributes
         Length = 16;
         Width = 16;
         CellSize = 30;
+        DistanceUnit = 4;
 
         base.Initialize();
     }

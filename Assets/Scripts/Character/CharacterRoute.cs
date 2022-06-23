@@ -5,9 +5,9 @@ public class CharacterRoute {
     public Vector3 CurrentTargetWorldPos;
     public MapPath Path;
     public int CurrentPathIndex;
-    private BaseMap map;
+    private MapBase map;
 
-    public CharacterRoute(BaseMap map, MapNode start, MapNode end) {
+    public CharacterRoute(MapBase map, MapNode start, MapNode end) {
         MapPath? path = map.GetShortestPathBetweenNodes(start, end);
         if (!path.HasValue || (Path = path.Value).path.Length < 2) throw new MovementException("Path to target does not exist");
         CurrentPathIndex = 0;
