@@ -14,7 +14,8 @@ public class Brains : MonoBehaviour {
     
     private LevelController _levelController;
 
-    public void Setup(BrainsNode node, MapBase map, int value) {
+    public void Setup(BrainsNode node, MapBase map, int owner, int value) {
+        Owner = owner;
         BrainsValue = value;
         transform.localScale = new Vector3(10, 10, 10);
         transform.position = map.GetWorldPosition(node.x, node.z) + yOffset;

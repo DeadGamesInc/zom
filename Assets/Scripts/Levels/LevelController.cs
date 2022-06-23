@@ -224,35 +224,41 @@ public class LevelController : MonoBehaviour {
         CharacterUI.SetActive(false);
     }
 
-
     public void CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
         var locationObject = Instantiate(EmptyLocation);
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
     }
 
-    public void CreateBasicLocation(MapGrid grid, (int, int) position, MapNode activeNode) {
+    public void CreateBasicLocation(MapGrid grid, (int, int) position, MapNode activeNode, int owner) {
         var locationObject = Instantiate(BasicLocation);
-        locationObject.GetLocationBase().Setup();
+        locationObject.GetLocationBase().Setup(owner);
         ConfigureLocation(locationObject, grid, position, activeNode);
     }
 
-    public void CreateLocation(GameObject cardObj, MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
-        var card = cardObj.GetCard();
-        var locationObject = Instantiate(card.LocationPrefab);
-        locationObject.GetLocationBase().Card = cardObj;
-        ConfigureLocation(locationObject, grid, mapPosition, activeNode);
-        locationObject.GetLocationBase().Setup();
-        _locations.Add(locationObject);
+    public GameObject CreateCharacter(GameObject prefab, MapNode node, int owner) {
+        var character = Instantiate(prefab, new Vector3(0, 0, 0), new Quaternion());
+        var script = character.GetCharacter();
+        script.Setup(node, owner);
+        _characters.Add(character);
+        return character;
     }
 
-    public void CreateBrainsNode(GameObject cardObject, int owner) {
-        var card = cardObject.GetCard();
-        var brains = Instantiate(card.ResourcePrefab, new Vector3(0, 0, 0), new Quaternion());
+    public GameObject CreateLocation(GameObject prefab, GameObject replaces, MapGrid grid, (int, int) mapPosition, MapNode activeNode, int owner) {
+        var locationObject = Instantiate(prefab);
+        ConfigureLocation(locationObject, grid, mapPosition, activeNode);
+        locationObject.GetLocationBase().Setup(owner);
+        if (replaces != null) Destroy(replaces);
+        _locations.Add(locationObject);
+        return locationObject;
+    }
+
+    public GameObject CreateBrainsNode(GameObject brainsPrefab, GameObject node, int owner, int value) {
+        var brains = Instantiate(brainsPrefab, new Vector3(0, 0, 0), new Quaternion());
         var script = brains.GetComponent<Brains>();
-        script.Card = cardObject;
-        script.Owner = owner;
-        script.Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<MapBase>(), card.BrainsValue);
+        script.Setup(node.GetComponent<BrainsNode>(), _map.GetComponent<MapBase>(), owner, value);
+        Destroy(node);
         _brainLocations.Add(brains);
+        return brains;
     }
 
     private static void ConfigureLocation(GameObject locationObject, MapGrid grid, (int, int) mapPosition,
@@ -298,27 +304,27 @@ public class LevelController : MonoBehaviour {
         if (SelectedCard == null) return false;
         var card = SelectedCard.GetComponent<Card>();
         var basicLocation = false;
+        var ownedLocation = false;
         
         if (SelectedLocation != null) {
             var script = SelectedLocation.GetComponent<LocationControl>();
             basicLocation = script.BasicLocation;
+            ownedLocation = script.Owner == 0;
         }
 
-        if (SelectedLocation != null && card.Type == CardType.CHARACTER && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
-            var character = Instantiate(card.CharacterPrefab, new Vector3(0, 0, 0), new Quaternion());
+        if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
+            var character = CreateCharacter(card.CharacterPrefab, SelectedLocation.GetLocationBase().ActiveNode, 0);
             var script = character.GetCharacter();
             script.Card = SelectedCard;
-            script.Setup(SelectedLocation.GetComponent<LocationBase>().ActiveNode);
-            _characters.Add(character);
             CardPlayed(false);
             return true;
         }
 
-        if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && SubtractBrains(card.BrainsValue)) {
+        if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
-            CreateLocation(SelectedCard, map.grid, location.MapPosition, location.ActiveNode);
-            Destroy(SelectedLocation);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.grid, location.MapPosition, location.ActiveNode, 0);
+            locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
         }
@@ -326,19 +332,16 @@ public class LevelController : MonoBehaviour {
         if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
-            CreateLocation(SelectedCard, map.grid, location.MapPosition, location.ActiveNode);
-            Destroy(SelectedEmptyLocation);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.grid, location.MapPosition, location.ActiveNode, 0);
+            locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
         }
 
         if (SelectedBrainsNode != null && card.Type == CardType.RESOURCE) {
-            var brains = Instantiate(card.ResourcePrefab, new Vector3(0, 0, 0), new Quaternion());
+            var brains = CreateBrainsNode(card.ResourcePrefab, SelectedBrainsNode, 0, card.BrainsValue);
             var script = brains.GetComponent<Brains>();
             script.Card = SelectedCard;
-            script.Setup(SelectedBrainsNode.GetComponent<BrainsNode>(), _map.GetComponent<MapBase>(), card.BrainsValue);
-            _brainLocations.Add(brains);
-            Destroy(SelectedBrainsNode);
             CardPlayed(false);
             return true;
         }
@@ -454,12 +457,15 @@ public class LevelController : MonoBehaviour {
     private IEnumerator HandleSpawnPhase() {
         if (LocalTurn) {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.SPAWN);
-            
-            foreach (var location in _locations.Where(location => !location.GetLocationBase().Spawned)) 
-                location.GetLocationBase().SpawnTick();
-            
-            foreach (var character in _characters.Where(character => !character.GetCharacter().Spawned))
-                character.GetCharacter().SpawnTick();
+
+            foreach (var locationBase in _locations.Select(location => location.GetLocationBase())
+                         .Where(locationBase => !locationBase.Spawned && locationBase.Owner == 0)) {
+                locationBase.SpawnTick();
+            }
+
+            foreach (var characterBase in _characters.Select(character => character.GetCharacter())
+                         .Where(characterBase => !characterBase.Spawned && characterBase.Owner == 0))
+                characterBase.SpawnTick();
             
             yield return Wait();
 
@@ -520,7 +526,12 @@ public class LevelController : MonoBehaviour {
     private IEnumerator HandleEndTurn() {
         if (LocalTurn) {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.END_TURN);
-            foreach (var brain in _brainLocations) brain.GetComponent<Brains>().UpdateBrains();
+
+            foreach (var brainScript in _brainLocations.Select(brain => brain.GetComponent<Brains>())
+                         .Where(brainScript => brainScript.Owner == 0)) {
+                brainScript.UpdateBrains();
+            }
+            
             yield return Wait();
         }
         
