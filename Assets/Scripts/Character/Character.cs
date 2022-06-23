@@ -19,13 +19,15 @@ public class Character : MonoBehaviour {
     [SerializeField] public GameObject Card;
     [SerializeField] public int SpawnTime;
     [SerializeField] public bool Spawned;
+    [SerializeField] public int Owner;
 
     private static float characterTranslationSpeed = 3f;
 
     public MapNode MapPosition { get; private set; }
     public CharacterRoute Route { get; private set; }
 
-    public void Setup(MapNode node) {
+    public void Setup(MapNode node, int owner) {
+        Owner = owner;
         if (SpawnTime == 0) SetSpawned();
         else SetSpawning();
         MapPosition = node;

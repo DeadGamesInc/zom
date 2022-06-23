@@ -21,9 +21,9 @@ public class Map0 : MapBase {
 
     protected override void InitializeLocations() {
         if (_levelController == null) return;
-        _levelController.CreateBasicLocation(grid, (8, 1), GetNode(8, 2));
+        _levelController.CreateBasicLocation(grid, (8, 1), GetNode(8, 2), 0);
         _levelController.CreateEmptyLocation(grid, (15, 8), GetNode(14, 8));
-        _levelController.CreateBasicLocation(grid, (8, 15), GetNode(8, 14));
+        _levelController.CreateBasicLocation(grid, (8, 15), GetNode(8, 14), 1);
         _levelController.CreateEmptyLocation(grid, (1, 8), GetNode(2, 8));
     }
 
