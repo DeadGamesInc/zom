@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1209,7 +1209,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0899f488d0090d242a17658cc929b406, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RoundTimerBar: {fileID: 427516921}
+  WaitText: {fileID: 1757564508}
+  CurrentPhase: 0
 --- !u!4 &520811970
 Transform:
   m_ObjectHideFlags: 0
@@ -1223,7 +1224,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &555519965
 GameObject:
@@ -1940,7 +1941,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.9452591, y: 1}
+    m_SensorSize: {x: 2.0971732, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -4289,6 +4290,10 @@ MonoBehaviour:
   SelectedEmptyLocation: {fileID: 0}
   SelectedLocation: {fileID: 0}
   SelectedBrainsNode: {fileID: 0}
+  _map: {fileID: 0}
+  BrainLocations: []
+  Locations: []
+  Characters: []
   BrainsCounterText: {fileID: 2122711157}
 --- !u!1 &2122711155
 GameObject:

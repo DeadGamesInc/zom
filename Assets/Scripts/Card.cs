@@ -42,7 +42,6 @@ public class Card : MonoBehaviour {
     }
 
     public void OnMouseDown() {
-        if (Camera.main == null || _levelController == null || _levelController.CurrentPhase != PhaseId.STRATEGIC) return;
         _levelController.SetCardLock(true);
         var transformInfo = transform;
         _startPosition = transformInfo.position;
@@ -52,21 +51,19 @@ public class Card : MonoBehaviour {
     }
 
     public void OnMouseDrag() {
-        if (Camera.main == null || _levelController == null || _levelController.CurrentPhase != PhaseId.STRATEGIC) return;
+        if (Camera.main == null) return;
         var distance = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
         transform.position = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distance));
     }
 
     public void OnMouseUp() {
-        if (_levelController == null || _levelController.CurrentPhase != PhaseId.STRATEGIC) return;
-        
         if (!_levelController.TryPlayCard()) {
             var setTransform = transform;
             setTransform.position = _startPosition;
             setTransform.localScale = StartScale;
         }
         
-        _levelController.SelectedCard = null;
         _levelController.SetCardLock(false);
+        _levelController.SetCard(null, null, "");
     }
 }
