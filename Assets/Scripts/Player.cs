@@ -10,6 +10,8 @@ public class Player : MonoBehaviour {
 
     private static Player Instance;
 
+    public static GameObject GetGameObject() => GameObject.Find("Player");
+    
     public static Player Get() {
         var player = GameObject.Find("Player");
         if (player == null) return null;

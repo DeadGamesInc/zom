@@ -9,7 +9,6 @@ public class BarryDevBox : MonoBehaviour {
     
     public void Start() {
         _gameController = GameObject.Find("GameController").GetComponent<GameController>();
-        _deckController = GameObject.Find("DeckController").GetComponent<DeckController>();
         
         var availableCards = _gameController.AvailableCards;
         foreach (var card in availableCards) {
