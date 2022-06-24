@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 426298449937249434}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalScale: {x: 7, y: 7, z: 7}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -50,12 +50,14 @@ MonoBehaviour:
   MovementSpeed: 1
   State: 0
   Camera: {fileID: 0}
+  ActionIndicator: {fileID: 0}
   ExecutedActionThisTurn: 0
   DistanceTravelledThisTurn: 0
   InfoCard: {fileID: 21300000, guid: e2b30a81655d5564295d5002ba815363, type: 3}
   Card: {fileID: 0}
   SpawnTime: 2
   Spawned: 0
+  Owner: 0
 --- !u!33 &426298449937249431
 MeshFilter:
   m_ObjectHideFlags: 0

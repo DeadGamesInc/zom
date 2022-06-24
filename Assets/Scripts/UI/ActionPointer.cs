@@ -17,7 +17,6 @@ public class ActionPointer : MonoBehaviour {
                     Destroy(this);
                     return;
                 }
-                Debug.Log(route.Value.path[1].transform.position);
                 to = route.Value.path[1].transform.position;
                 from =  Command.Source.transform.position;
                 break;

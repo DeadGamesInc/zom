@@ -17,9 +17,11 @@ public class Character : MonoBehaviour {
     [SerializeField] public QueuedCommand? CurrentCommand;
     [SerializeField] public Sprite InfoCard;
     [SerializeField] public GameObject Card;
+    [SerializeField] public GameObject[] PlayedCharacters;
     [SerializeField] public int SpawnTime;
     [SerializeField] public bool Spawned;
     [SerializeField] public int Owner;
+    
 
     private static float characterTranslationSpeed = 3f;
 
@@ -28,12 +30,11 @@ public class Character : MonoBehaviour {
 
     public void Setup(MapNode node, int owner) {
         Owner = owner;
+        map = LevelController.Get()._map.GetMapBase();
         if (SpawnTime == 0) SetSpawned();
         else SetSpawning();
-        MapPosition = node;
-        transform.localScale = new Vector3(20, 20, 20);
         Camera = CharacterCamera.Create(gameObject);
-        StartCoroutine(setMap());
+        setMapPosition(node);
     }
 
     // Start is called before the first frame update
@@ -86,13 +87,24 @@ public class Character : MonoBehaviour {
                 Route = null;
                 CurrentCommand = null;
                 ExecutedActionThisTurn = true;
+                Reposition();
             } else if (outOfMoves) {
                 ExecutedActionThisTurn = true;
                 State = CharacterState.Idle;
+                Reposition();
                 if (!CurrentCommand.HasValue) throw new Exception("Character command is null");
                 StartCoroutine(RequeueUnfinishedCommand(CurrentCommand.Value));
             }
         }
+    }
+
+    public void Reposition() {
+        double occupants = Convert.ToDouble(LevelController.Get().CharactersOnNode(MapPosition).Length);
+        if(occupants == 0) return;
+        var playerGrid = MapPosition.PlayerGrid;
+        int x = (int) Math.Floor(occupants / Convert.ToDouble(MapNode.MAP_GRID_SIZE));
+        int y = (int) occupants % MapNode.MAP_GRID_SIZE;
+        transform.position = playerGrid.GetWorldPosition(x, y) + yOffset;
     }
 
     public void Attack(GameObject target) {
@@ -154,15 +166,9 @@ public class Character : MonoBehaviour {
         LevelController.Get().SetInfoWindow(null, "");
     }
 
-    private IEnumerator setMap() {
-        GameObject mapObject;
-        while ((mapObject = MapBase.Get()) == null) yield return null;
-        map = mapObject.GetComponent<MapBase>();
-        setMapPosition(MapPosition);
-    }
-
-    private Vector3 setMapPosition(MapNode node) {
+    private void setMapPosition(MapNode node) {
         MapPosition = node;
-        return transform.position = map.GetNodeWorldPosition(node) + yOffset;
+        transform.position = map.GetNodeWorldPosition(node) + yOffset;
+        Reposition();
     }
 }

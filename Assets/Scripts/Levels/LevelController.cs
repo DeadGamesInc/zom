@@ -193,7 +193,24 @@ public class LevelController : MonoBehaviour {
         characterCamera.Priority = CameraActive;
         primaryCamera.Priority = CameraInActive;
         CharacterUI.SetActive(true);
-        CharacterUI.GetComponent<CharacterUI>().TargetCharacter = character.gameObject;
+        var characterUI = CharacterUI.GetComponent<CharacterUI>();
+        characterUI.TargetCharacter = character.gameObject;
+        characterUI.SetCharacterText(character.gameObject.name);
+    }
+    
+    public void UnselectCharacter() {
+        if (selectedCharacter == null) throw new Exception("No characters are selected");
+        CinemachineVirtualCamera characterCamera =
+            selectedCharacter.GetComponent<Character>().Camera.GetComponent<CinemachineVirtualCamera>();
+        CinemachineVirtualCamera primaryCamera = PrimaryCamera.GetComponent<CinemachineVirtualCamera>();
+
+        selectedCharacter = null;
+        characterCamera.Priority = CameraInActive;
+        primaryCamera.Priority = CameraActive;
+        var characterUI = CharacterUI.GetComponent<CharacterUI>();
+        characterUI.TargetCharacter = null;
+        characterUI.SetCharacterText("");
+        CharacterUI.SetActive(false);
     }
 
     public void FixedUpdate() {
@@ -208,17 +225,8 @@ public class LevelController : MonoBehaviour {
         }
     }
 
-    public void UnselectCharacter() {
-        if (selectedCharacter == null) throw new Exception("No characters are selected");
-        CinemachineVirtualCamera characterCamera =
-            selectedCharacter.GetComponent<Character>().Camera.GetComponent<CinemachineVirtualCamera>();
-        CinemachineVirtualCamera primaryCamera = PrimaryCamera.GetComponent<CinemachineVirtualCamera>();
-
-        selectedCharacter = null;
-        characterCamera.Priority = CameraInActive;
-        primaryCamera.Priority = CameraActive;
-        CharacterUI.GetComponent<CharacterUI>().TargetCharacter = null;
-        CharacterUI.SetActive(false);
+    public GameObject[] CharactersOnNode(MapNode node) {
+        return _characters.Where(character => character.GetCharacter().MapPosition == node).ToArray();
     }
 
     public void CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
