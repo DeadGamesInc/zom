@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+
 using Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -21,7 +23,8 @@ public class Character : MonoBehaviour {
     [SerializeField] public int SpawnTime;
     [SerializeField] public bool Spawned;
     [SerializeField] public int Owner;
-    
+    [SerializeField] public List<GameObject> EquippedItems = new();
+
 
     private static float characterTranslationSpeed = 3f;
 
@@ -159,11 +162,20 @@ public class Character : MonoBehaviour {
 
     public void OnMouseEnter() {
         var spawnTime = !Spawned ? $"{SpawnTime} turns before ready" : "";
-        LevelController.Get().SetInfoWindow(InfoCard, spawnTime);
+        var controller = LevelController.Get();
+        controller.SetInfoWindow(InfoCard, spawnTime);
+        controller.SelectedCharacter = gameObject;
+
+        for (var i = 0; i < EquippedItems.Count; i++) {
+            var script = EquippedItems[i].GetItem();
+            LevelController.Get().SetInfoIcon(i, script.Icon);
+        }
     }
 
     public void OnMouseExit() {
-        LevelController.Get().SetInfoWindow(null, "");
+        var controller = LevelController.Get();
+        controller.SetInfoWindow(null, "");
+        controller.SelectedCharacter = null;
     }
 
     private void setMapPosition(MapNode node) {

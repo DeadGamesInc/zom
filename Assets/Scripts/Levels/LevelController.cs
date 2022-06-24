@@ -31,6 +31,8 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public int StrategicPhaseLength = 90;
     [SerializeField] public Transform DiscardPosition;
 
+    [SerializeField] public List<GameObject> InfoIcons = new();
+
     protected GameController _gameController;
     protected DeckController _deckController;
     protected GameObject _roundTimerBar;
@@ -48,6 +50,7 @@ public class LevelController : MonoBehaviour {
     public GameObject SelectedEmptyLocation;
     public GameObject SelectedLocation;
     public GameObject SelectedBrainsNode;
+    public GameObject SelectedCharacter;
 
     protected GameObject _handPosition;
     private GameObject _cardPreview;
@@ -303,6 +306,19 @@ public class LevelController : MonoBehaviour {
             _infoWindow.GetComponentInChildren<TextMeshProUGUI>().text = text;
             _infoWindow.SetActive(sprite != null);
         }
+
+        if (sprite == null) {
+            foreach (var icon in InfoIcons) {
+                icon.GetUIImage().sprite = null;
+                icon.SetActive(false);
+            }
+        }
+    }
+
+    public void SetInfoIcon(int index, Sprite icon) {
+        if (index > InfoIcons.Count - 1) return;
+        InfoIcons[index].GetUIImage().sprite = icon;
+        InfoIcons[index].SetActive(true);
     }
 
     public bool TryPlayCard() {
@@ -313,11 +329,28 @@ public class LevelController : MonoBehaviour {
         var card = SelectedCard.GetComponent<Card>();
         var basicLocation = false;
         var ownedLocation = false;
+        var ownedCharacter = false;
+        var characterSpawned = false;
         
         if (SelectedLocation != null) {
             var script = SelectedLocation.GetComponent<LocationControl>();
             basicLocation = script.BasicLocation;
             ownedLocation = script.Owner == 0;
+        }
+
+        if (SelectedCharacter != null) {
+            var script = SelectedCharacter.GetCharacter();
+            ownedCharacter = script.Owner == 0;
+            characterSpawned = script.Spawned;
+        }
+
+        if (SelectedCharacter != null && card.Type == CardType.ITEM && ownedCharacter && characterSpawned) {
+            var character = SelectedCharacter.GetCharacter();
+            var item = card.ItemPrefab.GetComponent<Item>();
+            item.Card = SelectedCard;
+            character.EquippedItems.Add(card.ItemPrefab);
+            CardPlayed(false);
+            return true;
         }
 
         if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
