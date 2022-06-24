@@ -9,6 +9,12 @@ public class Player : MonoBehaviour {
     public ProgressBar HealthBar;
 
     private static Player Instance;
+
+    public static Player Get() {
+        var player = GameObject.Find("Player");
+        if (player == null) return null;
+        return player.GetComponent<Player>();
+    }
     
     // Start is called before the first frame update
     public void Start() {

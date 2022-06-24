@@ -59,13 +59,13 @@ public class LevelController : MonoBehaviour {
     private Vector3 _initialHandPosition;
     private ProgressBar _enemyHealthBar;
     private bool _lockCard;
-    private List<GameObject> _brainLocations = new();
-    private List<GameObject> _locations = new();
-    private List<GameObject> _characters = new();
+    public List<GameObject> BrainLocations = new();
+    public List<GameObject> Locations = new();
+    public List<GameObject> Characters = new();
     [SerializeField] public TextMeshProUGUI BrainsCounterText;
 
-    protected virtual void Setup() {
-    }
+    protected virtual void Setup() {}
+    protected virtual bool LevelSpecificCardHandling() { return false; }
 
     public static LevelController Get() {
         GameObject levelController = GameObject.Find("LevelController");
@@ -145,9 +145,11 @@ public class LevelController : MonoBehaviour {
     }
 
     public void QueueCommand(PlayerCommand command, GameObject target) {
+        var owner = LocalTurn ? 0 : 1;
+        
         if (currentCommand != command) return;
 
-        QueuedCommand newCommand = new QueuedCommand(currentCommandSource, target, command);
+        QueuedCommand newCommand = new QueuedCommand(currentCommandSource, target, command, owner);
         Character source = currentCommandSource.GetComponent<Character>();
         source.OnQueueCommand(newCommand);
         commands.Add(newCommand);
@@ -166,8 +168,8 @@ public class LevelController : MonoBehaviour {
         character.OnExecuteCommand(command);
     }
 
-    public void ExecuteQueuedCommands() {
-        foreach (var command in commands) {
+    public void ExecuteQueuedCommands(int owner) {
+        foreach (var command in commands.Where(a => a.Owner == owner)) {
             ExecuteCommand(command);
         }
 
@@ -234,7 +236,7 @@ public class LevelController : MonoBehaviour {
         var character = Instantiate(prefab, new Vector3(0, 0, 0), new Quaternion());
         var script = character.GetCharacter();
         script.Setup(node, owner);
-        _characters.Add(character);
+        Characters.Add(character);
         return character;
     }
 
@@ -243,7 +245,7 @@ public class LevelController : MonoBehaviour {
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
         locationObject.GetLocationBase().Setup(owner);
         if (replaces != null) Destroy(replaces);
-        _locations.Add(locationObject);
+        Locations.Add(locationObject);
         return locationObject;
     }
 
@@ -252,7 +254,7 @@ public class LevelController : MonoBehaviour {
         var script = brains.GetComponent<Brains>();
         script.Setup(node.GetComponent<BrainsNode>(), _map.GetComponent<MapBase>(), owner, value);
         Destroy(node);
-        _brainLocations.Add(brains);
+        BrainLocations.Add(brains);
         return brains;
     }
 
@@ -296,10 +298,14 @@ public class LevelController : MonoBehaviour {
     }
 
     public bool TryPlayCard() {
+        if (LevelSpecificCardHandling()) return true;
+        
+        if (!(CurrentPhase == PhaseId.STRATEGIC && LocalTurn) && !(CurrentPhase == PhaseId.DEFENCE && !LocalTurn)) return false;
         if (SelectedCard == null) return false;
         var card = SelectedCard.GetComponent<Card>();
         var basicLocation = false;
         var ownedLocation = false;
+        
         if (SelectedLocation != null) {
             var script = SelectedLocation.GetComponent<LocationControl>();
             basicLocation = script.BasicLocation;
@@ -356,14 +362,23 @@ public class LevelController : MonoBehaviour {
         card.SetActive(true);
     }
 
+    public void OtherPlayerStarted() {
+        CurrentPhase = PhaseId.SPAWN;
+        HandlePhase();
+    }
+
+    public void OtherPlayerPhase(PhaseId phase) {
+        CurrentPhase = phase;
+        HandlePhase();
+    }
+
     public void OtherPlayerPhaseComplete(PhaseId phase) {
         switch (phase) {
             case PhaseId.DEFENCE:
                 CurrentPhase = PhaseId.BATTLE;
+                HandlePhase();
                 break;
         }
-        
-        HandlePhase();
     }
 
     public void StartTurn() {
@@ -372,7 +387,7 @@ public class LevelController : MonoBehaviour {
         HandlePhase();
     }
 
-    private void CardPlayed(bool discard) {
+    protected void CardPlayed(bool discard) {
         _deckController.PlayedCard(SelectedCard);
 
         if (discard) DiscardCard(SelectedCard);
@@ -387,7 +402,7 @@ public class LevelController : MonoBehaviour {
         SetCard(null, null, "");
     }
 
-    protected void DrawCard() {
+    public void DrawCard() {
         if (!_deckController.DrawCard()) return;
         UpdateHandPosition();
     }
@@ -412,11 +427,14 @@ public class LevelController : MonoBehaviour {
     protected void EndTurn() {
         _roundTimerBar.SetActive(false);
 
-        if (CurrentPhase == PhaseId.STRATEGIC)
+        if (CurrentPhase == PhaseId.STRATEGIC) {
+            Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.STRATEGIC);
             CurrentPhase = PhaseId.DEFENCE;
-        else if (CurrentPhase == PhaseId.DEFENCE) CurrentPhase = PhaseId.BATTLE;
-
-        HandlePhase();
+            HandlePhase();
+        }
+        else if (CurrentPhase == PhaseId.DEFENCE) {
+            Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+        }
     }
 
     private void HandlePhase() {
@@ -459,17 +477,18 @@ public class LevelController : MonoBehaviour {
         if (LocalTurn) {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.SPAWN);
 
-            foreach (var locationBase in _locations.Select(location => location.GetLocationBase())
+            foreach (var locationBase in Locations.Select(location => location.GetLocationBase())
                          .Where(locationBase => !locationBase.Spawned && locationBase.Owner == 0)) {
                 locationBase.SpawnTick();
             }
 
-            foreach (var characterBase in _characters.Select(character => character.GetCharacter())
+            foreach (var characterBase in Characters.Select(character => character.GetCharacter())
                          .Where(characterBase => !characterBase.Spawned && characterBase.Owner == 0))
                 characterBase.SpawnTick();
             
             yield return Wait();
 
+            Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.SPAWN);
             CurrentPhase = PhaseId.STRATEGIC;
             HandlePhase();
         }
@@ -500,8 +519,9 @@ public class LevelController : MonoBehaviour {
     private IEnumerator HandleBattlePhase() {
         if (LocalTurn) {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.BATTLE);
-            ExecuteQueuedCommands();
+            ExecuteQueuedCommands(0);
             yield return Wait();
+            Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.BATTLE);
             CurrentPhase = PhaseId.DRAW;
             HandlePhase();
         }
@@ -518,6 +538,7 @@ public class LevelController : MonoBehaviour {
 
             yield return Wait();
 
+            Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DRAW);
             CurrentPhase = PhaseId.END_TURN;
             HandlePhase();
         }
@@ -527,17 +548,16 @@ public class LevelController : MonoBehaviour {
         if (LocalTurn) {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.END_TURN);
 
-            foreach (var brainScript in _brainLocations.Select(brain => brain.GetComponent<Brains>())
+            foreach (var brainScript in BrainLocations.Select(brain => brain.GetComponent<Brains>())
                          .Where(brainScript => brainScript.Owner == 0)) {
                 brainScript.UpdateBrains();
             }
             
             yield return Wait();
+            SubtractBrains(BrainsAmount);
+            LocalTurn = !LocalTurn;
+            if (!LocalTurn) Opponent.GetOpponent().StartTurn();
         }
-        
-        SubtractBrains(BrainsAmount);
-        LocalTurn = !LocalTurn;
-        if (!LocalTurn) Opponent.GetOpponent().StartTurn();
     }
 
     private static IEnumerator Wait() {
