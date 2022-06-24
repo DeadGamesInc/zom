@@ -1,5 +1,3 @@
-﻿namespace Objects {
-    public class ItemId {
-        
-    }
+﻿public enum ItemId { 
+    ZOMBURGER
 }

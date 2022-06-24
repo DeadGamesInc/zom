@@ -47,11 +47,26 @@ public class Level0Controller : LevelController {
         var card = SelectedCard.GetComponent<Card>();
         var basicLocation = false;
         var ownedLocation = false;
+        var ownedCharacter = false;
+        var characterSpawned = false;
         
         if (SelectedLocation != null) {
             var script = SelectedLocation.GetComponent<LocationControl>();
             basicLocation = script.BasicLocation;
             ownedLocation = script.Owner == 1;
+        }
+        
+        if (SelectedCharacter != null) {
+            var script = SelectedCharacter.GetCharacter();
+            ownedCharacter = script.Owner == 1;
+            characterSpawned = script.Spawned;
+        }
+        
+        if (SelectedCharacter != null && card.Type == CardType.ITEM && ownedCharacter && characterSpawned) {
+            var character = SelectedCharacter.GetCharacter();
+            character.EquippedItems.Add(card.ItemPrefab);
+            CardPlayed(true);
+            return true;
         }
         
         if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
