@@ -13,6 +13,8 @@ public class GameController : MonoBehaviour {
     [SerializeField] public List<GameObject> CardDatabase = new();
     public List<AvailableCard> AvailableCards = new();
 
+    public static GameObject GetGameObject() => GameObject.Find("GameController");
+
     public void Start() {
         if (Instance != null) {
             Destroy(gameObject);

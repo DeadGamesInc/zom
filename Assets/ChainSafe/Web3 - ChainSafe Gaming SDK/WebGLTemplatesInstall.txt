@@ -1,0 +1,5 @@
+Install Web3GLTemplates
+
+- Unizip WebGLTemplates Folder
+- Move WebGLTemplates Folder into the Assets directory.
+

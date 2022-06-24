@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Web3Login.unity
+    guid: 91c94d0f4a3824743a0559ac169599f2
+  - enabled: 1
     path: Assets/Scenes/InitializationScene.unity
     guid: 6bbf100e6ba56a34e9485367adad2e5c
   - enabled: 1
