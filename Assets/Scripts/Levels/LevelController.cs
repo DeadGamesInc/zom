@@ -226,7 +226,7 @@ public class LevelController : MonoBehaviour {
     }
 
     public GameObject[] CharactersOnNode(MapNode node) {
-        return _characters.Where(character => character.GetCharacter().MapPosition == node).ToArray();
+        return Characters.Where(character => character.GetCharacter().MapPosition == node).ToArray();
     }
 
     public void CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
