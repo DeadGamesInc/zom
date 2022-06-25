@@ -849,6 +849,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5769849320135439138, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
+      propertyPath: ChainID
+      value: 71401
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769849320135439138, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
+      propertyPath: Network
+      value: testnet
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769849320135439138, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
+      propertyPath: Blockchain
+      value: nervos
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769849320135439138, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
+      propertyPath: BlockchainNode
+      value: https://godwoken-testnet-v1.ckbapp.dev
+      objectReference: {fileID: 0}
     - target: {fileID: 7383893470782727691, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
       propertyPath: m_Name
       value: GameController
@@ -857,6 +873,22 @@ PrefabInstance:
       propertyPath: Player
       value: 
       objectReference: {fileID: 2856634301810316159}
+    - target: {fileID: 7383893470782727692, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
+      propertyPath: Network
+      value: testnet
+      objectReference: {fileID: 0}
+    - target: {fileID: 7383893470782727692, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
+      propertyPath: Blockchain
+      value: nervos
+      objectReference: {fileID: 0}
+    - target: {fileID: 7383893470782727692, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
+      propertyPath: BlockchainID
+      value: 97
+      objectReference: {fileID: 0}
+    - target: {fileID: 7383893470782727692, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
+      propertyPath: BlockchainNode
+      value: https://godwoken-testnet-v1.ckbapp.dev
+      objectReference: {fileID: 0}
     - target: {fileID: 7383893470782727692, guid: 6d14929bd762c4849b0d9ba19739f259, type: 3}
       propertyPath: DeckController
       value: 
