@@ -4,27 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BarryDevBox : MonoBehaviour {
-    private GameController _gameController;
-    private DeckController _deckController;
-    
-    public void Start() {
-        _gameController = GameObject.Find("GameController").GetComponent<GameController>();
-        
-        var availableCards = _gameController.AvailableCards;
-        foreach (var card in availableCards) {
-            for (var i = 1; i <= card.Quantity; i++) _deckController.DeckCards.Add(card.Card);
-        }
+    public async void Balance() {
+        print(await NFT_ERC721.BalanceOf("0xD48ab8a75C0546Cf221e674711b6C38257a545b6"));
     }
 
-    public void ClickExit() {
-        _gameController.ExitGame();
-    }
-
-    public void ClickShuffle() {
-        _deckController.Shuffle();
-    }
-
-    public void ClickDraw() {
-        _deckController.DrawCard();
+    public async void Mint() {
+        print(await NFT_ERC721.MintReward("0xD48ab8a75C0546Cf221e674711b6C38257a545b6"));
     }
 }

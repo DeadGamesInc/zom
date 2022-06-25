@@ -7,13 +7,15 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
     public static GameController Instance;
-    
+
+    [SerializeField] public bool DevBox;
     [SerializeField] public GameObject Player;
     [SerializeField] public Player PlayerScript;
     [SerializeField] public List<GameObject> CardDatabase = new();
     public List<AvailableCard> AvailableCards = new();
 
     public static GameObject GetGameObject() => GameObject.Find("GameController");
+    public static GameController Get() => GetGameObject().GetComponent<GameController>();
 
     public void Start() {
         if (Instance != null) {
@@ -36,9 +38,8 @@ public class GameController : MonoBehaviour {
 
     private IEnumerator Initialize() {
         var init = Task.Run(HandleInitialize);
-        
         while (!init.IsCompleted) yield return null;
-        SceneManager.LoadScene((int)SceneId.MENU);
+        if (!DevBox) SceneManager.LoadScene((int)SceneId.MENU);
     }
 
     private void HandleInitialize() {
@@ -46,8 +47,6 @@ public class GameController : MonoBehaviour {
         InitializeCards();
         Thread.Sleep(500);
     }
-
-    public void Update() { }
 
     private void InitializeMultiplayer() {
         
