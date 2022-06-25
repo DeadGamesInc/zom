@@ -18,7 +18,8 @@ public class LevelController : MonoBehaviour {
     public GameObject PrimaryCamera;
     public GameObject CharacterUI;
     public GameObject ActionIndicator;
-    public GameObject CoroutineRunner;
+    public GameObject DefendCamera;
+    private GameObject _coroutineRunner;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
     [SerializeField] public static int CameraActive = 20;
     [SerializeField] public static int CameraInactive = 0;
@@ -31,6 +32,7 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public int PlayerMaxHealth = 20;
     [SerializeField] public int StrategicPhaseLength = 90;
     [SerializeField] public Transform DiscardPosition;
+    public bool PendingDefenseCycle = false; 
 
     protected GameController _gameController;
     protected DeckController _deckController;
@@ -39,7 +41,6 @@ public class LevelController : MonoBehaviour {
     protected Player _player;
 
     private DateTime _roundEnd;
-    private bool _coroutineMutex = false;
 
     public GameObject selectedCharacter;
     public GameObject currentCommandSource;
@@ -55,6 +56,7 @@ public class LevelController : MonoBehaviour {
     private GameObject _cardPreview;
     private GameObject _infoWindow;
     private GameObject _waitText;
+    private GameObject _endDefenseCycleButton;
     private TextMeshProUGUI _phaseName;
     private TextMeshProUGUI _statusText;
     public GameObject _map;
@@ -92,7 +94,9 @@ public class LevelController : MonoBehaviour {
         _enemyHealthBar = GameObject.Find("EnemyHealthBar")?.GetComponent<ProgressBar>();
         _waitText = GameObject.Find("WaitText");
         _infoWindow = GameObject.Find("InfoWindow");
-
+        _endDefenseCycleButton = GameObject.Find("EndDefenceCycleButton");
+        _coroutineRunner = new GameObject("CoroutineRunner").AddComponent<CoroutineRunner>().gameObject;
+        
         if (_cardPreview != null) _cardPreview.SetActive(false);
         if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
         if (CharacterUI != null) CharacterUI.SetActive(false);
@@ -101,6 +105,7 @@ public class LevelController : MonoBehaviour {
         if (_roundTimerBarScript != null) _roundTimerBarScript.Maximum = StrategicPhaseLength;
         if (_waitText != null) _waitText.SetActive(false);
         if (_infoWindow != null) _infoWindow.SetActive(false);
+        if (_endDefenseCycleButton != null) _endDefenseCycleButton.SetActive(false);
 
         if (_enemyHealthBar != null) {
             _enemyHealthBar.Maximum = PlayerMaxHealth;
@@ -115,12 +120,6 @@ public class LevelController : MonoBehaviour {
         
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
-    }
-
-
-    private IEnumerator test(string log) {
-        Debug.Log(log);
-        yield return new WaitForSeconds(1);
     }
 
     public void AddBrains(int amount) {
@@ -177,28 +176,44 @@ public class LevelController : MonoBehaviour {
     }
 
     public void ExecuteDefensePhaseCommands(int owner) {
-        foreach (var commandGroup in commands.Where(a => a.Owner == owner && a.Command == PlayerCommand.AttackLocation)
-                     .GroupBy(command => command.Target)) {
-      
-            Defend(commandGroup.ToArray());
-        }
+        var defenseCycles = commands.Where(a => a.Owner == owner && a.Command == PlayerCommand.AttackLocation)
+            .GroupBy(command => command.Target).Select(commandGroup => StartDefenseCycle(commandGroup.ToArray())); 
+        Debug.Log(defenseCycles.Count());
+        _coroutineRunner.GetCoroutineRunner().ConsecutiveRun(defenseCycles.ToList());
     }
 
-    public void Defend(QueuedCommand[] attackCommands) {
+    public void ClickEndDefenseCycle() {
+        PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
+        DefendCamera.GetVirtualCamera().Priority = CameraInactive;
+        PendingDefenseCycle = false;
+        _endDefenseCycleButton.SetActive(false);
+    }
+    
+    public IEnumerator StartDefenseCycle(QueuedCommand[] attackCommands) {
+        Debug.Log("start defense cycle");
+        // Setup
         QueuedCommand command = attackCommands.First();
         LocationBase location = command.Target.GetLocationBase();
         MapNode defenseNode = location.ActiveNode;
+        _endDefenseCycleButton.SetActive(true);
+        
         // Camera setup
-        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject).GetComponent<CinemachineVirtualCamera>();
+        DefendCamera  = DefenseCamera.Create(defenseNode.gameObject);
+        var virtualCamera = DefendCamera.GetComponent<CinemachineVirtualCamera>();
         PrimaryCamera.GetVirtualCamera().Priority = CameraInactive;
-        camera.Priority = CameraActive;
+        virtualCamera.Priority = CameraActive;
+        
+        // Wait until player ends defense cycle
+        PendingDefenseCycle = true;
+        if(PendingDefenseCycle) yield return null;
+        
+        Debug.Log("Done");
         // Declaration
-        GameObject[] availableDefenders = CharactersOnNode(defenseNode);
+        // GameObject[] availableDefenders = CharactersOnNode(defenseNode);
         // get defenders characters if any
         // call defend on them
         // have that do the camera zooming
         // let them declare defenders
-        
     }
     
     public void ExecuteBattlePhaseCommands(int owner) {

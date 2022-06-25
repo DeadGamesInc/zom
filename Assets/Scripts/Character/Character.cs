@@ -185,23 +185,26 @@ public class Character : MonoBehaviour {
     }
 
     public void OnMouseDown() {
-        switch (LevelController.Get().CurrentPhase) {
+        LevelController levelController = LevelController.Get();
+        switch (levelController.CurrentPhase) {
             case PhaseId.STRATEGIC:
-                if (Spawned) LevelController.Get().ToggleCharacter(this);
+                if (Spawned) levelController.ToggleCharacter(this);
                 break;
             case PhaseId.DEFENCE:
-                if (State == CharacterState.Defending) {
-                    State = CharacterState.Idle;
-                    Destroy(Highlight);
-                    Highlight = null;
-                } else {
-                    State = CharacterState.Defending;
-                    Highlight = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                    Highlight.transform.position = transform.position - yOffset + Vector3.up;
-                    Highlight.transform.localScale = new Vector3(MapNode.SIZE, 0, MapNode.SIZE);
-                    Highlight.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+                if (levelController.PendingDefenseCycle) {
+                    if (State == CharacterState.Defending) {
+                        State = CharacterState.Idle;
+                        Destroy(Highlight);
+                        Highlight = null;
+                    } else {
+                        State = CharacterState.Defending;
+                        Highlight = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                        Highlight.transform.position = transform.position - yOffset + Vector3.up;
+                        Highlight.transform.localScale = new Vector3(MapNode.SIZE, 0, MapNode.SIZE);
+                        Highlight.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+                    }
                 }
-                
+
                 break;
         }
     }
