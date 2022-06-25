@@ -23,8 +23,8 @@ public class Character : MonoBehaviour {
     [SerializeField] public int SpawnTime;
     [SerializeField] public bool Spawned;
     [SerializeField] public int Owner;
-    
 
+    private LevelController _levelController;
     private static float characterTranslationSpeed = 3f;
 
     public MapNode MapPosition { get; private set; }
@@ -32,11 +32,15 @@ public class Character : MonoBehaviour {
 
     public void Setup(MapNode node, int owner) {
         Owner = owner;
-        map = LevelController.Get()._map.GetMapBase();
-        if (SpawnTime == 0) SetSpawned();
-        else SetSpawning();
+        _levelController = LevelController.Get();
+        map = _levelController._map.GetMapBase();
+        if (SpawnTime == 0)
+            SetSpawned();
+        else
+            SetSpawning();
         Camera = CharacterCamera.Create(gameObject);
         setMapPosition(node);
+        if (IsOwnersTurn()) SetHighlight(true);
     }
 
     // Start is called before the first frame update
@@ -53,7 +57,7 @@ public class Character : MonoBehaviour {
                 break;
         }
     }
-    
+
     public void SpawnTick() {
         if (SpawnTime == 0) return;
         SpawnTime--;
@@ -101,40 +105,42 @@ public class Character : MonoBehaviour {
     }
 
     public void Reposition() {
-        double occupants = Convert.ToDouble(LevelController.Get().CharactersOnNode(MapPosition).Length);
-        if(occupants == 0) return;
+        double occupants = Convert.ToDouble(_levelController.CharactersOnNode(MapPosition).Length);
+        if (occupants == 0) return;
         var playerGrid = MapPosition.PlayerGrid;
-        int x = (int) Math.Floor(occupants / Convert.ToDouble(MapNode.MAP_GRID_SIZE));
-        int y = (int) occupants % MapNode.MAP_GRID_SIZE;
+        int x = (int)Math.Floor(occupants / Convert.ToDouble(MapNode.MAP_GRID_SIZE));
+        int y = (int)occupants % MapNode.MAP_GRID_SIZE;
         transform.position = playerGrid.GetWorldPosition(x, y) + yOffset;
     }
 
     public void Attack(QueuedCommand[] commands) {
         LocationBase location = commands.First().Target.GetLocationBase();
-        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject).GetComponent<CinemachineVirtualCamera>();
+        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject)
+            .GetComponent<CinemachineVirtualCamera>();
         camera.Priority = 50;
 
         foreach (var command in commands) {
             command.Source.GetCharacter().State = CharacterState.Attacking;
         }
-        
-        // LevelController.Get().Owner
-        
+
+        // _levelController.Owner
+
         // wait as coroutine for opp to choose defenders and end turn
         // maybe group all attacks on a node into a single attack / defense stage
     }
-    
+
     public void Defend(QueuedCommand[] commands, GameObject[] availableDefenders) {
         LocationBase location = commands.First().Target.GetLocationBase();
-        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject).GetComponent<CinemachineVirtualCamera>();
+        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject)
+            .GetComponent<CinemachineVirtualCamera>();
         camera.Priority = 50;
 
         foreach (var command in commands) {
             command.Source.GetCharacter().State = CharacterState.Attacking;
         }
-        
-        // LevelController.Get().Owner
-        
+
+        // _levelController.Owner
+
         // wait as coroutine for opp to choose defenders and end turn
         // maybe group all attacks on a node into a single attack / defense stage
     }
@@ -143,26 +149,26 @@ public class Character : MonoBehaviour {
         if (ActionIndicator != null) Destroy(ActionIndicator);
         switch (command.Command) {
             case PlayerCommand.MoveCharacter:
-                ActionIndicator = Instantiate(LevelController.Get().ActionIndicator);
+                ActionIndicator = Instantiate(_levelController.ActionIndicator);
                 ActionIndicator.GetComponent<ActionPointer>().Command = command;
                 CurrentCommand = command;
                 break;
             case PlayerCommand.AttackLocation:
-                ActionIndicator = Instantiate(LevelController.Get().ActionIndicator);
+                ActionIndicator = Instantiate(_levelController.ActionIndicator);
                 ActionIndicator.GetComponent<ActionPointer>().Command = command;
                 CurrentCommand = command;
                 break;
         }
     }
-    
+
     private IEnumerator RequeueUnfinishedCommand(QueuedCommand command) {
-        var levelController = LevelController.Get();
+        var levelController = _levelController;
         // Wait for the current phase to end before requeue-ing
         while (levelController.CurrentPhase != PhaseId.DRAW) yield return null;
         OnQueueCommand(command);
-        LevelController.Get().RequeueCommand(command);
+        _levelController.RequeueCommand(command);
     }
-    
+
     public void OnExecuteCommand(params QueuedCommand[] commands) {
         QueuedCommand command = commands.First();
         int correctCommands = commands.Count(c => c.Command == command.Command);
@@ -176,6 +182,7 @@ public class Character : MonoBehaviour {
                 } catch (MovementException e) {
                     Debug.Log(e);
                 }
+
                 break;
             case PlayerCommand.AttackLocation:
                 if (ActionIndicator != null) Destroy(ActionIndicator);
@@ -184,15 +191,18 @@ public class Character : MonoBehaviour {
         }
     }
 
+    public bool IsOwnersTurn() {
+        return _levelController.CurrentTurnOwner() == Owner;
+    }
+
     public void OnMouseDown() {
-        LevelController levelController = LevelController.Get();
-        if (levelController.CurrentTurnOwner() != Owner) return;
-        switch (levelController.CurrentPhase) {
+        if (!IsOwnersTurn()) return;
+        switch (_levelController.CurrentPhase) {
             case PhaseId.STRATEGIC:
-                if (Spawned) levelController.ToggleCharacter(this);
+                if (Spawned) _levelController.ToggleCharacter(this);
                 break;
             case PhaseId.DEFENCE:
-                if (levelController.PendingDefenseCycle) {
+                if (_levelController.PendingDefenseCycle) {
                     if (State == CharacterState.Defending) {
                         State = CharacterState.Idle;
                         Destroy(Highlight);
@@ -212,11 +222,24 @@ public class Character : MonoBehaviour {
 
     public void OnMouseEnter() {
         var spawnTime = !Spawned ? $"{SpawnTime} turns before ready" : "";
-        LevelController.Get().SetInfoWindow(InfoCard, spawnTime);
+        _levelController.SetInfoWindow(InfoCard, spawnTime);
+    }
+
+    public void SetHighlight(bool glow) {
+        Material material = gameObject.GetComponent<Renderer>().material;
+        if (glow) {
+            Debug.Log("enable");
+            material.EnableKeyword("_EMISSION");
+            material.SetColor("_EmissionColor", material.color == Color.black ? Color.gray : material.color);
+        } else {
+            Debug.Log("disable");
+            material.EnableKeyword("_EMISSION");
+            material.SetColor("_EmissionColor", Color.black);
+        }
     }
 
     public void OnMouseExit() {
-        LevelController.Get().SetInfoWindow(null, "");
+        _levelController.SetInfoWindow(null, "");
     }
 
     private void setMapPosition(MapNode node) {

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cinemachine;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
@@ -33,6 +34,7 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public int StrategicPhaseLength = 90;
     [SerializeField] public Transform DiscardPosition;
     public bool PendingDefenseCycle = false; 
+    public GameObject CurrentDefenseCycleNode; 
 
     protected GameController _gameController;
     protected DeckController _deckController;
@@ -205,9 +207,12 @@ public class LevelController : MonoBehaviour {
         var virtualCamera = DefendCamera.GetComponent<CinemachineVirtualCamera>();
         PrimaryCamera.GetVirtualCamera().Priority = CameraInactive;
         virtualCamera.Priority = CameraActive;
-        
+
+
         // Wait until player declares defenders & ends defense cycle
         PendingDefenseCycle = true;
+        CurrentDefenseCycleNode = defenseNode.gameObject;
+        HighlightCharacters();
         while(PendingDefenseCycle) yield return null;
         
         // Should prob destroy camera after done panning
@@ -268,6 +273,26 @@ public class LevelController : MonoBehaviour {
         characterUI.TargetCharacter = null;
         characterUI.SetCharacterText("");
         CharacterUI.SetActive(false);
+    }
+
+    public void HighlightCharacters() {
+        var characters = Characters.Select(c => c.GetCharacter());
+        foreach (var character in characters) character.SetHighlight(false);
+        switch (CurrentPhase) {
+            case PhaseId.STRATEGIC: 
+                foreach (var character in characters.Where(c => c.IsOwnersTurn())) {
+                    character.SetHighlight(true);
+                }
+                break;
+            case PhaseId.DEFENCE:
+                if(!PendingDefenseCycle) return;
+                foreach (var character in CharactersOnNode(CurrentDefenseCycleNode.GetMapNode())
+                             .Select(c => c.GetCharacter())
+                             .Where(c => !c.IsOwnersTurn())) {
+                    character.SetHighlight(true);
+                }
+                break;
+        }
     }
 
     public void FixedUpdate() {
@@ -500,6 +525,7 @@ public class LevelController : MonoBehaviour {
         else if (CurrentPhase == PhaseId.DEFENCE) {
             Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
         }
+        HighlightCharacters();
     }
 
     private void HandlePhase() {
@@ -564,8 +590,8 @@ public class LevelController : MonoBehaviour {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.STRATEGIC);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
-        }
-        else {
+            HighlightCharacters();
+        } else {
             if (_waitText != null) _waitText.SetActive(true);
         }
     }

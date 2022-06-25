@@ -57,7 +57,7 @@ MonoBehaviour:
   InfoCard: {fileID: 21300000, guid: 7fb09bd340813244287e3c3cf9a5c9bb, type: 3}
   Card: {fileID: 0}
   PlayedCharacters: []
-  SpawnTime: 1
+  SpawnTime: 0
   Spawned: 0
   Owner: 0
 --- !u!33 &2871946023116852457
