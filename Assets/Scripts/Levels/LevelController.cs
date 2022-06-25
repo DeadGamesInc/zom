@@ -18,6 +18,7 @@ public class LevelController : MonoBehaviour {
     public GameObject PrimaryCamera;
     public GameObject CharacterUI;
     public GameObject ActionIndicator;
+    public GameObject CoroutineRunner;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
     [SerializeField] public static int CameraActive = 20;
     [SerializeField] public static int CameraInactive = 0;
@@ -38,7 +39,7 @@ public class LevelController : MonoBehaviour {
     protected Player _player;
 
     private DateTime _roundEnd;
-    private bool _coroutineMutex;
+    private bool _coroutineMutex = false;
 
     public GameObject selectedCharacter;
     public GameObject currentCommandSource;
@@ -116,6 +117,12 @@ public class LevelController : MonoBehaviour {
         HandlePhase();
     }
 
+
+    private IEnumerator test(string log) {
+        Debug.Log(log);
+        yield return new WaitForSeconds(1);
+    }
+
     public void AddBrains(int amount) {
         BrainsAmount += amount;
         BrainsCounterText.text = BrainsAmount.ToString();
@@ -177,12 +184,7 @@ public class LevelController : MonoBehaviour {
         }
     }
 
-    private IEnumerator runCoroutinesAndWait(IEnumerator[] coroutines) {
-        int count = coroutines.Length;
-        
-    }
-
-    public IEnumerator Defend(QueuedCommand[] attackCommands) {
+    public void Defend(QueuedCommand[] attackCommands) {
         QueuedCommand command = attackCommands.First();
         LocationBase location = command.Target.GetLocationBase();
         MapNode defenseNode = location.ActiveNode;
@@ -196,7 +198,7 @@ public class LevelController : MonoBehaviour {
         // call defend on them
         // have that do the camera zooming
         // let them declare defenders
-        //
+        
     }
     
     public void ExecuteBattlePhaseCommands(int owner) {
