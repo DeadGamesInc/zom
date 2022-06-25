@@ -134,6 +134,10 @@ public class LevelController : MonoBehaviour {
         return true;
     }
 
+    public int CurrentTurnOwner() {
+        return LocalTurn ? 0 : 1;
+    }
+
     public void StartCommand(PlayerCommand command, GameObject source) {
         switch (command) {
             case PlayerCommand.MoveCharacter:
@@ -190,7 +194,6 @@ public class LevelController : MonoBehaviour {
     }
     
     public IEnumerator StartDefenseCycle(QueuedCommand[] attackCommands) {
-        Debug.Log("start defense cycle");
         // Setup
         QueuedCommand command = attackCommands.First();
         LocationBase location = command.Target.GetLocationBase();
@@ -203,11 +206,12 @@ public class LevelController : MonoBehaviour {
         PrimaryCamera.GetVirtualCamera().Priority = CameraInactive;
         virtualCamera.Priority = CameraActive;
         
-        // Wait until player ends defense cycle
+        // Wait until player declares defenders & ends defense cycle
         PendingDefenseCycle = true;
-        if(PendingDefenseCycle) yield return null;
+        while(PendingDefenseCycle) yield return null;
         
-        Debug.Log("Done");
+        // Should prob destroy camera after done panning
+        
         // Declaration
         // GameObject[] availableDefenders = CharactersOnNode(defenseNode);
         // get defenders characters if any

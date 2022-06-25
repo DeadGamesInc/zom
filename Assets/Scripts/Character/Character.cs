@@ -186,6 +186,7 @@ public class Character : MonoBehaviour {
 
     public void OnMouseDown() {
         LevelController levelController = LevelController.Get();
+        if (levelController.CurrentTurnOwner() != Owner) return;
         switch (levelController.CurrentPhase) {
             case PhaseId.STRATEGIC:
                 if (Spawned) levelController.ToggleCharacter(this);

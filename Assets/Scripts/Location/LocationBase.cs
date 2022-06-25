@@ -36,8 +36,13 @@ public class LocationBase : MonoBehaviour {
     }
 
     public void OnMouseDown() {
-        LevelController.Get().QueueCommand(PlayerCommand.AttackLocation, gameObject);
-
+        LevelController levelController = LevelController.Get();
+        PlayerCommand command = levelController.currentCommand;
+        switch (command) {
+            case PlayerCommand.AttackLocation:
+                levelController.QueueCommand(PlayerCommand.AttackLocation, gameObject);
+                break;
+        }
     }
 
     // Start is called before the first frame update
