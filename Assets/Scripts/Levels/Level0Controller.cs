@@ -53,7 +53,7 @@ public class Level0Controller : LevelController {
             basicLocation = script.BasicLocation;
             ownedLocation = script.Owner == 1;
         }
-        
+
         if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
             var character = CreateCharacter(card.CharacterPrefab, SelectedLocation.GetLocationBase().ActiveNode, 1);
             var script = character.GetCharacter();

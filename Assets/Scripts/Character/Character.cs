@@ -228,11 +228,9 @@ public class Character : MonoBehaviour {
     public void SetHighlight(bool glow) {
         Material material = gameObject.GetComponent<Renderer>().material;
         if (glow) {
-            Debug.Log("enable");
             material.EnableKeyword("_EMISSION");
             material.SetColor("_EmissionColor", material.color == Color.black ? Color.gray : material.color);
         } else {
-            Debug.Log("disable");
             material.EnableKeyword("_EMISSION");
             material.SetColor("_EmissionColor", Color.black);
         }

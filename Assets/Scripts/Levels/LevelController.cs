@@ -388,7 +388,9 @@ public class LevelController : MonoBehaviour {
     }
 
     public bool TryPlayCard() {
-        if (LevelSpecificCardHandling()) return true;
+        bool lvlSpecific = LevelSpecificCardHandling();
+        Debug.Log(lvlSpecific);
+        if (lvlSpecific) return true;
         
         if (!(CurrentPhase == PhaseId.STRATEGIC && LocalTurn) && !(CurrentPhase == PhaseId.DEFENCE && !LocalTurn)) return false;
         if (SelectedCard == null) return false;
