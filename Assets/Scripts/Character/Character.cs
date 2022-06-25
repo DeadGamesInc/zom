@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -11,6 +12,7 @@ public class Character : MonoBehaviour {
     [SerializeField] public CharacterState State;
     [SerializeField] public GameObject Camera;
     [SerializeField] public GameObject ActionIndicator;
+    [SerializeField] public GameObject Highlight;
     [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
     [SerializeField] public bool ExecutedActionThisTurn = false;
     [SerializeField] public int DistanceTravelledThisTurn = 0;
@@ -107,8 +109,34 @@ public class Character : MonoBehaviour {
         transform.position = playerGrid.GetWorldPosition(x, y) + yOffset;
     }
 
-    public void Attack(GameObject target) {
+    public void Attack(QueuedCommand[] commands) {
+        LocationBase location = commands.First().Target.GetLocationBase();
+        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject).GetComponent<CinemachineVirtualCamera>();
+        camera.Priority = 50;
+
+        foreach (var command in commands) {
+            command.Source.GetCharacter().State = CharacterState.Attacking;
+        }
         
+        // LevelController.Get().Owner
+        
+        // wait as coroutine for opp to choose defenders and end turn
+        // maybe group all attacks on a node into a single attack / defense stage
+    }
+    
+    public void Defend(QueuedCommand[] commands, GameObject[] availableDefenders) {
+        LocationBase location = commands.First().Target.GetLocationBase();
+        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject).GetComponent<CinemachineVirtualCamera>();
+        camera.Priority = 50;
+
+        foreach (var command in commands) {
+            command.Source.GetCharacter().State = CharacterState.Attacking;
+        }
+        
+        // LevelController.Get().Owner
+        
+        // wait as coroutine for opp to choose defenders and end turn
+        // maybe group all attacks on a node into a single attack / defense stage
     }
 
     public void OnQueueCommand(QueuedCommand command) {
@@ -135,7 +163,10 @@ public class Character : MonoBehaviour {
         LevelController.Get().RequeueCommand(command);
     }
     
-    public void OnExecuteCommand(QueuedCommand command) {
+    public void OnExecuteCommand(params QueuedCommand[] commands) {
+        QueuedCommand command = commands.First();
+        int correctCommands = commands.Count(c => c.Command == command.Command);
+        if (commands.Length != correctCommands) throw new Exception("Grouped commands must be of the same type");
         switch (command.Command) {
             case PlayerCommand.MoveCharacter:
                 try {
@@ -148,13 +179,31 @@ public class Character : MonoBehaviour {
                 break;
             case PlayerCommand.AttackLocation:
                 if (ActionIndicator != null) Destroy(ActionIndicator);
-                Attack(command.Target);
+                Attack(commands);
                 break;
         }
     }
 
     public void OnMouseDown() {
-        if (Spawned) LevelController.Get().ToggleCharacter(this);
+        switch (LevelController.Get().CurrentPhase) {
+            case PhaseId.STRATEGIC:
+                if (Spawned) LevelController.Get().ToggleCharacter(this);
+                break;
+            case PhaseId.DEFENCE:
+                if (State == CharacterState.Defending) {
+                    State = CharacterState.Idle;
+                    Destroy(Highlight);
+                    Highlight = null;
+                } else {
+                    State = CharacterState.Defending;
+                    Highlight = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                    Highlight.transform.position = transform.position - yOffset + Vector3.up;
+                    Highlight.transform.localScale = new Vector3(MapNode.SIZE, 0, MapNode.SIZE);
+                    Highlight.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+                }
+                
+                break;
+        }
     }
 
     public void OnMouseEnter() {

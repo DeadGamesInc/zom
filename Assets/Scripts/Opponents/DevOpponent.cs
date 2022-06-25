@@ -36,8 +36,14 @@ public class DevOpponent : Opponent {
         }
     }
 
-    public override void OtherPlayerPhase(PhaseId phase) => CurrentPhase = phase;
-    
+    public override void OtherPlayerPhase(PhaseId phase) {
+        CurrentPhase = phase;
+        switch (CurrentPhase) {
+            case PhaseId.DEFENCE:
+                LevelController.Get().ExecuteDefensePhaseCommands(1);
+                break;
+        }
+    }    
     private void HandlePhase() {
         switch (CurrentPhase) {
             case PhaseId.SPAWN:
@@ -91,7 +97,7 @@ public class DevOpponent : Opponent {
     
     private IEnumerator HandleBattlePhase() {
         LevelController.Get().OtherPlayerPhase(PhaseId.BATTLE);
-        LevelController.Get().ExecuteQueuedCommands(1);
+        LevelController.Get().ExecuteBattlePhaseCommands(1);
         yield return Wait();
         CurrentPhase = PhaseId.DRAW;
         HandlePhase();

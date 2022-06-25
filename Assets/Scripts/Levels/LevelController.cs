@@ -20,7 +20,7 @@ public class LevelController : MonoBehaviour {
     public GameObject ActionIndicator;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
     [SerializeField] public static int CameraActive = 20;
-    [SerializeField] public static int CameraInActive = 0;
+    [SerializeField] public static int CameraInactive = 0;
     [SerializeField] public int BrainsAmount;
 
     public PhaseId CurrentPhase;
@@ -38,6 +38,7 @@ public class LevelController : MonoBehaviour {
     protected Player _player;
 
     private DateTime _roundEnd;
+    private bool _coroutineMutex;
 
     public GameObject selectedCharacter;
     public GameObject currentCommandSource;
@@ -168,12 +169,47 @@ public class LevelController : MonoBehaviour {
         character.OnExecuteCommand(command);
     }
 
-    public void ExecuteQueuedCommands(int owner) {
-        foreach (var command in commands.Where(a => a.Owner == owner)) {
+    public void ExecuteDefensePhaseCommands(int owner) {
+        foreach (var commandGroup in commands.Where(a => a.Owner == owner && a.Command == PlayerCommand.AttackLocation)
+                     .GroupBy(command => command.Target)) {
+      
+            Defend(commandGroup.ToArray());
+        }
+    }
+
+    private IEnumerator runCoroutinesAndWait(IEnumerator[] coroutines) {
+        int count = coroutines.Length;
+        
+    }
+
+    public IEnumerator Defend(QueuedCommand[] attackCommands) {
+        QueuedCommand command = attackCommands.First();
+        LocationBase location = command.Target.GetLocationBase();
+        MapNode defenseNode = location.ActiveNode;
+        // Camera setup
+        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject).GetComponent<CinemachineVirtualCamera>();
+        PrimaryCamera.GetVirtualCamera().Priority = CameraInactive;
+        camera.Priority = CameraActive;
+        // Declaration
+        GameObject[] availableDefenders = CharactersOnNode(defenseNode);
+        // get defenders characters if any
+        // call defend on them
+        // have that do the camera zooming
+        // let them declare defenders
+        //
+    }
+    
+    public void ExecuteBattlePhaseCommands(int owner) {
+        foreach (var command in commands.Where(a => a.Owner == owner && a.Command != PlayerCommand.AttackLocation)) {
             ExecuteCommand(command);
         }
 
         commands.Clear();
+    }
+
+    private void executeCommandGroup(QueuedCommand[] commandGroup) {
+        var character = commandGroup.First().Source.GetComponent<Character>();
+        character.OnExecuteCommand(commandGroup);
     }
 
     public void ToggleCharacter(Character character) {
@@ -191,7 +227,7 @@ public class LevelController : MonoBehaviour {
 
         selectedCharacter = character.gameObject;
         characterCamera.Priority = CameraActive;
-        primaryCamera.Priority = CameraInActive;
+        primaryCamera.Priority = CameraInactive;
         CharacterUI.SetActive(true);
         var characterUI = CharacterUI.GetComponent<CharacterUI>();
         characterUI.TargetCharacter = character.gameObject;
@@ -205,7 +241,7 @@ public class LevelController : MonoBehaviour {
         CinemachineVirtualCamera primaryCamera = PrimaryCamera.GetComponent<CinemachineVirtualCamera>();
 
         selectedCharacter = null;
-        characterCamera.Priority = CameraInActive;
+        characterCamera.Priority = CameraInactive;
         primaryCamera.Priority = CameraActive;
         var characterUI = CharacterUI.GetComponent<CharacterUI>();
         characterUI.TargetCharacter = null;
@@ -226,7 +262,7 @@ public class LevelController : MonoBehaviour {
     }
 
     public GameObject[] CharactersOnNode(MapNode node) {
-        return _characters.Where(character => character.GetCharacter().MapPosition == node).ToArray();
+        return Characters.Where(character => character.GetCharacter().MapPosition == node).ToArray();
     }
 
     public void CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
@@ -515,10 +551,10 @@ public class LevelController : MonoBehaviour {
     
     private void HandleDefense() {
         if (LocalTurn) {
+            ExecuteDefensePhaseCommands(0);
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
             if (_waitText != null) _waitText.SetActive(true);
-        }
-        else {
+        } else {
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
         }
@@ -527,7 +563,7 @@ public class LevelController : MonoBehaviour {
     private IEnumerator HandleBattlePhase() {
         if (LocalTurn) {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.BATTLE);
-            ExecuteQueuedCommands(0);
+            ExecuteBattlePhaseCommands(0);
             yield return Wait();
             Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.BATTLE);
             CurrentPhase = PhaseId.DRAW;

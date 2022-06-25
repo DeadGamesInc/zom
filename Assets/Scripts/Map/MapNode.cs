@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 public class MapNode : MonoBehaviour {
-    private const int SIZE = 15;
+    public const int SIZE = 15;
     public const int MAP_GRID_SIZE = 4;
     public int x, z;
     [SerializeField] public MapGrid PlayerGrid;
