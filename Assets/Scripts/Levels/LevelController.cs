@@ -140,16 +140,26 @@ public class LevelController : MonoBehaviour {
     }
 
     public void StartCommand(PlayerCommand command, GameObject source) {
+        GameObject uiObject;
+        CharacterUI ui;
         switch (command) {
             case PlayerCommand.MoveCharacter:
                 UnselectCharacter();
                 SetStatusText($"MOVING {source.name}");
+                uiObject = source.GetCharacter().Ui;
+                uiObject.SetActive(true);
+                ui = uiObject.GetCharacterUI();
+                ui.OnlyShowButton(PlayerCommand.MoveCharacter);
                 currentCommand = PlayerCommand.MoveCharacter;
                 currentCommandSource = source;
                 break;
             case PlayerCommand.AttackLocation:
                 UnselectCharacter();
                 SetStatusText($"DECLARING ATTACKER {source.name}");
+                uiObject = source.GetCharacter().Ui;
+                uiObject.SetActive(true);
+                ui = uiObject.GetCharacterUI();
+                ui.OnlyShowButton(PlayerCommand.AttackLocation);
                 currentCommand = PlayerCommand.AttackLocation;
                 currentCommandSource = source;
                 break;
@@ -183,7 +193,6 @@ public class LevelController : MonoBehaviour {
     public void ExecuteDefensePhaseCommands(int owner) {
         var defenseCycles = commands.Where(a => a.Owner == owner && a.Command == PlayerCommand.AttackLocation)
             .GroupBy(command => command.Target).Select(commandGroup => StartDefenseCycle(commandGroup.ToArray())); 
-        Debug.Log(defenseCycles.Count());
         _coroutineRunner.GetCoroutineRunner().ConsecutiveRun(defenseCycles.ToList());
     }
 
@@ -232,11 +241,6 @@ public class LevelController : MonoBehaviour {
         commands.Clear();
     }
 
-    private void executeCommandGroup(QueuedCommand[] commandGroup) {
-        var character = commandGroup.First().Source.GetComponent<Character>();
-        character.OnExecuteCommand(commandGroup);
-    }
-
     public void ToggleCharacter(Character character) {
         if (selectedCharacter == null) {
             SelectCharacter(character);
@@ -254,6 +258,7 @@ public class LevelController : MonoBehaviour {
         characterCamera.Priority = CameraActive;
         primaryCamera.Priority = CameraInactive;
         character.Ui.SetActive(true);
+        character.Ui.GetCharacterUI().EnableChildren();
     }
     
     public void UnselectCharacter() {
@@ -264,8 +269,23 @@ public class LevelController : MonoBehaviour {
 
         characterCamera.Priority = CameraInactive;
         primaryCamera.Priority = CameraActive;
-        var uiObject = selectedCharacter.GetCharacter().Ui;
-        uiObject.SetActive(false);
+        Character character = selectedCharacter.GetCharacter();
+        var uiObject = character.Ui;
+        
+        if (character.CurrentCommand.HasValue) {
+            var ui = uiObject.GetCharacterUI();
+            switch (character.CurrentCommand.Value.Command) {
+                case PlayerCommand.MoveCharacter:
+                    ui.OnlyShowButton(PlayerCommand.MoveCharacter);
+                    break;
+                case PlayerCommand.AttackLocation:
+                    ui.OnlyShowButton(PlayerCommand.AttackLocation);
+                    break;
+            }
+        } else {
+            uiObject.SetActive(false);
+        }
+
         selectedCharacter = null;
     }
 
@@ -382,9 +402,7 @@ public class LevelController : MonoBehaviour {
     }
 
     public bool TryPlayCard() {
-        bool lvlSpecific = LevelSpecificCardHandling();
-        Debug.Log(lvlSpecific);
-        if (lvlSpecific) return true;
+        if (LevelSpecificCardHandling()) return true;
         
         if (!(CurrentPhase == PhaseId.STRATEGIC && LocalTurn) && !(CurrentPhase == PhaseId.DEFENCE && !LocalTurn)) return false;
         if (SelectedCard == null) return false;

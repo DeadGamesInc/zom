@@ -20,7 +20,6 @@ public class Character : MonoBehaviour {
     [SerializeField] public QueuedCommand? CurrentCommand;
     [SerializeField] public Sprite InfoCard;
     [SerializeField] public GameObject Card;
-    [SerializeField] public GameObject[] PlayedCharacters;
     [SerializeField] public int SpawnTime;
     [SerializeField] public bool Spawned;
     [SerializeField] public int Owner;
@@ -29,6 +28,7 @@ public class Character : MonoBehaviour {
     private static float characterTranslationSpeed = 3f;
 
     public MapNode MapPosition { get; private set; }
+    public (int, int) NodePosition { get; private set; }
     public CharacterRoute Route { get; private set; }
 
     public void Setup(MapNode node, int owner) {
@@ -111,12 +111,8 @@ public class Character : MonoBehaviour {
     }
 
     public void Reposition() {
-        double occupants = Convert.ToDouble(_levelController.CharactersOnNode(MapPosition).Length);
-        if (occupants == 0) return;
-        var playerGrid = MapPosition.PlayerGrid;
-        int x = (int)Math.Floor(occupants / Convert.ToDouble(MapNode.MAP_GRID_SIZE));
-        int y = (int)occupants % MapNode.MAP_GRID_SIZE;
-        transform.position = playerGrid.GetWorldPosition(x, y) + yOffset;
+        (int, int) position = MapPosition.PlayerGrid.GetAvailableSpot(Owner);
+        transform.position = MapPosition.PlayerGrid.GetWorldPosition(position.Item1, position.Item2) + yOffset;
     }
 
     public void Attack(QueuedCommand[] commands) {

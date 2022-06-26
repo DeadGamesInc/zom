@@ -22,6 +22,32 @@ public class CharacterUI : MonoBehaviour {
     public void SetCharacterText(string text) {
         statusText.GetComponent<TextMeshProUGUI>().text = text;
     }
+    
+    public void OnEnable() {
+        EnableChildren();
+    }
+
+    public void EnableChildren() {
+        attackButton.SetActive(true);
+        moveButton.SetActive(true);
+        statusText.SetActive(true);
+    }
+    
+    
+
+    public void OnlyShowButton(PlayerCommand type) {
+        switch (type) {
+            case PlayerCommand.AttackLocation:
+                attackButton.SetActive(true);
+                moveButton.SetActive(false);
+                break;
+            case PlayerCommand.MoveCharacter:
+                moveButton.SetActive(true);
+                attackButton.SetActive(false);
+                break;
+        }
+        statusText.SetActive(false);
+    }
 
     // Update is called once per frame
     private void FixedUpdate() {

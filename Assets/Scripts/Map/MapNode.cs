@@ -6,7 +6,7 @@ public class MapNode : MonoBehaviour {
     public const int SIZE = 15;
     public const int MAP_GRID_SIZE = 4;
     public int x, z;
-    [SerializeField] public MapGrid PlayerGrid;
+    [SerializeField] public MapNodeGrid PlayerGrid;
     [SerializeField] public GameObject location;
 
     public static MapNode Create(int x, int z, MapGrid grid = null, bool draw = false) {
@@ -21,7 +21,7 @@ public class MapNode : MonoBehaviour {
             newGameObject.transform.localScale = Vector3.zero;
         }
 
-        node.PlayerGrid = new MapGrid(MAP_GRID_SIZE, MAP_GRID_SIZE, 10, newGameObject.transform.position);
+        node.PlayerGrid = new MapNodeGrid(MAP_GRID_SIZE, MAP_GRID_SIZE, 10, node);
         return node;
     }
 

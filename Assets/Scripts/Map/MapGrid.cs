@@ -2,12 +2,13 @@ using UnityEngine;
 
 
 public class MapGrid {
-    private int width;
-    private int length;
-    private readonly float cellSize;
-    private readonly Vector3 position;
-    private Vector3[,] gridArray;
+    protected int width;
+    protected int length;
+    protected float cellSize;
+    protected Vector3 position;
+    protected Vector3[,] gridArray;
 
+    public MapGrid(){}
     public MapGrid(int width, int length, float cellSize, Vector3 position) {
         this.width = width;
         this.length = length;
