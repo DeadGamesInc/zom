@@ -80,7 +80,7 @@ public class Level0Controller : LevelController {
         if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.grid, location.MapPosition, location.ActiveNode, 1);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 1);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
@@ -89,7 +89,7 @@ public class Level0Controller : LevelController {
         if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.grid, location.MapPosition, location.ActiveNode, 1);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 1);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
@@ -114,6 +114,6 @@ public class Level0Controller : LevelController {
     }
     
     private Vector3 GetNodePosition(MapNode node) {
-        return _mapControl.GetNodeWorldPosition(MapNode.Create(node.x, node.z));
+        return _mapControl.GetNodeWorldPosition(MapNode.Create(node.X, node.Z));
     }
 }

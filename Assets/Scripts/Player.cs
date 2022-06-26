@@ -3,29 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
-    [SerializeField] public int MaxHealth;
-    [SerializeField] public int Health;
+    private static Player _instance;
+    
+    [SerializeField] public int MaxHealth, Health;
 
     public ProgressBar HealthBar;
 
-    private static Player Instance;
-
     public static GameObject GetGameObject() => GameObject.Find("Player");
-    
-    public static Player Get() {
-        var player = GameObject.Find("Player");
-        if (player == null) return null;
-        return player.GetComponent<Player>();
-    }
+    public static Player Get() => GetGameObject().GetComponent<Player>();
     
     // Start is called before the first frame update
     public void Start() {
-        if (Instance != null) {
+        if (_instance != null) {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        _instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
@@ -34,10 +28,5 @@ public class Player : MonoBehaviour {
         Health = health;
         HealthBar.Maximum = health;
         HealthBar.Set(health);
-    }
-
-    // Update is called once per frame
-    public void Update() {
-        
     }
 }

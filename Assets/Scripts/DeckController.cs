@@ -1,30 +1,28 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
 using UnityEngine;
 
 using Random = UnityEngine.Random;
 
 public class DeckController : MonoBehaviour {
-    public static DeckController Instance;
-    [SerializeField] public Material CardBack; 
-    [SerializeField] public List<GameObject> DeckCards = new();
-    [SerializeField] public List<GameObject> HandCards = new();
+    private static DeckController _instance;
     
-    public Transform HandPosition;
-    public Transform DeckPosition;
+    [SerializeField] public Material CardBack; 
+    [SerializeField] public List<GameObject> DeckCards, HandCards = new();
+    
+    public Transform HandPosition, DeckPosition;
 
-    private List<GameObject> PlacedDeckCards = new();
+    private readonly List<GameObject> PlacedDeckCards = new();
+    
+    public void PlayedCard(GameObject card) => HandCards.Remove(card);
     
     public void Start() {
-        if (Instance != null) {
+        if (_instance != null) {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        _instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
@@ -69,9 +67,5 @@ public class DeckController : MonoBehaviour {
         HandCards.Add(drawn);
         DeckCards.Remove(card);
         return true;
-    }
-
-    public void PlayedCard(GameObject card) {
-        HandCards.Remove(card);
     }
 }

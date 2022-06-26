@@ -1,46 +1,41 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Brains : MonoBehaviour {
-    [SerializeField] public int BrainsValue;
-    [SerializeField] public int StoredBrains;
+    [SerializeField] public int BrainsValue, StoredBrains, Owner;
     [SerializeField] public Sprite InfoCard;
-    [SerializeField] public int Owner;
-    public static Vector3 yOffset = new(0f, 5f, 0f);
-
     public GameObject Card;
     
-    private LevelController _levelController;
+    private static Vector3 yOffset = new(0f, 5f, 0f);
 
+    public void UpdateBrains() => StoredBrains += BrainsValue;
+    
     public void Setup(BrainsNode node, MapBase map, int owner, int value) {
         Owner = owner;
         BrainsValue = value;
         transform.localScale = new Vector3(10, 10, 10);
         transform.position = map.GetWorldPosition(node.x, node.z) + yOffset;
-        _levelController = GameObject.Find("LevelController")?.GetComponent<LevelController>();
     }
 
-    public void UpdateBrains() => StoredBrains += BrainsValue;
-    
     public void OnMouseEnter() {
-        _levelController.SetStatusText("BRAINS");
-        _levelController.SetInfoWindow(InfoCard, $"{StoredBrains} BRAINS");
+        var controller = LevelController.Get();
+        controller.SetStatusText("BRAINS");
+        controller.SetInfoWindow(InfoCard, $"{StoredBrains} BRAINS");
     }
 
     public void OnMouseExit() {
-        _levelController.SetStatusText("");
-        _levelController.SetInfoWindow(null, "");
+        var controller = LevelController.Get();
+        controller.SetStatusText("");
+        controller.SetInfoWindow(null, "");
     }
 
     public void OnMouseUp() {
-        var phase = LevelController.Get().CurrentPhase;
+        var controller = LevelController.Get();
+        var phase = controller.CurrentPhase;
         if (phase != PhaseId.STRATEGIC && phase != PhaseId.DEFENCE) return;
         
-        if (StoredBrains > 0) LevelController.Get().AddBrains(StoredBrains);
+        if (StoredBrains > 0) controller.AddBrains(StoredBrains);
         StoredBrains = 0;
-        _levelController.SetStatusText("");
-        LevelController.Get().SetInfoWindow(null, null);
+        controller.SetStatusText("");
+        controller.SetInfoWindow(null, null);
     }
 }

@@ -6,34 +6,31 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
-    public static GameController Instance;
+    private static GameController _instance;
 
     [SerializeField] public bool DevBox;
     [SerializeField] public GameObject Player;
     [SerializeField] public Player PlayerScript;
     [SerializeField] public List<GameObject> CardDatabase = new();
-    public List<AvailableCard> AvailableCards = new();
+    
+    public readonly List<AvailableCard> AvailableCards = new();
 
     public static GameObject GetGameObject() => GameObject.Find("GameController");
     public static GameController Get() => GetGameObject().GetComponent<GameController>();
 
     public void Start() {
-        if (Instance != null) {
+        if (_instance != null) {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        _instance = this;
         DontDestroyOnLoad(gameObject);
 
         PlayerScript = Player.GetComponent<Player>();
         SceneManager.activeSceneChanged += HandleSceneChanged;
         
         StartCoroutine(Initialize());
-    }
-
-    public void ExitGame() {
-        Application.Quit();
     }
 
     private IEnumerator Initialize() {
