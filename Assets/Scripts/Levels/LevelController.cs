@@ -275,7 +275,7 @@ public class LevelController : MonoBehaviour {
         location.MapPosition = mapPosition;
         location.ActiveNode = activeNode;
         locationObject.transform.position = grid.GetWorldPosition(mapPosition.Item1, mapPosition.Item2);
-        activeNode.location = locationObject;
+        activeNode.Location = locationObject;
     }
 
     public void SetStatusText(string text) {
@@ -364,7 +364,7 @@ public class LevelController : MonoBehaviour {
         if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.grid, location.MapPosition, location.ActiveNode, 0);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 0);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
@@ -373,7 +373,7 @@ public class LevelController : MonoBehaviour {
         if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.grid, location.MapPosition, location.ActiveNode, 0);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 0);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;

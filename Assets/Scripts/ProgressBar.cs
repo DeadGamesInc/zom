@@ -1,17 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
-
 using TMPro;
-
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ProgressBar : MonoBehaviour {
     [SerializeField] public ProgressBarTextType TextType;
     [SerializeField] public TextMeshProUGUI Text;
-    public float Maximum;
-    public float Current;
-    public Image Mask;
+    [SerializeField] public float Maximum, Current;
+    [SerializeField] public Image Mask;
 
     public void Set(int amount) {
         Current = amount;
@@ -21,14 +16,10 @@ public class ProgressBar : MonoBehaviour {
     }
 
     private void UpdateText() {
-        switch (TextType) {
-            case ProgressBarTextType.VALUES:
-                Text.text = $"{Current:0} / {Maximum:0}";
-                break;
-            
-            case ProgressBarTextType.TIME_SECONDS:
-                Text.text = $"{Current:0} seconds";
-                break;
-        }
+        Text.text = TextType switch {
+            ProgressBarTextType.VALUES => $"{Current:0} / {Maximum:0}",
+            ProgressBarTextType.TIME_SECONDS => $"{Current:0} seconds",
+            _ => Text.text
+        };
     }
 }

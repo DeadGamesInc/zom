@@ -1,48 +1,21 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Card : MonoBehaviour {
     [SerializeField] public CardId Id;
     [SerializeField] public CardType Type;
     [SerializeField] public int BrainsValue;
-    [SerializeField] public int SpawnTime;
-    [SerializeField] public string Name;
-    [SerializeField] public string Series;
-    [SerializeField] public float MaxHealth;
-    [SerializeField] public float Damage;
-    [SerializeField] public int MaxRange;
-    [SerializeField] public string NervosTestnetNFT;
-
+    [SerializeField] public string Name, Series, NervosTestnetNFT;
     [SerializeField] public Sprite CardPreview;
-    [SerializeField] public GameObject CharacterPrefab;
-    [SerializeField] public GameObject LocationPrefab;
-    [SerializeField] public GameObject ItemPrefab;
-    [SerializeField] public GameObject ResourcePrefab;
+    [SerializeField] public GameObject CharacterPrefab, LocationPrefab, ItemPrefab, ResourcePrefab;
 
-    private Vector3 _startPosition;
     public Vector3 StartScale;
-    private LevelController _levelController;
+    private Vector3 _startPosition;
     
-    public void Start() {
-        _levelController = GameObject.Find("LevelController")?.GetComponent<LevelController>();
-    }
-
-    public void Update() {
-        
-    }
-
-    public void OnMouseEnter() {
-        LevelController.Get().SetCard(CardPreview, gameObject, $"Cost: {BrainsValue}");
-    }
-
-    public void OnMouseExit() {
-        LevelController.Get().SetCard(null, null, "");
-    }
+    public void OnMouseEnter() => LevelController.Get().SetCard(CardPreview, gameObject, $"Cost: {BrainsValue}");
+    public void OnMouseExit() => LevelController.Get().SetCard(null, null, "");
 
     public void OnMouseDown() {
-        _levelController.SetCardLock(true);
+        LevelController.Get().SetCardLock(true);
         var transformInfo = transform;
         _startPosition = transformInfo.position;
         StartScale = transformInfo.localScale;
@@ -57,13 +30,15 @@ public class Card : MonoBehaviour {
     }
 
     public void OnMouseUp() {
-        if (!_levelController.TryPlayCard()) {
+        var controller = LevelController.Get();
+        
+        if (!controller.TryPlayCard()) {
             var setTransform = transform;
             setTransform.position = _startPosition;
             setTransform.localScale = StartScale;
         }
         
-        _levelController.SetCardLock(false);
-        _levelController.SetCard(null, null, "");
+        controller.SetCardLock(false);
+        controller.SetCard(null, null, "");
     }
 }

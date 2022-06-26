@@ -1,8 +1,6 @@
 using UnityEngine;
 
 public class ActionPointer : MonoBehaviour {
-    private Vector3 targetPosition;
-    private RectTransform pointerRectTransform;
     public QueuedCommand Command;
     
     private void Start() {
@@ -10,9 +8,8 @@ public class ActionPointer : MonoBehaviour {
         Vector3 from;
         switch (Command.Command) {
             case PlayerCommand.MoveCharacter:
-                Character character = Command.Source.GetComponent<Character>();
-                var route = LevelController.Get()._map.GetComponent<MapBase>()
-                    .GetShortestPathBetweenNodes(character.MapPosition, Command.Target.GetComponent<MapNode>());
+                var character = Command.Source.GetCharacter();
+                var route = MapBase.Get().GetShortestPathBetweenNodes(character.MapPosition, Command.Target.GetComponent<MapNode>());
                 if(!route.HasValue) {
                     Destroy(this);
                     return;
@@ -26,8 +23,9 @@ public class ActionPointer : MonoBehaviour {
                 break;
         }
 
-        transform.rotation = Quaternion.FromToRotation(from, to);
-        transform.localEulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+        Transform transform1;
+        (transform1 = transform).rotation = Quaternion.FromToRotation(from, to);
+        transform1.localEulerAngles = new Vector3(0, transform1.eulerAngles.y, 0);
         transform.position = Vector3.MoveTowards(from, to, 40f);
     }
 
