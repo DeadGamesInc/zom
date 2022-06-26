@@ -17,9 +17,9 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public GameObject BasicLocation;
     [SerializeField] public GameObject Opponent;
     public GameObject PrimaryCamera;
-    public GameObject CharacterUI;
     public GameObject ActionIndicator;
     public GameObject DefendCamera;
+    public GameObject CharacterUi;
     private GameObject _coroutineRunner;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
     [SerializeField] public static int CameraActive = 20;
@@ -101,7 +101,6 @@ public class LevelController : MonoBehaviour {
         
         if (_cardPreview != null) _cardPreview.SetActive(false);
         if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
-        if (CharacterUI != null) CharacterUI.SetActive(false);
         if (_player != null) _player.SetMaxHealth(PlayerMaxHealth);
         if (_roundTimerBar != null) _roundTimerBar.SetActive(false);
         if (_roundTimerBarScript != null) _roundTimerBarScript.Maximum = StrategicPhaseLength;
@@ -254,10 +253,7 @@ public class LevelController : MonoBehaviour {
         selectedCharacter = character.gameObject;
         characterCamera.Priority = CameraActive;
         primaryCamera.Priority = CameraInactive;
-        CharacterUI.SetActive(true);
-        var characterUI = CharacterUI.GetComponent<CharacterUI>();
-        characterUI.TargetCharacter = character.gameObject;
-        characterUI.SetCharacterText(character.gameObject.name);
+        character.Ui.SetActive(true);
     }
     
     public void UnselectCharacter() {
@@ -266,13 +262,11 @@ public class LevelController : MonoBehaviour {
             selectedCharacter.GetComponent<Character>().Camera.GetComponent<CinemachineVirtualCamera>();
         CinemachineVirtualCamera primaryCamera = PrimaryCamera.GetComponent<CinemachineVirtualCamera>();
 
-        selectedCharacter = null;
         characterCamera.Priority = CameraInactive;
         primaryCamera.Priority = CameraActive;
-        var characterUI = CharacterUI.GetComponent<CharacterUI>();
-        characterUI.TargetCharacter = null;
-        characterUI.SetCharacterText("");
-        CharacterUI.SetActive(false);
+        var uiObject = selectedCharacter.GetCharacter().Ui;
+        uiObject.SetActive(false);
+        selectedCharacter = null;
     }
 
     public void HighlightCharacters() {

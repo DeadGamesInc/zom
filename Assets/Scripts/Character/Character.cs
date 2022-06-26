@@ -11,6 +11,7 @@ public class Character : MonoBehaviour {
     [SerializeField] public int MovementSpeed = 1;
     [SerializeField] public CharacterState State;
     [SerializeField] public GameObject Camera;
+    [SerializeField] public GameObject Ui;
     [SerializeField] public GameObject ActionIndicator;
     [SerializeField] public GameObject Highlight;
     [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
@@ -34,6 +35,11 @@ public class Character : MonoBehaviour {
         Owner = owner;
         _levelController = LevelController.Get();
         map = _levelController._map.GetMapBase();
+        Ui = Instantiate(_levelController.CharacterUi);
+        CharacterUI characterUI = Ui.GetCharacterUI();
+            characterUI.TargetCharacter = gameObject;
+        characterUI.SetCharacterText(name);
+        Ui.SetActive(false);
         if (SpawnTime == 0)
             SetSpawned();
         else

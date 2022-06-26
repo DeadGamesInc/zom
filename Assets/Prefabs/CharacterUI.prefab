@@ -269,6 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cabde523aed7f4542be46fdd367b16ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Ui: {fileID: 0}
   Type: 1
 --- !u!1 &5303149561303226101
 GameObject:
@@ -404,6 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cabde523aed7f4542be46fdd367b16ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Ui: {fileID: 0}
   Type: 2
 --- !u!1 &5303149562296964011
 GameObject:
@@ -491,7 +493,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &5303149562296964012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -521,6 +523,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5fb3cbc171bd4630b4e265d50a42591, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  statusText: {fileID: 4755741611815350735}
+  moveButton: {fileID: 5303149561084889447}
+  attackButton: {fileID: 5303149561303226101}
   TargetCharacter: {fileID: 0}
-  Camera: {fileID: 0}
-  _statusText: {fileID: 0}
+  _camera: {fileID: 0}

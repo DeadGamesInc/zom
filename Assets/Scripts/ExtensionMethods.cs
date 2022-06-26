@@ -8,6 +8,7 @@ public static class ExtensionMethods {
     public static MapNode GetMapNode(this GameObject obj) => obj.GetComponent<MapNode>();
     public static LocationBase GetLocationBase(this GameObject obj) => obj.GetComponent<LocationBase>();
     public static Character GetCharacter(this GameObject obj) => obj.GetComponent<Character>();
+    public static CharacterUI GetCharacterUI(this GameObject obj) => obj.GetComponent<CharacterUI>();
     public static Card GetCard(this GameObject obj) => obj.GetComponent<Card>();
     public static Opponent GetOpponent(this GameObject obj) => obj.GetComponent<Opponent>();
     public static CinemachineVirtualCamera GetVirtualCamera(this GameObject obj) => obj.GetComponent<CinemachineVirtualCamera>();
