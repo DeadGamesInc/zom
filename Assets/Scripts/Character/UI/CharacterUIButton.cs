@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class CharacterUIButton : MonoBehaviour {
+    [SerializeField] public GameObject Ui;
     [SerializeField] public PlayerCommand Type;
 
     public void Start() {
@@ -14,14 +15,14 @@ public class CharacterUIButton : MonoBehaviour {
 
     public void OnClick() {
         var levelController = LevelController.Get();
-        var characterUI = CharacterUI.Get();
-        
+        var characterUi = Ui.GetCharacterUI();
+        if (characterUi.TargetCharacter != levelController.selectedCharacter) return;
         switch (Type) {
             case PlayerCommand.MoveCharacter:
-                levelController.StartCommand(PlayerCommand.MoveCharacter, characterUI.TargetCharacter);
+                levelController.StartCommand(PlayerCommand.MoveCharacter, characterUi.TargetCharacter);
                 break;
             case PlayerCommand.AttackLocation:
-                levelController.StartCommand(PlayerCommand.AttackLocation, characterUI.TargetCharacter);
+                levelController.StartCommand(PlayerCommand.AttackLocation, characterUi.TargetCharacter);
                 break;
         }
     }

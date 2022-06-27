@@ -47,15 +47,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd5430799b71f41a4ac5d074a5748bbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementSpeed: 1
+  MovementSpeed: 2
   State: 0
   Camera: {fileID: 0}
   ActionIndicator: {fileID: 0}
+  Highlight: {fileID: 0}
   ExecutedActionThisTurn: 0
   DistanceTravelledThisTurn: 0
   InfoCard: {fileID: 21300000, guid: e2b30a81655d5564295d5002ba815363, type: 3}
   Card: {fileID: 0}
-  SpawnTime: 2
+  PlayedCharacters: []
+  SpawnTime: 0
   Spawned: 0
   Owner: 0
 --- !u!33 &426298449937249431

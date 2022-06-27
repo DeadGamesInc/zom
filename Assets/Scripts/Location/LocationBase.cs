@@ -7,8 +7,6 @@ public class LocationBase : MonoBehaviour {
     public (int, int) MapPosition;
     public GameObject Card;
 
-    public void OnMouseDown() => LevelController.Get().QueueCommand(PlayerCommand.AttackLocation, gameObject);
-    
     public void Setup(int owner) {
         Owner = owner;
         if (SpawnTime == 0) SetSpawned();
@@ -29,5 +27,15 @@ public class LocationBase : MonoBehaviour {
     private void SetSpawned() {
         gameObject.GetComponent<Renderer>().material.ChangeAlpha(1.0f);
         Spawned = true;
+    }
+
+    public void OnMouseDown() {
+        var levelController = LevelController.Get();
+        var command = levelController.currentCommand;
+        switch (command) {
+            case PlayerCommand.AttackLocation:
+                levelController.QueueCommand(PlayerCommand.AttackLocation, gameObject);
+                break;
+        }
     }
 }

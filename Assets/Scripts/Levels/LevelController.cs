@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cinemachine;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
@@ -16,11 +17,13 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public GameObject BasicLocation;
     [SerializeField] public GameObject Opponent;
     public GameObject PrimaryCamera;
-    public GameObject CharacterUI;
     public GameObject ActionIndicator;
+    public GameObject DefendCamera;
+    public GameObject CharacterUi;
+    private GameObject _coroutineRunner;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
     [SerializeField] public static int CameraActive = 20;
-    [SerializeField] public static int CameraInActive = 0;
+    [SerializeField] public static int CameraInactive = 0;
     [SerializeField] public int BrainsAmount;
 
     public PhaseId CurrentPhase;
@@ -30,6 +33,8 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public int PlayerMaxHealth = 20;
     [SerializeField] public int StrategicPhaseLength = 90;
     [SerializeField] public Transform DiscardPosition;
+    public bool PendingDefenseCycle = false; 
+    public GameObject CurrentDefenseCycleNode; 
 
     [SerializeField] public List<GameObject> InfoIcons = new();
 
@@ -38,6 +43,7 @@ public class LevelController : MonoBehaviour {
     protected GameObject _roundTimerBar;
     protected ProgressBar _roundTimerBarScript;
     protected Player _player;
+    protected GameObject _endTurnButtonText;
 
     private DateTime _roundEnd;
 
@@ -93,10 +99,11 @@ public class LevelController : MonoBehaviour {
         _enemyHealthBar = GameObject.Find("EnemyHealthBar")?.GetComponent<ProgressBar>();
         _waitText = GameObject.Find("WaitText");
         _infoWindow = GameObject.Find("InfoWindow");
-
+        _endTurnButtonText = GameObject.Find("EndTurnButtonText");
+        _coroutineRunner = new GameObject("CoroutineRunner").AddComponent<CoroutineRunner>().gameObject;
+        
         if (_cardPreview != null) _cardPreview.SetActive(false);
         if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
-        if (CharacterUI != null) CharacterUI.SetActive(false);
         if (_player != null) _player.SetMaxHealth(PlayerMaxHealth);
         if (_roundTimerBar != null) _roundTimerBar.SetActive(false);
         if (_roundTimerBarScript != null) _roundTimerBarScript.Maximum = StrategicPhaseLength;
@@ -130,17 +137,31 @@ public class LevelController : MonoBehaviour {
         return true;
     }
 
+    public int CurrentTurnOwner() {
+        return LocalTurn ? 0 : 1;
+    }
+
     public void StartCommand(PlayerCommand command, GameObject source) {
+        GameObject uiObject;
+        CharacterUI ui;
         switch (command) {
             case PlayerCommand.MoveCharacter:
                 UnselectCharacter();
                 SetStatusText($"MOVING {source.name}");
+                uiObject = source.GetCharacter().Ui;
+                uiObject.SetActive(true);
+                ui = uiObject.GetCharacterUI();
+                ui.OnlyShowButton(PlayerCommand.MoveCharacter);
                 currentCommand = PlayerCommand.MoveCharacter;
                 currentCommandSource = source;
                 break;
             case PlayerCommand.AttackLocation:
                 UnselectCharacter();
                 SetStatusText($"DECLARING ATTACKER {source.name}");
+                uiObject = source.GetCharacter().Ui;
+                uiObject.SetActive(true);
+                ui = uiObject.GetCharacterUI();
+                ui.OnlyShowButton(PlayerCommand.AttackLocation);
                 currentCommand = PlayerCommand.AttackLocation;
                 currentCommandSource = source;
                 break;
@@ -171,8 +192,51 @@ public class LevelController : MonoBehaviour {
         character.OnExecuteCommand(command);
     }
 
-    public void ExecuteQueuedCommands(int owner) {
-        foreach (var command in commands.Where(a => a.Owner == owner)) {
+    public void ExecuteDefensePhaseCommands(int owner) {
+        var defenseCycles = commands.Where(a => a.Owner == owner && a.Command == PlayerCommand.AttackLocation)
+            .GroupBy(command => command.Target).Select(commandGroup => StartDefenseCycle(commandGroup.ToArray())); 
+        _coroutineRunner.GetCoroutineRunner().ConsecutiveRun(defenseCycles.ToList());
+    }
+
+    public void EndDefenseCycle() {
+        PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
+        DefendCamera.GetVirtualCamera().Priority = CameraInactive;
+        PendingDefenseCycle = false;
+        _endTurnButtonText.GetComponent<TextMeshProUGUI>().text = "End Turn";
+
+    }
+    
+    public IEnumerator StartDefenseCycle(QueuedCommand[] attackCommands) {
+        _endTurnButtonText.GetComponent<TextMeshProUGUI>().text = "Confirm Defenders";
+        // Setup
+        QueuedCommand command = attackCommands.First();
+        LocationBase location = command.Target.GetLocationBase();
+        MapNode defenseNode = location.ActiveNode;
+        
+        // Camera setup
+        DefendCamera  = DefenseCamera.Create(defenseNode.gameObject);
+        var virtualCamera = DefendCamera.GetComponent<CinemachineVirtualCamera>();
+        PrimaryCamera.GetVirtualCamera().Priority = CameraInactive;
+        virtualCamera.Priority = CameraActive;
+
+        // Wait until player declares defenders & ends defense cycle
+        PendingDefenseCycle = true;
+        CurrentDefenseCycleNode = defenseNode.gameObject;
+        HighlightCharacters();
+        while(PendingDefenseCycle) yield return null;
+
+        // Should prob destroy camera after done panning
+        
+        // Declaration
+        // GameObject[] availableDefenders = CharactersOnNode(defenseNode);
+        // get defenders characters if any
+        // call defend on them
+        // have that do the camera zooming
+        // let them declare defenders
+    }
+    
+    public void ExecuteBattlePhaseCommands(int owner) {
+        foreach (var command in commands.Where(a => a.Owner == owner && a.Command != PlayerCommand.AttackLocation)) {
             ExecuteCommand(command);
         }
 
@@ -194,11 +258,9 @@ public class LevelController : MonoBehaviour {
 
         selectedCharacter = character.gameObject;
         characterCamera.Priority = CameraActive;
-        primaryCamera.Priority = CameraInActive;
-        CharacterUI.SetActive(true);
-        var characterUI = CharacterUI.GetComponent<CharacterUI>();
-        characterUI.TargetCharacter = character.gameObject;
-        characterUI.SetCharacterText(character.gameObject.name);
+        primaryCamera.Priority = CameraInactive;
+        character.Ui.SetActive(true);
+        character.Ui.GetCharacterUI().EnableChildren();
     }
     
     public void UnselectCharacter() {
@@ -207,13 +269,46 @@ public class LevelController : MonoBehaviour {
             selectedCharacter.GetComponent<Character>().Camera.GetComponent<CinemachineVirtualCamera>();
         CinemachineVirtualCamera primaryCamera = PrimaryCamera.GetComponent<CinemachineVirtualCamera>();
 
-        selectedCharacter = null;
-        characterCamera.Priority = CameraInActive;
+        characterCamera.Priority = CameraInactive;
         primaryCamera.Priority = CameraActive;
-        var characterUI = CharacterUI.GetComponent<CharacterUI>();
-        characterUI.TargetCharacter = null;
-        characterUI.SetCharacterText("");
-        CharacterUI.SetActive(false);
+        Character character = selectedCharacter.GetCharacter();
+        var uiObject = character.Ui;
+        
+        if (character.CurrentCommand.HasValue) {
+            var ui = uiObject.GetCharacterUI();
+            switch (character.CurrentCommand.Value.Command) {
+                case PlayerCommand.MoveCharacter:
+                    ui.OnlyShowButton(PlayerCommand.MoveCharacter);
+                    break;
+                case PlayerCommand.AttackLocation:
+                    ui.OnlyShowButton(PlayerCommand.AttackLocation);
+                    break;
+            }
+        } else {
+            uiObject.SetActive(false);
+        }
+
+        selectedCharacter = null;
+    }
+
+    public void HighlightCharacters() {
+        var characters = Characters.Select(c => c.GetCharacter());
+        foreach (var character in characters) character.SetHighlight(false);
+        switch (CurrentPhase) {
+            case PhaseId.STRATEGIC: 
+                foreach (var character in characters.Where(c => c.IsOwnersTurn())) {
+                    character.SetHighlight(true);
+                }
+                break;
+            case PhaseId.DEFENCE:
+                if(!PendingDefenseCycle) return;
+                foreach (var character in CharactersOnNode(CurrentDefenseCycleNode.GetMapNode())
+                             .Select(c => c.GetCharacter())
+                             .Where(c => !c.IsOwnersTurn())) {
+                    character.SetHighlight(true);
+                }
+                break;
+        }
     }
 
     public void FixedUpdate() {
@@ -467,15 +562,21 @@ public class LevelController : MonoBehaviour {
 
     protected void EndTurn() {
         _roundTimerBar.SetActive(false);
-
         if (CurrentPhase == PhaseId.STRATEGIC) {
             Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.STRATEGIC);
             CurrentPhase = PhaseId.DEFENCE;
             HandlePhase();
         }
         else if (CurrentPhase == PhaseId.DEFENCE) {
-            Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+            if (PendingDefenseCycle) {
+                EndDefenseCycle();
+            } else {
+                Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+                CurrentPhase = PhaseId.BATTLE;
+                HandlePhase();
+            }
         }
+        HighlightCharacters();
     }
 
     private void HandlePhase() {
@@ -540,18 +641,19 @@ public class LevelController : MonoBehaviour {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.STRATEGIC);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
-        }
-        else {
+        } else {
             if (_waitText != null) _waitText.SetActive(true);
         }
+        HighlightCharacters();
     }
     
     private void HandleDefense() {
         if (LocalTurn) {
-            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
+            ExecuteDefensePhaseCommands(0);
             if (_waitText != null) _waitText.SetActive(true);
-        }
+        } 
         else {
+            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
         }
@@ -560,7 +662,7 @@ public class LevelController : MonoBehaviour {
     private IEnumerator HandleBattlePhase() {
         if (LocalTurn) {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.BATTLE);
-            ExecuteQueuedCommands(0);
+            ExecuteBattlePhaseCommands(0);
             yield return Wait();
             Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.BATTLE);
             CurrentPhase = PhaseId.DRAW;
