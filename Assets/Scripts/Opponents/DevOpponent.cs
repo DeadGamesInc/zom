@@ -15,8 +15,7 @@ public class DevOpponent : Opponent {
         if (CurrentPhase == PhaseId.STRATEGIC) {
             CurrentPhase = PhaseId.DEFENCE;
             HandlePhase();
-        }
-        else if (CurrentPhase == PhaseId.DEFENCE) {
+        } else if (CurrentPhase == PhaseId.DEFENCE) {
             LevelController.Get().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
         }
     }
@@ -29,6 +28,10 @@ public class DevOpponent : Opponent {
 
     public override void OtherPlayerPhaseComplete(PhaseId phase) {
         switch (phase) {
+            case PhaseId.STRATEGIC:
+                CurrentPhase = PhaseId.DEFENCE;
+                HandlePhase();
+                break;
             case PhaseId.DEFENCE:
                 CurrentPhase = PhaseId.BATTLE;
                 HandlePhase();
@@ -36,14 +39,8 @@ public class DevOpponent : Opponent {
         }
     }
 
-    public override void OtherPlayerPhase(PhaseId phase) {
-        CurrentPhase = phase;
-        switch (CurrentPhase) {
-            case PhaseId.DEFENCE:
-                LevelController.Get().ExecuteDefensePhaseCommands(1);
-                break;
-        }
-    }    
+    public override void OtherPlayerPhase(PhaseId phase) => CurrentPhase = phase;
+
     private void HandlePhase() {
         switch (CurrentPhase) {
             case PhaseId.SPAWN:
@@ -55,7 +52,7 @@ public class DevOpponent : Opponent {
                 break;
 
             case PhaseId.DEFENCE:
-                LevelController.Get().OtherPlayerPhase(PhaseId.DEFENCE);
+                HandleDefensePhase();
                 break;
 
             case PhaseId.BATTLE:
@@ -71,7 +68,7 @@ public class DevOpponent : Opponent {
                 break;
         }
     }
-    
+
     private IEnumerator HandleSpawnPhase() {
         var controller = LevelController.Get();
         controller.OtherPlayerPhase(PhaseId.SPAWN);
@@ -84,7 +81,7 @@ public class DevOpponent : Opponent {
         foreach (var characterBase in controller.Characters.Select(character => character.GetCharacter())
                      .Where(characterBase => !characterBase.Spawned && characterBase.Owner == 1))
             characterBase.SpawnTick();
-            
+
         yield return Wait();
 
         CurrentPhase = PhaseId.STRATEGIC;
@@ -94,7 +91,7 @@ public class DevOpponent : Opponent {
     private void HandleStrategicPhase() {
         LevelController.Get().OtherPlayerPhase(PhaseId.STRATEGIC);
     }
-    
+
     private IEnumerator HandleBattlePhase() {
         LevelController.Get().OtherPlayerPhase(PhaseId.BATTLE);
         LevelController.Get().ExecuteBattlePhaseCommands(1);
@@ -103,32 +100,38 @@ public class DevOpponent : Opponent {
         HandlePhase();
     }
     
+    private void HandleDefensePhase() {
+        LevelController.Get().OtherPlayerPhase(PhaseId.DEFENCE);
+        LevelController.Get().ExecuteDefensePhaseCommands(1);
+    }
+
     private IEnumerator HandleDrawPhase() {
         var level = LevelController.Get();
         level.OtherPlayerPhase(PhaseId.DRAW);
         var player = GameObject.Find("Player");
         var controller = player.GetComponent<DeckController>();
-        for (var i =  controller.HandCards.Count; i < 5; i++) {
+        for (var i = controller.HandCards.Count; i < 5; i++) {
             if (!controller.DeckCards.Any()) break;
             level.DrawCard();
         }
+
         yield return Wait();
         CurrentPhase = PhaseId.END_TURN;
         HandlePhase();
     }
-    
+
     private IEnumerator HandleEndTurn() {
         LevelController.Get().OtherPlayerPhase(PhaseId.END_TURN);
-        
+
         var controller = LevelController.Get();
-        
+
         foreach (var brainScript in controller.BrainLocations.Select(brain => brain.GetComponent<Brains>())
                      .Where(brainScript => brainScript.Owner == 1)) {
             brainScript.UpdateBrains();
         }
-            
+
         yield return Wait();
-        
+
         controller.SubtractBrains(controller.BrainsAmount);
         LevelController.Get().OtherPlayerPhase(PhaseId.END_TURN);
         LevelController.Get().StartTurn();

@@ -530,7 +530,6 @@ public class LevelController : MonoBehaviour {
 
     protected void EndTurn() {
         _roundTimerBar.SetActive(false);
-
         if (CurrentPhase == PhaseId.STRATEGIC) {
             Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.STRATEGIC);
             CurrentPhase = PhaseId.DEFENCE;
@@ -538,6 +537,8 @@ public class LevelController : MonoBehaviour {
         }
         else if (CurrentPhase == PhaseId.DEFENCE) {
             Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+            CurrentPhase = PhaseId.BATTLE;
+            HandlePhase();
         }
         HighlightCharacters();
     }
@@ -604,18 +605,19 @@ public class LevelController : MonoBehaviour {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.STRATEGIC);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
-            HighlightCharacters();
         } else {
             if (_waitText != null) _waitText.SetActive(true);
         }
+        HighlightCharacters();
     }
     
     private void HandleDefense() {
         if (LocalTurn) {
             ExecuteDefensePhaseCommands(0);
-            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
             if (_waitText != null) _waitText.SetActive(true);
-        } else {
+        } 
+        else {
+            Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
         }

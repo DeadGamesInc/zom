@@ -32,17 +32,16 @@ public class MapNodeGrid : MapGrid {
         var capacity = levelController.CharactersOnNode(parent).Count();
         var characters = levelController.CharactersOnNode(parent).Select(c => c.GetCharacter());
         var center = (width / 2, length / 2);
-        
+
         int x = 0, y = 0;
         for (var offset = 0; offset < length * width; offset++) {
-                x = (int)Math.Floor((capacity + offset) / Convert.ToDouble(MapNode.MAP_GRID_SIZE));
-                y = (capacity + offset) % MapNode.MAP_GRID_SIZE;
-                if (owner != 0) x = MapNode.MAP_GRID_SIZE - x;
-
+            x = (int)Math.Floor((capacity + offset) / Convert.ToDouble(MapNode.MAP_GRID_SIZE));
+            y = (capacity + offset) % MapNode.MAP_GRID_SIZE;
+            if (owner != 0) x = MapNode.MAP_GRID_SIZE - x;
+            
             if ((x, y) == center) continue;
             if (!characters.Any(c => c.NodePosition == (x, y))) break;
         }
-        Debug.Log((x, y));
 
         switch (capacity) {
             case 0:

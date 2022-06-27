@@ -182,13 +182,14 @@ public class Character : MonoBehaviour {
                     var mapNode = command.Target.GetComponent<MapNode>();
                     MoveTowards(mapNode);
                 } catch (MovementException e) {
-                    Debug.Log(e);
+                    Debug.LogError(e);
                 }
-
+                Ui.SetActive(false);
                 break;
             case PlayerCommand.AttackLocation:
                 if (ActionIndicator != null) Destroy(ActionIndicator);
                 Attack(commands);
+                Ui.SetActive(false);
                 break;
         }
     }

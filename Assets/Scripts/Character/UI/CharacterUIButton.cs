@@ -16,6 +16,7 @@ public class CharacterUIButton : MonoBehaviour {
     public void OnClick() {
         var levelController = LevelController.Get();
         var characterUi = Ui.GetCharacterUI();
+        if (characterUi.TargetCharacter != levelController.selectedCharacter) return;
         switch (Type) {
             case PlayerCommand.MoveCharacter:
                 levelController.StartCommand(PlayerCommand.MoveCharacter, characterUi.TargetCharacter);
