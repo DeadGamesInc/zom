@@ -31,8 +31,10 @@ public class Level0Controller : LevelController {
     }
 
     public void ClickEndTurn() {
-        if ((CurrentPhase == PhaseId.STRATEGIC && !LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && LocalTurn)) 
+        
+        if ((CurrentPhase == PhaseId.STRATEGIC && !LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && LocalTurn)) {
             Opponent.GetComponent<DevOpponent>().EndTurnClicked();
+        }
 
         else if ((CurrentPhase == PhaseId.STRATEGIC && LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && !LocalTurn)) 
             EndTurn();

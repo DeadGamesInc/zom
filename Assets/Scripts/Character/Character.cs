@@ -13,7 +13,6 @@ public class Character : MonoBehaviour {
     [SerializeField] public GameObject Camera;
     [SerializeField] public GameObject Ui;
     [SerializeField] public GameObject ActionIndicator;
-    [SerializeField] public GameObject Highlight;
     [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
     [SerializeField] public bool ExecutedActionThisTurn = false;
     [SerializeField] public int DistanceTravelledThisTurn = 0;
@@ -23,7 +22,9 @@ public class Character : MonoBehaviour {
     [SerializeField] public int SpawnTime;
     [SerializeField] public bool Spawned;
     [SerializeField] public int Owner;
-
+    [SerializeField] public float MaxHealth;
+    [SerializeField] public float Health;
+    
     private LevelController _levelController;
     private static float characterTranslationSpeed = 3f;
 
@@ -35,6 +36,8 @@ public class Character : MonoBehaviour {
         Owner = owner;
         _levelController = LevelController.Get();
         map = _levelController._map.GetMapBase();
+        MaxHealth = 100;
+        Health = MaxHealth;
         Ui = Instantiate(_levelController.CharacterUi);
         CharacterUI characterUI = Ui.GetCharacterUI();
             characterUI.TargetCharacter = gameObject;
@@ -155,11 +158,6 @@ public class Character : MonoBehaviour {
                 ActionIndicator.GetComponent<ActionPointer>().Command = command;
                 CurrentCommand = command;
                 break;
-            case PlayerCommand.AttackLocation:
-                ActionIndicator = Instantiate(_levelController.ActionIndicator);
-                ActionIndicator.GetComponent<ActionPointer>().Command = command;
-                CurrentCommand = command;
-                break;
         }
     }
 
@@ -199,23 +197,20 @@ public class Character : MonoBehaviour {
     }
 
     public void OnMouseDown() {
-        if (!IsOwnersTurn()) return;
         switch (_levelController.CurrentPhase) {
             case PhaseId.STRATEGIC:
+                if (!IsOwnersTurn()) return;
                 if (Spawned) _levelController.ToggleCharacter(this);
                 break;
             case PhaseId.DEFENCE:
                 if (_levelController.PendingDefenseCycle) {
                     if (State == CharacterState.Defending) {
                         State = CharacterState.Idle;
-                        Destroy(Highlight);
-                        Highlight = null;
+                        Ui.SetActive(false);
                     } else {
                         State = CharacterState.Defending;
-                        Highlight = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                        Highlight.transform.position = transform.position - yOffset + Vector3.up;
-                        Highlight.transform.localScale = new Vector3(MapNode.SIZE, 0, MapNode.SIZE);
-                        Highlight.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+                        Ui.SetActive(true);
+                        Ui.GetCharacterUI().OnlyShowButton(PlayerCommand.DefendLocation);
                     }
                 }
 

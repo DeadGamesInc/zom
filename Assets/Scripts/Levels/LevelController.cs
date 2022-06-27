@@ -41,6 +41,7 @@ public class LevelController : MonoBehaviour {
     protected GameObject _roundTimerBar;
     protected ProgressBar _roundTimerBarScript;
     protected Player _player;
+    protected GameObject _endTurnButtonText;
 
     private DateTime _roundEnd;
 
@@ -58,7 +59,6 @@ public class LevelController : MonoBehaviour {
     private GameObject _cardPreview;
     private GameObject _infoWindow;
     private GameObject _waitText;
-    private GameObject _endDefenseCycleButton;
     private TextMeshProUGUI _phaseName;
     private TextMeshProUGUI _statusText;
     public GameObject _map;
@@ -96,7 +96,7 @@ public class LevelController : MonoBehaviour {
         _enemyHealthBar = GameObject.Find("EnemyHealthBar")?.GetComponent<ProgressBar>();
         _waitText = GameObject.Find("WaitText");
         _infoWindow = GameObject.Find("InfoWindow");
-        _endDefenseCycleButton = GameObject.Find("EndDefenceCycleButton");
+        _endTurnButtonText = GameObject.Find("EndTurnButtonText");
         _coroutineRunner = new GameObject("CoroutineRunner").AddComponent<CoroutineRunner>().gameObject;
         
         if (_cardPreview != null) _cardPreview.SetActive(false);
@@ -106,7 +106,6 @@ public class LevelController : MonoBehaviour {
         if (_roundTimerBarScript != null) _roundTimerBarScript.Maximum = StrategicPhaseLength;
         if (_waitText != null) _waitText.SetActive(false);
         if (_infoWindow != null) _infoWindow.SetActive(false);
-        if (_endDefenseCycleButton != null) _endDefenseCycleButton.SetActive(false);
 
         if (_enemyHealthBar != null) {
             _enemyHealthBar.Maximum = PlayerMaxHealth;
@@ -196,19 +195,20 @@ public class LevelController : MonoBehaviour {
         _coroutineRunner.GetCoroutineRunner().ConsecutiveRun(defenseCycles.ToList());
     }
 
-    public void ClickEndDefenseCycle() {
+    public void EndDefenseCycle() {
         PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
         DefendCamera.GetVirtualCamera().Priority = CameraInactive;
         PendingDefenseCycle = false;
-        _endDefenseCycleButton.SetActive(false);
+        _endTurnButtonText.GetComponent<TextMeshProUGUI>().text = "End Turn";
+
     }
     
     public IEnumerator StartDefenseCycle(QueuedCommand[] attackCommands) {
+        _endTurnButtonText.GetComponent<TextMeshProUGUI>().text = "Confirm Defenders";
         // Setup
         QueuedCommand command = attackCommands.First();
         LocationBase location = command.Target.GetLocationBase();
         MapNode defenseNode = location.ActiveNode;
-        _endDefenseCycleButton.SetActive(true);
         
         // Camera setup
         DefendCamera  = DefenseCamera.Create(defenseNode.gameObject);
@@ -216,13 +216,12 @@ public class LevelController : MonoBehaviour {
         PrimaryCamera.GetVirtualCamera().Priority = CameraInactive;
         virtualCamera.Priority = CameraActive;
 
-
         // Wait until player declares defenders & ends defense cycle
         PendingDefenseCycle = true;
         CurrentDefenseCycleNode = defenseNode.gameObject;
         HighlightCharacters();
         while(PendingDefenseCycle) yield return null;
-        
+
         // Should prob destroy camera after done panning
         
         // Declaration
@@ -536,9 +535,13 @@ public class LevelController : MonoBehaviour {
             HandlePhase();
         }
         else if (CurrentPhase == PhaseId.DEFENCE) {
-            Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
-            CurrentPhase = PhaseId.BATTLE;
-            HandlePhase();
+            if (PendingDefenseCycle) {
+                EndDefenseCycle();
+            } else {
+                Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+                CurrentPhase = PhaseId.BATTLE;
+                HandlePhase();
+            }
         }
         HighlightCharacters();
     }

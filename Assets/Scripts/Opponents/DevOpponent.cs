@@ -16,7 +16,8 @@ public class DevOpponent : Opponent {
             CurrentPhase = PhaseId.DEFENCE;
             HandlePhase();
         } else if (CurrentPhase == PhaseId.DEFENCE) {
-            LevelController.Get().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+            if(LevelController.Get().PendingDefenseCycle) LevelController.Get().EndDefenseCycle();
+            else LevelController.Get().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
         }
     }
 
