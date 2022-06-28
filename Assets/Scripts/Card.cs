@@ -5,14 +5,19 @@ public class Card : MonoBehaviour {
     [SerializeField] public CardType Type;
     [SerializeField] public int BrainsValue;
     [SerializeField] public string Name, Series, NervosTestnetNFT;
+    [SerializeField] public bool InstantPlay;
     [SerializeField] public Sprite CardPreview;
     [SerializeField] public GameObject CharacterPrefab, LocationPrefab, ItemPrefab, ResourcePrefab;
 
     public Vector3 StartScale;
     private Vector3 _startPosition;
-    
-    public void OnMouseEnter() => LevelController.Get().SetCard(CardPreview, gameObject, $"Cost: {BrainsValue}");
+
     public void OnMouseExit() => LevelController.Get().SetCard(null, null, "");
+    
+    public void OnMouseEnter() {
+        var info = Type == CardType.RESOURCE ? "Value: " : "Cost: ";
+        LevelController.Get().SetCard(CardPreview, gameObject, $"{info}{BrainsValue}");
+    }
 
     public void OnMouseDown() {
         LevelController.Get().SetCardLock(true);

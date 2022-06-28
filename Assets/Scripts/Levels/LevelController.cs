@@ -14,7 +14,7 @@ using UnityEngine.UI;
 public class LevelController : MonoBehaviour {
     [SerializeField] public LevelId Id;
     [SerializeField] public GameObject EmptyLocation;
-    [SerializeField] public GameObject BasicLocation;
+    [SerializeField] public GameObject StarterLocation;
     [SerializeField] public GameObject Opponent;
     public GameObject PrimaryCamera;
     public GameObject ActionIndicator;
@@ -353,24 +353,27 @@ public class LevelController : MonoBehaviour {
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
     }
 
-    public void CreateBasicLocation(MapGrid grid, (int, int) position, MapNode activeNode, int owner) {
-        var locationObject = Instantiate(BasicLocation);
+    public void CreateStarterLocation(MapGrid grid, (int, int) position, MapNode activeNode, int owner) {
+        var locationObject = Instantiate(StarterLocation);
         locationObject.GetLocationBase().Setup(owner);
         ConfigureLocation(locationObject, grid, position, activeNode);
     }
 
-    public GameObject CreateCharacter(GameObject prefab, MapNode node, int owner) {
+    public GameObject CreateCharacter(GameObject prefab, MapNode node, int owner, bool instant) {
         var character = Instantiate(prefab, new Vector3(0, 0, 0), new Quaternion());
         var script = character.GetCharacter();
+        if (instant) script.SpawnTime = 0;
         script.Setup(node, owner);
         Characters.Add(character);
         return character;
     }
 
-    public GameObject CreateLocation(GameObject prefab, GameObject replaces, MapGrid grid, (int, int) mapPosition, MapNode activeNode, int owner) {
+    public GameObject CreateLocation(GameObject prefab, GameObject replaces, MapGrid grid, (int, int) mapPosition, MapNode activeNode, int owner, bool instant) {
         var locationObject = Instantiate(prefab);
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
-        locationObject.GetLocationBase().Setup(owner);
+        var script = locationObject.GetLocationBase();
+        if (instant) script.SpawnTime = 0;
+        script.Setup(owner);
         if (replaces != null) Destroy(replaces);
         Locations.Add(locationObject);
         return locationObject;
@@ -443,14 +446,14 @@ public class LevelController : MonoBehaviour {
         if (!(CurrentPhase == PhaseId.STRATEGIC && LocalTurn) && !(CurrentPhase == PhaseId.DEFENCE && !LocalTurn)) return false;
         if (SelectedCard == null) return false;
         var card = SelectedCard.GetComponent<Card>();
-        var basicLocation = false;
+        var starterLocation = false;
         var ownedLocation = false;
         var ownedCharacter = false;
         var characterSpawned = false;
         
         if (SelectedLocation != null) {
             var script = SelectedLocation.GetComponent<LocationControl>();
-            basicLocation = script.BasicLocation;
+            starterLocation = script.StarterLocation;
             ownedLocation = script.Owner == 0;
         }
 
@@ -469,18 +472,18 @@ public class LevelController : MonoBehaviour {
             return true;
         }
 
-        if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
-            var character = CreateCharacter(card.CharacterPrefab, SelectedLocation.GetLocationBase().ActiveNode, 0);
+        if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && !starterLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
+            var character = CreateCharacter(card.CharacterPrefab, SelectedLocation.GetLocationBase().ActiveNode, 0, card.InstantPlay);
             var script = character.GetCharacter();
             script.Card = SelectedCard;
             CardPlayed(false);
             return true;
         }
 
-        if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
+        if (SelectedLocation != null && card.Type == CardType.LOCATION && starterLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 0);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 0, card.InstantPlay);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
@@ -489,7 +492,7 @@ public class LevelController : MonoBehaviour {
         if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 0);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 0, card.InstantPlay);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
@@ -559,8 +562,13 @@ public class LevelController : MonoBehaviour {
         SetCard(null, null, "");
     }
 
-    public void DrawCard() {
-        if (!_deckController.DrawCard()) return;
+    public void DrawCard(bool freePlay = false, bool instant = false) {
+        if (!_deckController.DrawCard(freePlay, instant)) return;
+        UpdateHandPosition();
+    }
+
+    public void DrawCard(CardId id, bool freePlay = false, bool instant = false) {
+        if (!_deckController.DrawCard(id, freePlay, instant)) return;
         UpdateHandPosition();
     }
 

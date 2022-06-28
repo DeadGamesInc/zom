@@ -1,11 +1,11 @@
 using UnityEngine;
 
 public class LocationControl : LocationBase {
-    [SerializeField] public bool BasicLocation;
+    [SerializeField] public bool StarterLocation;
     [SerializeField] public Sprite InfoCard;
 
     public void OnMouseEnter() {
-        var basic = BasicLocation ? "BASIC " : "";
+        var basic = StarterLocation ? "STARTER " : "";
         var spawnTime = !Spawned ? $"{SpawnTime} turns before ready" : "";
         var controller = LevelController.Get();
         controller.SetStatusText($"{basic}LOCATION SELECTED");

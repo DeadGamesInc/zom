@@ -12,9 +12,9 @@ public class Map0 : MapBase {
 
     protected override void InitializeLocations() {
         var controller = LevelController.Get();
-        controller.CreateBasicLocation(Grid, (8, 1), GetNode(8, 2), 0);
+        controller.CreateStarterLocation(Grid, (8, 1), GetNode(8, 2), 0);
         controller.CreateEmptyLocation(Grid, (15, 8), GetNode(14, 8));
-        controller.CreateBasicLocation(Grid, (8, 15), GetNode(8, 14), 1);
+        controller.CreateStarterLocation(Grid, (8, 15), GetNode(8, 14), 1);
         controller.CreateEmptyLocation(Grid, (1, 8), GetNode(2, 8));
     }
 
