@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2018,7 +2018,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.1712474, y: 1}
+    m_SensorSize: {x: 2.0971732, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -4242,7 +4242,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 0
   EmptyLocation: {fileID: 6189811462899777865, guid: 467ae5c6680434965a8b3233a0d7e005, type: 3}
-  BasicLocation: {fileID: 5034779662152398573, guid: a61ce19e4ab5c6c4a86ea987cddb3052, type: 3}
+  StarterLocation: {fileID: 5377480870749784420, guid: 6637d29b92169224eb99a853c9871158, type: 3}
   Opponent: {fileID: 520811968}
   PrimaryCamera: {fileID: 994091969}
   ActionIndicator: {fileID: 8518191389144219464, guid: deab2ec5e38a34ffe8fcb9e1e1bc325c, type: 3}

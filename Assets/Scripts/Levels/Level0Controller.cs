@@ -50,14 +50,14 @@ public class Level0Controller : LevelController {
         if (SelectedCard == null) return false;
         
         var card = SelectedCard.GetComponent<Card>();
-        var basicLocation = false;
+        var starterLocation = false;
         var ownedLocation = false;
         var ownedCharacter = false;
         var characterSpawned = false;
         
         if (SelectedLocation != null) {
             var script = SelectedLocation.GetComponent<LocationControl>();
-            basicLocation = script.BasicLocation;
+            starterLocation = script.StarterLocation;
             ownedLocation = script.Owner == 1;
         }
 
@@ -74,7 +74,7 @@ public class Level0Controller : LevelController {
             return true;
         }
         
-        if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
+        if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && !starterLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
             var character = CreateCharacter(card.CharacterPrefab, SelectedLocation.GetLocationBase().ActiveNode, 1, card.InstantPlay);
             var script = character.GetCharacter();
             script.Card = SelectedCard;
@@ -82,7 +82,7 @@ public class Level0Controller : LevelController {
             return true;
         }
         
-        if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
+        if (SelectedLocation != null && card.Type == CardType.LOCATION && starterLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
             var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 1, card.InstantPlay);
