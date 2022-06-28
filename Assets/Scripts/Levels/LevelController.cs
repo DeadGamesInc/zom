@@ -19,6 +19,7 @@ public class LevelController : MonoBehaviour {
     public GameObject PrimaryCamera;
     public GameObject ActionIndicator;
     public GameObject DefendCamera;
+    public GameObject EntityUI;
     public GameObject CharacterUi;
     private GameObject _coroutineRunner;
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
@@ -177,7 +178,7 @@ public class LevelController : MonoBehaviour {
         Character source = currentCommandSource.GetComponent<Character>();
         source.OnQueueCommand(newCommand);
         commands.Add(newCommand);
-
+    
         currentCommand = PlayerCommand.None;
         currentCommandSource = null;
         SetStatusText("");
@@ -189,7 +190,7 @@ public class LevelController : MonoBehaviour {
 
     public void ExecuteCommand(QueuedCommand command) {
         var character = command.Source.GetComponent<Character>();
-        character.OnExecuteCommand(command);
+        StartCoroutine(character.OnExecuteCommand(command));
     }
 
     public void ExecuteDefensePhaseCommands(int owner) {
@@ -203,7 +204,6 @@ public class LevelController : MonoBehaviour {
         DefendCamera.GetVirtualCamera().Priority = CameraInactive;
         PendingDefenseCycle = false;
         _endTurnButtonText.GetComponent<TextMeshProUGUI>().text = "End Turn";
-
     }
     
     public IEnumerator StartDefenseCycle(QueuedCommand[] attackCommands) {
@@ -226,20 +226,41 @@ public class LevelController : MonoBehaviour {
         while(PendingDefenseCycle) yield return null;
 
         // Should prob destroy camera after done panning
+    }
+
+    public IEnumerator ExecuteAttackCycle(QueuedCommand[] attackCommands) {
+        QueuedCommand command = attackCommands.First();
+        LocationBase location = command.Target.GetLocationBase();
+        location.Ui.SetActive(true);
+        MapNode defenseNode = location.ActiveNode;
+        // Camera setup
+        DefendCamera  = DefenseCamera.Create(defenseNode.gameObject);
+        var virtualCamera = DefendCamera.GetComponent<CinemachineVirtualCamera>();
+        PrimaryCamera.GetVirtualCamera().Priority = CameraInactive;
+        virtualCamera.Priority = CameraActive;
         
-        // Declaration
-        // GameObject[] availableDefenders = CharactersOnNode(defenseNode);
-        // get defenders characters if any
-        // call defend on them
-        // have that do the camera zooming
-        // let them declare defenders
+        yield return new WaitForSeconds(2);
+
+        foreach (var attackCommand in attackCommands) {
+            yield return attackCommand.Source.GetCharacter().Attack(attackCommand.Target);
+            yield return new WaitForSeconds(2);
+        }
+        
+        
+        PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
+        DefendCamera.GetVirtualCamera().Priority = CameraInactive;
+        location.Ui.SetActive(false);
     }
     
     public void ExecuteBattlePhaseCommands(int owner) {
+        var battleCycles = commands.Where(a => a.Owner == owner && a.Command == PlayerCommand.AttackLocation)
+            .GroupBy(command => command.Target).Select(commandGroup => ExecuteAttackCycle(commandGroup.ToArray()));
+        _coroutineRunner.GetCoroutineRunner().ConsecutiveRun(battleCycles.ToList());
+        
+        // add to coroutine so it runs after battle commands
         foreach (var command in commands.Where(a => a.Owner == owner && a.Command != PlayerCommand.AttackLocation)) {
             ExecuteCommand(command);
         }
-
         commands.Clear();
     }
 

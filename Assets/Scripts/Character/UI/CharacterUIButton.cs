@@ -16,13 +16,13 @@ public class CharacterUIButton : MonoBehaviour {
     public void OnClick() {
         var levelController = LevelController.Get();
         var characterUi = Ui.GetCharacterUI();
-        if (characterUi.TargetCharacter != levelController.selectedCharacter) return;
+        if (characterUi.Target != levelController.selectedCharacter) return;
         switch (Type) {
             case PlayerCommand.MoveCharacter:
-                levelController.StartCommand(PlayerCommand.MoveCharacter, characterUi.TargetCharacter);
+                levelController.StartCommand(PlayerCommand.MoveCharacter, characterUi.Target);
                 break;
             case PlayerCommand.AttackLocation:
-                levelController.StartCommand(PlayerCommand.AttackLocation, characterUi.TargetCharacter);
+                levelController.StartCommand(PlayerCommand.AttackLocation, characterUi.Target);
                 break;
         }
     }

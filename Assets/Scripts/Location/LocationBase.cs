@@ -1,16 +1,21 @@
 using UnityEngine;
 
-public class LocationBase : MonoBehaviour {
-    [SerializeField] public int Owner, Health, SpawnTime;
+public class LocationBase : Entity {
+    [SerializeField] public int Owner, SpawnTime;
     [SerializeField] public bool Spawned;
     public MapNode ActiveNode;
     public (int, int) MapPosition;
     public GameObject Card;
-
+    
     public void Setup(int owner) {
         Owner = owner;
-        if (SpawnTime == 0) SetSpawned();
-        else SetSpawning();
+        Ui = Instantiate(LevelController.Get().EntityUI);
+        Ui.GetEntityUI().Target = gameObject;
+        Ui.SetActive(false);
+        if (SpawnTime == 0)
+            SetSpawned();
+        else
+            SetSpawning();
     }
 
     public void SpawnTick() {
@@ -18,7 +23,7 @@ public class LocationBase : MonoBehaviour {
         SpawnTime--;
         if (SpawnTime == 0) SetSpawned();
     }
-    
+
     private void SetSpawning() {
         gameObject.GetComponent<Renderer>().material.ChangeAlpha(0.25f);
         Spawned = false;
@@ -32,9 +37,12 @@ public class LocationBase : MonoBehaviour {
     public void OnMouseDown() {
         var levelController = LevelController.Get();
         var command = levelController.currentCommand;
+        var source = levelController.currentCommandSource.GetCharacter();
+        var currentTurnOwner = levelController.CurrentTurnOwner();
         switch (command) {
             case PlayerCommand.AttackLocation:
-                levelController.QueueCommand(PlayerCommand.AttackLocation, gameObject);
+                if (currentTurnOwner == source.Owner && currentTurnOwner != Owner)
+                    levelController.QueueCommand(PlayerCommand.AttackLocation, gameObject);
                 break;
         }
     }
