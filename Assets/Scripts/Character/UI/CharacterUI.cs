@@ -5,15 +5,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CharacterUI : MonoBehaviour {
-    [SerializeField] private GameObject statusText;
+public class CharacterUI : EntityUI {
     [SerializeField] private GameObject moveButton;
     [SerializeField] private GameObject attackButton;
     [SerializeField] private GameObject defendButton;
-    [SerializeField] private GameObject healthBar;
-    [SerializeField] private GameObject _healthBar;
-    [SerializeField] public GameObject TargetCharacter;
-    [SerializeField] public GameObject _camera;
 
     // Start is called before the first frame update
     void Start() {
@@ -21,7 +16,7 @@ public class CharacterUI : MonoBehaviour {
         moveButton.GetComponent<CharacterUIButton>().Ui = gameObject;
         attackButton.GetComponent<CharacterUIButton>().Ui = gameObject;
         defendButton.GetComponent<CharacterUIButton>().Ui = gameObject;
-        GetComponentInChildren<HealthBar>().TargetCharacter = TargetCharacter.GetCharacter();
+        GetComponentInChildren<HealthBar>().Target = Target.GetCharacter();
     }
     
     public void SetCharacterText(string text) {
@@ -62,11 +57,5 @@ public class CharacterUI : MonoBehaviour {
                 break;
         }
         statusText.SetActive(false);
-    }
-
-    // Update is called once per frame
-    private void FixedUpdate() {
-        transform.position = TargetCharacter.transform.position;
-        transform.rotation = _camera.transform.rotation;
     }
 }

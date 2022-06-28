@@ -2018,7 +2018,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.4179688, y: 1}
+    m_SensorSize: {x: 1.1712474, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -4247,6 +4247,7 @@ MonoBehaviour:
   PrimaryCamera: {fileID: 994091969}
   ActionIndicator: {fileID: 8518191389144219464, guid: deab2ec5e38a34ffe8fcb9e1e1bc325c, type: 3}
   DefendCamera: {fileID: 0}
+  EntityUI: {fileID: 5303149562296964011, guid: ed5b4ce336256414f8296a5ceac8a7d6, type: 3}
   CharacterUi: {fileID: 5303149562296964011, guid: b6d98feeab13649f99de075ad29733d9, type: 3}
   BrainsAmount: 0
   CurrentPhase: 0
@@ -4255,10 +4256,10 @@ MonoBehaviour:
   PlayerMaxHealth: 20
   StrategicPhaseLength: 300
   DiscardPosition: {fileID: 1115980390}
-  InfoIcons:
-  - {fileID: 302560353}
   PendingDefenseCycle: 0
   CurrentDefenseCycleNode: {fileID: 0}
+  InfoIcons:
+  - {fileID: 302560353}
   selectedCharacter: {fileID: 0}
   currentCommandSource: {fileID: 0}
   currentCommand: 0

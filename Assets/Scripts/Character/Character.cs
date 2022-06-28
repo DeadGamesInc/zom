@@ -6,12 +6,11 @@ using Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Character : MonoBehaviour {
+public class Character : Entity {
     private MapBase map;
     [SerializeField] public int MovementSpeed = 1;
     [SerializeField] public CharacterState State;
     [SerializeField] public GameObject Camera;
-    [SerializeField] public GameObject Ui;
     [SerializeField] public GameObject ActionIndicator;
     [SerializeField] public static Vector3 yOffset = new Vector3(0f, 5f, 0f);
     [SerializeField] public bool ExecutedActionThisTurn = false;
@@ -23,9 +22,8 @@ public class Character : MonoBehaviour {
     [SerializeField] public bool Spawned;
     [SerializeField] public int Owner;
     [SerializeField] public List<GameObject> EquippedItems = new();
-    [SerializeField] public float MaxHealth;
-    [SerializeField] public float Health;
-    
+    [SerializeField] private Vector3 _dashTarget;
+
     private static float characterTranslationSpeed = 3f;
 
     public MapNode MapPosition { get; private set; }
@@ -40,7 +38,7 @@ public class Character : MonoBehaviour {
         Health = MaxHealth;
         Ui = Instantiate(controller.CharacterUi);
         CharacterUI characterUI = Ui.GetCharacterUI();
-            characterUI.TargetCharacter = gameObject;
+            characterUI.Target = gameObject;
         characterUI.SetCharacterText(name);
         Ui.SetActive(false);
         if (SpawnTime == 0)
@@ -52,17 +50,14 @@ public class Character : MonoBehaviour {
         if (IsOwnersTurn()) SetHighlight(true);
     }
 
-    // Start is called before the first frame update
-    void Start() {
-        // For testing
-        // Setup(null);
-    }
-
     // Update is called once per frame
     void FixedUpdate() {
         switch (State) {
             case CharacterState.InTransit:
                 Move();
+                break;
+            case CharacterState.Attacking:
+                DashTowards();
                 break;
         }
     }
@@ -118,20 +113,29 @@ public class Character : MonoBehaviour {
         transform.position = MapPosition.PlayerGrid.GetWorldPosition(position.Item1, position.Item2) + yOffset;
     }
 
-    public void Attack(QueuedCommand[] commands) {
-        LocationBase location = commands.First().Target.GetLocationBase();
-        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject)
-            .GetComponent<CinemachineVirtualCamera>();
-        camera.Priority = 50;
+    public Null DashTowards() {
+        transform.position = Vector3.MoveTowards(transform.position, _dashTarget, 3f);
+        return null;
+    }
+    
+    public IEnumerator Attack(GameObject targetObject) {
+        Entity target = targetObject.GetEntity();
+        Vector3 targetPos = targetObject.transform.position;
+        Vector3 startingPos = transform.position;
+        
+        // Start attack & dash to target
+        _dashTarget = targetPos;
+        State = CharacterState.Attacking;
 
-        foreach (var command in commands) {
-            command.Source.GetCharacter().State = CharacterState.Attacking;
-        }
+        while (transform.position != targetPos) yield return null;
+        target.Damage(10);
+        
+        // Dash to original position
+        _dashTarget = startingPos;
+        while (transform.position != startingPos) yield return null;
 
-        // _levelController.Owner
-
-        // wait as coroutine for opp to choose defenders and end turn
-        // maybe group all attacks on a node into a single attack / defense stage
+        // End attack
+        State = CharacterState.Idle;
     }
 
     public void Defend(QueuedCommand[] commands, GameObject[] availableDefenders) {
@@ -169,10 +173,7 @@ public class Character : MonoBehaviour {
         levelController.RequeueCommand(command);
     }
 
-    public void OnExecuteCommand(params QueuedCommand[] commands) {
-        QueuedCommand command = commands.First();
-        int correctCommands = commands.Count(c => c.Command == command.Command);
-        if (commands.Length != correctCommands) throw new Exception("Grouped commands must be of the same type");
+    public IEnumerator OnExecuteCommand(QueuedCommand command) {
         switch (command.Command) {
             case PlayerCommand.MoveCharacter:
                 try {
@@ -186,8 +187,11 @@ public class Character : MonoBehaviour {
                 break;
             case PlayerCommand.AttackLocation:
                 if (ActionIndicator != null) Destroy(ActionIndicator);
-                Attack(commands);
+                yield return Attack(command.Target);
                 Ui.SetActive(false);
+                break;
+            default:
+                yield return 0;
                 break;
         }
     }
