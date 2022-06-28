@@ -13,8 +13,9 @@ using UnityEngine.UI;
 
 public class LevelController : MonoBehaviour {
     [SerializeField] public LevelId Id;
-    [SerializeField] public GameObject EmptyLocation, StarterLocation, Opponent;
+    [SerializeField] public GameObject EmptyLocation, StarterLocation, Opponent, EndTurnButton;
     [SerializeField] public ProgressBar PlayerHealthBar, EnemyHealthBar;
+    [SerializeField] public Sprite EndTurnButtonSprite, ConfirmDefendersButtonSprite;
     public GameObject PrimaryCamera;
     public GameObject ActionIndicator;
     public GameObject DefendCamera;
@@ -43,7 +44,6 @@ public class LevelController : MonoBehaviour {
     protected GameObject _roundTimerBar;
     protected ProgressBar _roundTimerBarScript;
     protected Player _player;
-    protected GameObject _endTurnButtonText;
 
     private DateTime _roundEnd;
 
@@ -97,7 +97,6 @@ public class LevelController : MonoBehaviour {
         _roundTimerBarScript = _roundTimerBar.GetComponent<ProgressBar>();
         _waitText = GameObject.Find("WaitText");
         _infoWindow = GameObject.Find("InfoWindow");
-        _endTurnButtonText = GameObject.Find("EndTurnButtonText");
         _coroutineRunner = new GameObject("CoroutineRunner").AddComponent<CoroutineRunner>().gameObject;
         
         if (_cardPreview != null) _cardPreview.SetActive(false);
@@ -115,6 +114,7 @@ public class LevelController : MonoBehaviour {
         UpdateHealthBars();
         
         CurrentPhase = PhaseId.SPAWN;
+        SetButtons(false);
         HandlePhase();
     }
 
@@ -136,6 +136,17 @@ public class LevelController : MonoBehaviour {
         
         if (Round < 2 && opponentMaxHealth == 0) EnemyHealthBar.Set(1, 1, "INITIAL SETUP");
         else EnemyHealthBar.Set(opponentHealth, opponentMaxHealth);
+    }
+
+    public void SetButtons(bool show) {
+        var image = EndTurnButton.GetUIImage();
+        image.sprite = CurrentPhase switch {
+            PhaseId.STRATEGIC => EndTurnButtonSprite,
+            PhaseId.DEFENCE => ConfirmDefendersButtonSprite,
+            _ => image.sprite
+        };
+        
+        EndTurnButton.SetActive(show);
     }
 
     public void AddBrains(int amount) {
@@ -215,11 +226,11 @@ public class LevelController : MonoBehaviour {
         PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
         DefendCamera.GetVirtualCamera().Priority = CameraInactive;
         PendingDefenseCycle = false;
-        _endTurnButtonText.GetComponent<TextMeshProUGUI>().text = "End Turn";
+        SetButtons(false);
     }
     
     public IEnumerator StartDefenseCycle(QueuedCommand[] attackCommands) {
-        _endTurnButtonText.GetComponent<TextMeshProUGUI>().text = "Confirm Defenders";
+        SetButtons(true);
         // Setup
         QueuedCommand command = attackCommands.First();
         LocationBase location = command.Target.GetLocationBase();
@@ -605,6 +616,7 @@ public class LevelController : MonoBehaviour {
 
     protected void EndTurn() {
         _roundTimerBar.SetActive(false);
+        SetButtons(false);
         if (CurrentPhase == PhaseId.STRATEGIC) {
             Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.STRATEGIC);
             CurrentPhase = PhaseId.DEFENCE;
@@ -682,6 +694,7 @@ public class LevelController : MonoBehaviour {
 
     private void HandleStrategicPhase() {
         if (LocalTurn) {
+            SetButtons(true);
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.STRATEGIC);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
@@ -694,7 +707,10 @@ public class LevelController : MonoBehaviour {
     private void HandleDefense() {
         if (LocalTurn) {
             ExecuteDefensePhaseCommands(0);
-            if (_waitText != null) _waitText.SetActive(true);
+            if (_waitText != null) {
+                print("HIT");
+                _waitText.SetActive(true);
+            }
         } 
         else {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);

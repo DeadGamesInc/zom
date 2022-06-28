@@ -12,12 +12,14 @@ public class DevOpponent : Opponent {
     }
 
     public void EndTurnClicked() {
+        var controller = LevelController.Get();
+        controller.SetButtons(false);
         if (CurrentPhase == PhaseId.STRATEGIC) {
             CurrentPhase = PhaseId.DEFENCE;
             HandlePhase();
         } else if (CurrentPhase == PhaseId.DEFENCE) {
-            if(LevelController.Get().PendingDefenseCycle) LevelController.Get().EndDefenseCycle();
-            else LevelController.Get().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+            if(controller.PendingDefenseCycle) controller.EndDefenseCycle();
+            else controller.OtherPlayerPhaseComplete(PhaseId.DEFENCE);
         }
     }
 
@@ -90,7 +92,9 @@ public class DevOpponent : Opponent {
     }
 
     private void HandleStrategicPhase() {
-        LevelController.Get().OtherPlayerPhase(PhaseId.STRATEGIC);
+        var controller = LevelController.Get();
+        controller.OtherPlayerPhase(PhaseId.STRATEGIC);
+        controller.SetButtons(true);
     }
 
     private IEnumerator HandleBattlePhase() {
@@ -102,8 +106,10 @@ public class DevOpponent : Opponent {
     }
     
     private void HandleDefensePhase() {
-        LevelController.Get().OtherPlayerPhase(PhaseId.DEFENCE);
-        LevelController.Get().ExecuteDefensePhaseCommands(1);
+        var controller = LevelController.Get();
+        controller.OtherPlayerPhase(PhaseId.DEFENCE);
+        controller.SetButtons(true);
+        controller.ExecuteDefensePhaseCommands(1);
     }
 
     private IEnumerator HandleDrawPhase() {
