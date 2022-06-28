@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class LocationBase : Entity {
@@ -6,6 +7,7 @@ public class LocationBase : Entity {
     public MapNode ActiveNode;
     public (int, int) MapPosition;
     public GameObject Card;
+    public List<GameObject> Defenders;
     
     public void Setup(int owner) {
         Owner = owner;

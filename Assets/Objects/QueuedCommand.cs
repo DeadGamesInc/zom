@@ -12,4 +12,8 @@ public struct QueuedCommand {
         Command = command;
         Owner = owner;
     }
+
+    public void Retarget(GameObject newTarget) {
+        Target = newTarget;
+    }
 }

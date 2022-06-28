@@ -128,7 +128,7 @@ public class Character : Entity {
         State = CharacterState.Attacking;
 
         while (transform.position != targetPos) yield return null;
-        target.Damage(10);
+        target.Damage(40);
         
         // Dash to original position
         _dashTarget = startingPos;
@@ -138,20 +138,20 @@ public class Character : Entity {
         State = CharacterState.Idle;
     }
 
-    public void Defend(QueuedCommand[] commands, GameObject[] availableDefenders) {
-        LocationBase location = commands.First().Target.GetLocationBase();
-        CinemachineVirtualCamera camera = DefenseCamera.Create(location.ActiveNode.gameObject)
-            .GetComponent<CinemachineVirtualCamera>();
-        camera.Priority = 50;
-
-        foreach (var command in commands) {
-            command.Source.GetCharacter().State = CharacterState.Attacking;
-        }
-
-        // _levelController.Owner
-
-        // wait as coroutine for opp to choose defenders and end turn
-        // maybe group all attacks on a node into a single attack / defense stage
+    public void DeclareDefender(LocationBase location) {
+        location.Defenders.Add(gameObject);
+        State = CharacterState.Defending;
+    }
+    
+    public void UndeclareDefender() {
+        // Get queued defend command
+        QueuedCommand command = LevelController.Get().commands.Find(command =>
+            command.Source == gameObject && command.Command == PlayerCommand.DefendLocation);
+        // Remove character from location defenders & unqueue command
+        LocationBase location = command.Target.GetLocationBase();
+        location.Defenders.Remove(gameObject);
+        State = CharacterState.Idle;
+        LevelController.Get().commands.RemoveAll(command => command.Source == gameObject);
     }
 
     public void OnQueueCommand(QueuedCommand command) {
@@ -190,6 +190,9 @@ public class Character : Entity {
                 yield return Attack(command.Target);
                 Ui.SetActive(false);
                 break;
+            case PlayerCommand.DefendLocation:
+                // yield return Defend(command.Target);
+                break;
             default:
                 yield return 0;
                 break;
@@ -212,11 +215,19 @@ public class Character : Entity {
                 if (controller.PendingDefenseCycle) {
                     if (State == CharacterState.Defending) {
                         State = CharacterState.Idle;
+                        UndeclareDefender();
                         Ui.SetActive(false);
                     } else {
-                        State = CharacterState.Defending;
-                        Ui.SetActive(true);
-                        Ui.GetCharacterUI().OnlyShowButton(PlayerCommand.DefendLocation);
+                        LocationBase location = LevelController
+                            .Get().CurrentDefenseCycleNode
+                            .GetMapNode().Location
+                            .GetLocationBase();
+                        if (location.ActiveNode == MapPosition) {
+                            State = CharacterState.Defending;
+                            DeclareDefender(location);
+                            Ui.SetActive(true);
+                            Ui.GetCharacterUI().OnlyShowButton(PlayerCommand.DefendLocation);
+                        }
                     }
                 }
 
@@ -236,6 +247,16 @@ public class Character : Entity {
         }
 
         LevelController.Get().SetInfoWindow(InfoCard, spawnTime);
+    }
+
+    protected void OnDestroy() {
+        base.OnDestroy();
+        var levelController = LevelController.Get();
+        levelController.CurrentDefenseCycleNode
+            .GetMapNode().Location
+            .GetLocationBase().Defenders
+            .Remove(gameObject);
+        levelController.Characters.Remove(gameObject);
     }
 
     public void SetHighlight(bool glow) {

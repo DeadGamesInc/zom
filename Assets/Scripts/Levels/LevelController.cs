@@ -242,10 +242,10 @@ public class LevelController : MonoBehaviour {
         yield return new WaitForSeconds(2);
 
         foreach (var attackCommand in attackCommands) {
-            yield return attackCommand.Source.GetCharacter().Attack(attackCommand.Target);
+            if (location.Defenders.Any()) attackCommand.Retarget(location.Defenders.First());
+            yield return attackCommand.Source.GetCharacter().OnExecuteCommand(attackCommand);
             yield return new WaitForSeconds(2);
         }
-        
         
         PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
         DefendCamera.GetVirtualCamera().Priority = CameraInactive;
