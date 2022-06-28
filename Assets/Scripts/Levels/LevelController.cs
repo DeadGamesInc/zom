@@ -359,18 +359,21 @@ public class LevelController : MonoBehaviour {
         ConfigureLocation(locationObject, grid, position, activeNode);
     }
 
-    public GameObject CreateCharacter(GameObject prefab, MapNode node, int owner) {
+    public GameObject CreateCharacter(GameObject prefab, MapNode node, int owner, bool instant) {
         var character = Instantiate(prefab, new Vector3(0, 0, 0), new Quaternion());
         var script = character.GetCharacter();
+        if (instant) script.SpawnTime = 0;
         script.Setup(node, owner);
         Characters.Add(character);
         return character;
     }
 
-    public GameObject CreateLocation(GameObject prefab, GameObject replaces, MapGrid grid, (int, int) mapPosition, MapNode activeNode, int owner) {
+    public GameObject CreateLocation(GameObject prefab, GameObject replaces, MapGrid grid, (int, int) mapPosition, MapNode activeNode, int owner, bool instant) {
         var locationObject = Instantiate(prefab);
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
-        locationObject.GetLocationBase().Setup(owner);
+        var script = locationObject.GetLocationBase();
+        if (instant) script.SpawnTime = 0;
+        script.Setup(owner);
         if (replaces != null) Destroy(replaces);
         Locations.Add(locationObject);
         return locationObject;
@@ -470,7 +473,7 @@ public class LevelController : MonoBehaviour {
         }
 
         if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
-            var character = CreateCharacter(card.CharacterPrefab, SelectedLocation.GetLocationBase().ActiveNode, 0);
+            var character = CreateCharacter(card.CharacterPrefab, SelectedLocation.GetLocationBase().ActiveNode, 0, card.InstantPlay);
             var script = character.GetCharacter();
             script.Card = SelectedCard;
             CardPlayed(false);
@@ -480,7 +483,7 @@ public class LevelController : MonoBehaviour {
         if (SelectedLocation != null && card.Type == CardType.LOCATION && basicLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 0);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 0, card.InstantPlay);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
@@ -489,7 +492,7 @@ public class LevelController : MonoBehaviour {
         if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 0);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 0, card.InstantPlay);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
@@ -559,13 +562,13 @@ public class LevelController : MonoBehaviour {
         SetCard(null, null, "");
     }
 
-    public void DrawCard(bool freePlay = false) {
-        if (!_deckController.DrawCard(freePlay)) return;
+    public void DrawCard(bool freePlay = false, bool instant = false) {
+        if (!_deckController.DrawCard(freePlay, instant)) return;
         UpdateHandPosition();
     }
 
-    public void DrawCard(CardId id, bool freePlay = false) {
-        if (!_deckController.DrawCard(id, freePlay)) return;
+    public void DrawCard(CardId id, bool freePlay = false, bool instant = false) {
+        if (!_deckController.DrawCard(id, freePlay, instant)) return;
         UpdateHandPosition();
     }
 

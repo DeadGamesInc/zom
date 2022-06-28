@@ -5,6 +5,7 @@ public class Card : MonoBehaviour {
     [SerializeField] public CardType Type;
     [SerializeField] public int BrainsValue;
     [SerializeField] public string Name, Series, NervosTestnetNFT;
+    [SerializeField] public bool InstantPlay;
     [SerializeField] public Sprite CardPreview;
     [SerializeField] public GameObject CharacterPrefab, LocationPrefab, ItemPrefab, ResourcePrefab;
 
