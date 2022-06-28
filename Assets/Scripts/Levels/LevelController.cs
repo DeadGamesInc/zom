@@ -632,7 +632,6 @@ public class LevelController : MonoBehaviour {
             }
         }
         HighlightCharacters();
-        Round++;
     }
 
     private void HandlePhase() {
@@ -707,10 +706,7 @@ public class LevelController : MonoBehaviour {
     private void HandleDefense() {
         if (LocalTurn) {
             ExecuteDefensePhaseCommands(0);
-            if (_waitText != null) {
-                print("HIT");
-                _waitText.SetActive(true);
-            }
+            if (_waitText != null) _waitText.SetActive(true);
         } 
         else {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
@@ -761,6 +757,8 @@ public class LevelController : MonoBehaviour {
             LocalTurn = !LocalTurn;
             if (!LocalTurn) Opponent.GetOpponent().StartTurn();
         }
+        
+        Round++;
     }
 
     private static IEnumerator Wait() {
