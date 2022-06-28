@@ -54,18 +54,31 @@ public class DeckController : MonoBehaviour {
         }
     }
     
-    public bool DrawCard() {
+    public bool DrawCard(bool freePlay = false) {
         if (!DeckCards.Any()) return false;
-        
+        var card = DeckCards.First();
+        HandleDrawnCard(card, freePlay);
+        return true;
+    }
+
+    public bool DrawCard(CardId id, bool freePlay = false) {
+        var card = DeckCards.Find(a => a.GetCard().Id == id);
+        if (card == null) return false;
+        HandleDrawnCard(card, freePlay);
+        return true;
+    }
+
+    private void HandleDrawnCard(GameObject card, bool freePlay) {
         if (PlacedDeckCards.Any()) {
             var placed = PlacedDeckCards.Last();
             Destroy(placed);
         }
         
-        var card = DeckCards.First();
         var drawn = Instantiate(card, HandPosition.position, HandPosition.rotation);
+
+        if (freePlay) drawn.GetCard().BrainsValue = 0;
+        
         HandCards.Add(drawn);
         DeckCards.Remove(card);
-        return true;
     }
 }

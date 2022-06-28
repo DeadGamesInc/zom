@@ -559,8 +559,13 @@ public class LevelController : MonoBehaviour {
         SetCard(null, null, "");
     }
 
-    public void DrawCard() {
-        if (!_deckController.DrawCard()) return;
+    public void DrawCard(bool freePlay = false) {
+        if (!_deckController.DrawCard(freePlay)) return;
+        UpdateHandPosition();
+    }
+
+    public void DrawCard(CardId id, bool freePlay = false) {
+        if (!_deckController.DrawCard(id, freePlay)) return;
         UpdateHandPosition();
     }
 

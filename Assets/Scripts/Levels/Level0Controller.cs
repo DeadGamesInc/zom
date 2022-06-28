@@ -12,6 +12,9 @@ public class Level0Controller : LevelController {
         foreach (var card in _gameController.AvailableCards) 
             for (var i = 1; i <= card.Quantity; i++) _deckController.DeckCards.Add(card.Card);
         
+        DrawCard(CardId.BRAINS);
+        DrawCard(CardId.SPAWNING_POOL, true);
+        DrawCard(CardId.BASIC_ZOMBIE, true);
         _deckController.Shuffle();
         
         for (var i = _deckController.HandCards.Count; i < HandCardsTarget; i++) {
