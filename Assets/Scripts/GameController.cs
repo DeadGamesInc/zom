@@ -61,6 +61,5 @@ public class GameController : MonoBehaviour {
         var deckController = Player.GetComponent<DeckController>();
         deckController.HandPosition = GameObject.Find("HandPosition")?.transform;
         deckController.DeckPosition = GameObject.Find("DeckPosition")?.transform;
-        PlayerScript.HealthBar = GameObject.Find("HealthBar")?.GetComponentInChildren<ProgressBar>();
     }
 }

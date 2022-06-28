@@ -4244,6 +4244,8 @@ MonoBehaviour:
   EmptyLocation: {fileID: 6189811462899777865, guid: 467ae5c6680434965a8b3233a0d7e005, type: 3}
   StarterLocation: {fileID: 5377480870749784420, guid: 6637d29b92169224eb99a853c9871158, type: 3}
   Opponent: {fileID: 520811968}
+  PlayerHealthBar: {fileID: 1939567624}
+  EnemyHealthBar: {fileID: 725658203}
   PrimaryCamera: {fileID: 994091969}
   ActionIndicator: {fileID: 8518191389144219464, guid: deab2ec5e38a34ffe8fcb9e1e1bc325c, type: 3}
   DefendCamera: {fileID: 0}

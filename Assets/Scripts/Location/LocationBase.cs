@@ -3,6 +3,7 @@ using UnityEngine;
 public class LocationBase : Entity {
     [SerializeField] public int Owner, SpawnTime;
     [SerializeField] public bool Spawned;
+    
     public MapNode ActiveNode;
     public (int, int) MapPosition;
     public GameObject Card;

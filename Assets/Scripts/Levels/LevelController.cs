@@ -13,9 +13,8 @@ using UnityEngine.UI;
 
 public class LevelController : MonoBehaviour {
     [SerializeField] public LevelId Id;
-    [SerializeField] public GameObject EmptyLocation;
-    [SerializeField] public GameObject StarterLocation;
-    [SerializeField] public GameObject Opponent;
+    [SerializeField] public GameObject EmptyLocation, StarterLocation, Opponent;
+    [SerializeField] public ProgressBar PlayerHealthBar, EnemyHealthBar;
     public GameObject PrimaryCamera;
     public GameObject ActionIndicator;
     public GameObject DefendCamera;
@@ -25,7 +24,7 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
     [SerializeField] public static int CameraActive = 20;
     [SerializeField] public static int CameraInactive = 0;
-    [SerializeField] public int BrainsAmount;
+    [SerializeField] public int BrainsAmount, Round;
 
     public PhaseId CurrentPhase;
     public bool LocalTurn;
@@ -67,7 +66,6 @@ public class LevelController : MonoBehaviour {
     private TextMeshProUGUI _statusText;
     public GameObject _map;
     private Vector3 _initialHandPosition;
-    private ProgressBar _enemyHealthBar;
     private bool _lockCard;
     public List<GameObject> BrainLocations = new();
     public List<GameObject> Locations = new();
@@ -97,7 +95,6 @@ public class LevelController : MonoBehaviour {
         _player = GameObject.Find("Player")?.GetComponent<Player>();
         _roundTimerBar = GameObject.Find("RoundTimer");
         _roundTimerBarScript = _roundTimerBar.GetComponent<ProgressBar>();
-        _enemyHealthBar = GameObject.Find("EnemyHealthBar")?.GetComponent<ProgressBar>();
         _waitText = GameObject.Find("WaitText");
         _infoWindow = GameObject.Find("InfoWindow");
         _endTurnButtonText = GameObject.Find("EndTurnButtonText");
@@ -105,25 +102,40 @@ public class LevelController : MonoBehaviour {
         
         if (_cardPreview != null) _cardPreview.SetActive(false);
         if (_handPosition != null) _initialHandPosition = _handPosition.transform.position;
-        if (_player != null) _player.SetMaxHealth(PlayerMaxHealth);
         if (_roundTimerBar != null) _roundTimerBar.SetActive(false);
         if (_roundTimerBarScript != null) _roundTimerBarScript.Maximum = StrategicPhaseLength;
         if (_waitText != null) _waitText.SetActive(false);
         if (_infoWindow != null) _infoWindow.SetActive(false);
-
-        if (_enemyHealthBar != null) {
-            _enemyHealthBar.Maximum = PlayerMaxHealth;
-            _enemyHealthBar.Set(PlayerMaxHealth);
-        }
 
         Setup();
 
         if (_deckController != null) _deckController.PlaceDeckCards();
 
         Opponent.GetOpponent().Initialize();
+        UpdateHealthBars();
         
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
+    }
+
+    private void UpdateHealthBars() {
+        float playerMaxHealth = 0.0f, playerHealth = 0.0f, opponentMaxHealth = 0.0f, opponentHealth = 0.0f;
+
+        foreach (var script in Locations.Select(location => location.GetLocationBase())) {
+            if (script.Owner == 0) {
+                playerMaxHealth += script.MaxHealth;
+                playerHealth += script.Health;
+            } else {
+                opponentMaxHealth += script.MaxHealth;
+                opponentHealth += script.Health;
+            }
+        }
+
+        if (Round < 2 && playerMaxHealth == 0) PlayerHealthBar.Set(1, 1, "INITIAL SETUP");
+        else PlayerHealthBar.Set(playerHealth, playerMaxHealth);
+        
+        if (Round < 2 && opponentMaxHealth == 0) EnemyHealthBar.Set(1, 1, "INITIAL SETUP");
+        else EnemyHealthBar.Set(opponentHealth, opponentMaxHealth);
     }
 
     public void AddBrains(int amount) {
@@ -342,6 +354,8 @@ public class LevelController : MonoBehaviour {
                 _roundTimerBarScript.Set((int)left);
             }
         }
+        
+        UpdateHealthBars();
     }
 
     public GameObject[] CharactersOnNode(MapNode node) {
@@ -606,6 +620,7 @@ public class LevelController : MonoBehaviour {
             }
         }
         HighlightCharacters();
+        Round++;
     }
 
     private void HandlePhase() {

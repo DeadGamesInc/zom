@@ -14,6 +14,22 @@ public class ProgressBar : MonoBehaviour {
         Mask.fillAmount = bar;
         UpdateText();
     }
+    
+    public void Set(float amount, float maximum) {
+        Current = amount;
+        Maximum = maximum;
+        var bar = Current / Maximum;
+        Mask.fillAmount = bar;
+        UpdateText();
+    }
+
+    public void Set(float amount, float maximum, string text) {
+        Current = amount;
+        Maximum = maximum;
+        var bar = Current / Maximum;
+        Mask.fillAmount = bar;
+        Text.text = text;
+    }
 
     private void UpdateText() {
         Text.text = TextType switch {
