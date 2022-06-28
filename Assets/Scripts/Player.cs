@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
     private static Player _instance;
-    
-    [SerializeField] public int MaxHealth, Health;
-
-    public ProgressBar HealthBar;
 
     public static GameObject GetGameObject() => GameObject.Find("Player");
     public static Player Get() => GetGameObject().GetComponent<Player>();
@@ -21,12 +17,5 @@ public class Player : MonoBehaviour {
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
-    }
-
-    public void SetMaxHealth(int health) {
-        MaxHealth = health;
-        Health = health;
-        HealthBar.Maximum = health;
-        HealthBar.Set(health);
     }
 }
