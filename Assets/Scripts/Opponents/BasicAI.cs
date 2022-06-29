@@ -1,25 +1,32 @@
 using System.Collections;
 using System.Linq;
-using TMPro;
+
 using UnityEngine;
 
-public class DevOpponent : Opponent {
-    [SerializeField] public GameObject WaitText;
+public class BasicAI : Opponent {
     [SerializeField] public PhaseId CurrentPhase;
+    [SerializeField] public DeckController DeckController;
 
+    private int _harvestedBrains;
+    
+    public override void OtherPlayerPhase(PhaseId phase) => CurrentPhase = phase;
+    
     public override void Initialize() {
-        WaitText.GetComponent<TextMeshProUGUI>().text = "PLAYING AS OTHER PLAYER";
-    }
-
-    public void EndTurnClicked() {
-        var controller = LevelController.Get();
-        controller.SetButtons(false);
-        if (CurrentPhase == PhaseId.STRATEGIC) {
-            CurrentPhase = PhaseId.DEFENCE;
-            HandlePhase();
-        } else if (CurrentPhase == PhaseId.DEFENCE) {
-            if(controller.PendingDefenseCycle) controller.EndDefenseCycle();
-            else controller.OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+        var controller = GameController.Get();
+        var levelController = LevelController.Get();
+        
+        foreach (var card in controller.AvailableCards) 
+            for (var i = 1; i <= card.Quantity; i++) DeckController.DeckCards.Add(card.Card);
+        
+        DeckController.DrawCard(CardId.BRAINS, true, false, true);
+        DeckController.DrawCard(CardId.SPAWNING_POOL, true, true, true);
+        DeckController.DrawCard(CardId.BASIC_ZOMBIE, true, true, true);
+        
+        DeckController.Shuffle();
+        
+        for (var i = DeckController.HandCards.Count; i < levelController.HandCardsTarget; i++) {
+            if (!DeckController.DeckCards.Any()) break;
+            DeckController.DrawCard(hide: true);
         }
     }
 
@@ -27,6 +34,10 @@ public class DevOpponent : Opponent {
         LevelController.Get().OtherPlayerStarted();
         CurrentPhase = PhaseId.SPAWN;
         HandlePhase();
+    }
+    
+    public override void HandleDefense() {
+        StartCoroutine(HandleDeclaringDefenders());
     }
 
     public override void OtherPlayerPhaseComplete(PhaseId phase) {
@@ -38,36 +49,28 @@ public class DevOpponent : Opponent {
         }
     }
 
-    public override void OtherPlayerPhase(PhaseId phase) => CurrentPhase = phase;
-
-    public override void HandleDefense() {
-        var controller = LevelController.Get();
-        controller.SetButtons(true);
-        controller.ExecuteDefensePhaseCommands(0);
-    }
-
     private void HandlePhase() {
         switch (CurrentPhase) {
             case PhaseId.SPAWN:
                 StartCoroutine(HandleSpawnPhase());
                 break;
-
+            
             case PhaseId.STRATEGIC:
-                HandleStrategicPhase();
+                StartCoroutine(HandleStrategicPhase());
                 break;
-
+            
             case PhaseId.DEFENCE:
                 HandleDefensePhase();
                 break;
-
+            
             case PhaseId.BATTLE:
                 StartCoroutine(HandleBattlePhase());
                 break;
-
+            
             case PhaseId.DRAW:
                 StartCoroutine(HandleDrawPhase());
                 break;
-
+            
             case PhaseId.END_TURN:
                 StartCoroutine(HandleEndTurn());
                 break;
@@ -93,35 +96,36 @@ public class DevOpponent : Opponent {
         HandlePhase();
     }
 
-    private void HandleStrategicPhase() {
+    private IEnumerator HandleStrategicPhase() {
         var controller = LevelController.Get();
         controller.OtherPlayerPhase(PhaseId.STRATEGIC);
-        controller.SetButtons(true);
-    }
-
-    private IEnumerator HandleBattlePhase() {
-        LevelController.Get().OtherPlayerPhase(PhaseId.BATTLE);
-        LevelController.Get().ExecuteBattlePhaseCommands(1);
         yield return Wait();
-        CurrentPhase = PhaseId.DRAW;
+        
+        CurrentPhase = PhaseId.DEFENCE;
         HandlePhase();
     }
-    
+
     private void HandleDefensePhase() {
         var controller = LevelController.Get();
         controller.OtherPlayerPhase(PhaseId.DEFENCE);
-        controller.SetButtons(true);
-        controller.ExecuteDefensePhaseCommands(1);
+    }
+
+    private IEnumerator HandleBattlePhase() {
+        var controller = LevelController.Get();
+        controller.OtherPlayerPhase(PhaseId.BATTLE);
+        controller.ExecuteBattlePhaseCommands(1);
+        yield return Wait();
+        CurrentPhase = PhaseId.DRAW;
+        HandlePhase();
     }
 
     private IEnumerator HandleDrawPhase() {
         var level = LevelController.Get();
         level.OtherPlayerPhase(PhaseId.DRAW);
-        var player = GameObject.Find("Player");
-        var controller = player.GetComponent<DeckController>();
-        for (var i = controller.HandCards.Count; i < 5; i++) {
-            if (!controller.DeckCards.Any()) break;
-            level.DrawCard();
+        
+        for (var i = DeckController.HandCards.Count; i < level.HandCardsTarget; i++) {
+            if (!DeckController.DeckCards.Any()) break;
+            DeckController.DrawCard(hide: true);
         }
 
         yield return Wait();
@@ -140,8 +144,13 @@ public class DevOpponent : Opponent {
 
         yield return Wait();
 
-        controller.SubtractBrains(controller.BrainsAmount);
+        _harvestedBrains = 0;
         controller.OtherPlayerPhase(PhaseId.END_TURN);
         controller.StartTurn();
+    }
+
+    private IEnumerator HandleDeclaringDefenders() {
+        yield return Wait();
+        LevelController.Get().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
     }
 }

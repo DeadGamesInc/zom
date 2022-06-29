@@ -705,13 +705,15 @@ public class LevelController : MonoBehaviour {
     
     private void HandleDefense() {
         if (LocalTurn) {
-            ExecuteDefensePhaseCommands(0);
             if (_waitText != null) _waitText.SetActive(true);
+            Opponent.GetOpponent().HandleDefense();
         } 
         else {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
+            SetButtons(true);
+            ExecuteDefensePhaseCommands(1);
         }
     }
 

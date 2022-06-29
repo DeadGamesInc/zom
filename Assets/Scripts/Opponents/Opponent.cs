@@ -10,6 +10,7 @@ public abstract class Opponent : MonoBehaviour {
     public abstract void StartTurn();
     public abstract void OtherPlayerPhase(PhaseId phase);
     public abstract void OtherPlayerPhaseComplete(PhaseId phase);
+    public abstract void HandleDefense();
     
     // Start is called before the first frame update
     public void Start() {
