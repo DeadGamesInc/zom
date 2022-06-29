@@ -13,7 +13,7 @@ using UnityEngine.UI;
 
 public class LevelController : MonoBehaviour {
     [SerializeField] public LevelId Id;
-    [SerializeField] public GameObject EmptyLocation, StarterLocation, Opponent, EndTurnButton;
+    [SerializeField] public GameObject EmptyLocation, StarterLocation, Opponent, EndTurnButton, DevMenu;
     [SerializeField] public ProgressBar PlayerHealthBar, EnemyHealthBar;
     [SerializeField] public Sprite EndTurnButtonSprite, ConfirmDefendersButtonSprite;
     public GameObject PrimaryCamera;
@@ -103,6 +103,8 @@ public class LevelController : MonoBehaviour {
         if (_roundTimerBarScript != null) _roundTimerBarScript.Maximum = StrategicPhaseLength;
         if (_waitText != null) _waitText.SetActive(false);
         if (_infoWindow != null) _infoWindow.SetActive(false);
+        
+        DevMenu.SetActive(false);
         
         foreach (var icon in InfoIcons) icon.SetActive(false);
 
@@ -353,6 +355,10 @@ public class LevelController : MonoBehaviour {
                 }
                 break;
         }
+    }
+
+    public void Update() {
+        if (Input.GetKeyDown(KeyCode.F10)) DevMenu.SetActive(!DevMenu.activeInHierarchy);
     }
 
     public void FixedUpdate() {

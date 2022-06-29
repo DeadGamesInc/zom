@@ -8,7 +8,7 @@ public class BasicAI : Opponent {
     [SerializeField] public PhaseId CurrentPhase;
     [SerializeField] public DeckController DeckController;
 
-    private int _harvestedBrains;
+    public int HarvestedBrains;
     
     public override void OtherPlayerPhase(PhaseId phase) => CurrentPhase = phase;
     
@@ -152,11 +152,8 @@ public class BasicAI : Opponent {
             if (!controller.EmptyLocations.Any()) break;
             
             var script = card.GetCard();
-            if (script.BrainsValue <= totalBrains + _harvestedBrains) {
-                var harvested = FindAndClaimBrains(pendingBrains, script.BrainsValue);
-                totalBrains -= harvested;
-                _harvestedBrains += harvested - script.BrainsValue;
-                
+            if (script.BrainsValue <= totalBrains + HarvestedBrains) {
+                FindAndClaimBrains(pendingBrains, script.BrainsValue);
                 var location = controller.EmptyLocations.First();
                 PlayLocation(card, location, true);
             }
@@ -166,11 +163,8 @@ public class BasicAI : Opponent {
 
         foreach (var card in characterCards) {
             var script = card.GetCard();
-            if (script.BrainsValue <= totalBrains + _harvestedBrains) {
-                var harvested = FindAndClaimBrains(pendingBrains, script.BrainsValue);
-                totalBrains -= harvested;
-                _harvestedBrains += harvested - script.BrainsValue;
-                
+            if (script.BrainsValue <= totalBrains + HarvestedBrains) {
+                FindAndClaimBrains(pendingBrains, script.BrainsValue);
                 var location = controller.Locations.First(a => a.GetLocationBase().Owner == 1);
                 if (location == null) break;
                 PlayCharacter(card, location);
@@ -183,24 +177,24 @@ public class BasicAI : Opponent {
         HandlePhase();
     }
 
-    private int FindAndClaimBrains(List<GameObject> pendingBrains, int needed) {
+    private void FindAndClaimBrains(List<GameObject> pendingBrains, int needed) {
         var claimed = 0;
 
-        if (_harvestedBrains > needed) {
-            _harvestedBrains -= needed;
-            return 0;
+        if (HarvestedBrains > needed) {
+            HarvestedBrains -= needed;
+            return;
         }
         
         foreach (var pending in pendingBrains) {
             var script = pending.GetBrains();
             if (script.StoredBrains < needed) continue;
             
-            claimed = script.StoredBrains;
+            claimed = script.StoredBrains - needed;
             script.StoredBrains = 0;
             break;
         }
 
-        return claimed;
+        HarvestedBrains += claimed;
     }
 
     private void PlayLocation(GameObject cardObject, GameObject locationObject, bool empty) {
@@ -262,7 +256,7 @@ public class BasicAI : Opponent {
 
         yield return Wait();
 
-        _harvestedBrains = 0;
+        HarvestedBrains = 0;
         controller.OtherPlayerPhase(PhaseId.END_TURN);
         controller.StartTurn();
     }

@@ -43,7 +43,8 @@ public class Level0Controller : LevelController {
             EndTurn();
     }
 
-    public void ClickAddBrains() => AddBrains(10);
+    public void ClickAddBrains() => AddBrains(100);
+    public void ClickAddAIBrains() => Opponent.GetComponent<BasicAI>().HarvestedBrains += 100;
 
     protected override bool LevelSpecificCardHandling() {
         if (!(CurrentPhase == PhaseId.STRATEGIC && !LocalTurn) && !(CurrentPhase == PhaseId.DEFENCE && LocalTurn)) return false;
