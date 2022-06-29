@@ -185,6 +185,11 @@ public class BasicAI : Opponent {
 
     private int FindAndClaimBrains(List<GameObject> pendingBrains, int needed) {
         var claimed = 0;
+
+        if (_harvestedBrains > needed) {
+            _harvestedBrains -= needed;
+            return 0;
+        }
         
         foreach (var pending in pendingBrains) {
             var script = pending.GetBrains();
