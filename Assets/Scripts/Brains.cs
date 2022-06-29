@@ -4,6 +4,7 @@ public class Brains : MonoBehaviour {
     [SerializeField] public int BrainsValue, StoredBrains, Owner;
     [SerializeField] public Sprite InfoCard;
     public GameObject Card;
+    public MapNode ActiveNode;
     
     private static Vector3 yOffset = new(0f, 5f, 0f);
 
@@ -12,6 +13,7 @@ public class Brains : MonoBehaviour {
     public void Setup(BrainsNode node, MapBase map, int owner, int value) {
         Owner = owner;
         BrainsValue = value;
+        ActiveNode = node.MapNode;
         transform.localScale = new Vector3(10, 10, 10);
         transform.position = map.GetWorldPosition(node.x, node.z) + yOffset;
     }

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class BrainsNode : MonoBehaviour {
-    [SerializeField] public GameObject Location;
+    [SerializeField] public MapNode MapNode;
     
     private const int SIZE = 10;
     public int x, z;
@@ -10,13 +10,15 @@ public class BrainsNode : MonoBehaviour {
     private bool equals(MapNode n) => x == n.X && z == n.Z;
     public override int GetHashCode() => (x, z).GetHashCode();
 
-    public static BrainsNode Create(int x, int z, MapGrid grid) {
+    public static BrainsNode Create(int x, int z, MapGrid grid, MapNode mapNode) {
         var obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
         var node = obj.AddComponent<BrainsNode>();
+        node.MapNode = mapNode;
         node.x = x;
         node.z = z;
         obj.transform.position = grid.GetWorldPosition(x, z);
         obj.transform.localScale = new Vector3(SIZE, 0, SIZE);
+        mapNode.EmptyBrainNodes.Add(obj);
         
         return node;
     }

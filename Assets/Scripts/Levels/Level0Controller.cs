@@ -85,7 +85,7 @@ public class Level0Controller : LevelController {
         if (SelectedLocation != null && card.Type == CardType.LOCATION && starterLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 1, card.InstantPlay);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 1, card.InstantPlay, false);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
@@ -94,7 +94,7 @@ public class Level0Controller : LevelController {
         if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 1, card.InstantPlay);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 1, card.InstantPlay, true);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;

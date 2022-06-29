@@ -19,13 +19,13 @@ public class Map0 : MapBase {
     }
 
     protected override void InitializeBrainsNodes() {
-        BrainsNode.Create(7, 1, Grid);
-        BrainsNode.Create(9, 1, Grid);
-        BrainsNode.Create(15, 7, Grid);
-        BrainsNode.Create(15, 9, Grid);
-        BrainsNode.Create(7, 15, Grid);
-        BrainsNode.Create(9, 15, Grid);
-        BrainsNode.Create(1, 7, Grid);
-        BrainsNode.Create(1, 9, Grid);
+        BrainsNode.Create(7, 1, Grid, GetNode(8, 2));
+        BrainsNode.Create(9, 1, Grid, GetNode(8, 2));
+        BrainsNode.Create(15, 7, Grid, GetNode(14, 8));
+        BrainsNode.Create(15, 9, Grid, GetNode(14, 8));
+        BrainsNode.Create(7, 15, Grid, GetNode(8, 14));
+        BrainsNode.Create(9, 15, Grid, GetNode(8, 14));
+        BrainsNode.Create(1, 7, Grid, GetNode(2, 8));
+        BrainsNode.Create(1, 9, Grid, GetNode(2, 8));
     }
 }
