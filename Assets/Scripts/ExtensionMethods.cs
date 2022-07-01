@@ -18,6 +18,8 @@ public static class ExtensionMethods {
     public static CinemachineVirtualCamera GetVirtualCamera(this GameObject obj) => obj.GetComponent<CinemachineVirtualCamera>();
     public static CoroutineRunner GetCoroutineRunner(this GameObject obj) => obj.GetComponent<CoroutineRunner>();
     public static Entity GetEntity(this GameObject obj) => obj.GetComponent<Entity>();
+    public static Brains GetBrains(this GameObject obj) => obj.GetComponent<Brains>();
+    public static LocationControl GetLocationControl(this GameObject obj) => obj.GetComponent<LocationControl>();
     
     public static void ChangeAlpha(this Material material, float alpha) {
         var oldColor = material.color;

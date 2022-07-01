@@ -5,8 +5,6 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class DeckController : MonoBehaviour {
-    private static DeckController _instance;
-    
     [SerializeField] public Material CardBack; 
     [SerializeField] public List<GameObject> DeckCards, HandCards = new();
     
@@ -16,16 +14,6 @@ public class DeckController : MonoBehaviour {
     
     public void PlayedCard(GameObject card) => HandCards.Remove(card);
     
-    public void Start() {
-        if (_instance != null) {
-            Destroy(gameObject);
-            return;
-        }
-
-        _instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
-
     public void Shuffle() {
         var cards = DeckCards.ToList();
         DeckCards.Clear();
@@ -54,30 +42,34 @@ public class DeckController : MonoBehaviour {
         }
     }
     
-    public bool DrawCard(bool freePlay = false, bool instant = false) {
+    public bool DrawCard(bool freePlay = false, bool instant = false, bool hide = false) {
         if (!DeckCards.Any()) return false;
         var card = DeckCards.First();
-        HandleDrawnCard(card, freePlay, instant);
+        HandleDrawnCard(card, freePlay, instant, hide);
         return true;
     }
 
-    public bool DrawCard(CardId id, bool freePlay = false, bool instant = false) {
+    public bool DrawCard(CardId id, bool freePlay = false, bool instant = false, bool hide = false) {
         var card = DeckCards.Find(a => a.GetCard().Id == id);
         if (card == null) return false;
-        HandleDrawnCard(card, freePlay, instant);
+        HandleDrawnCard(card, freePlay, instant, hide);
         return true;
     }
 
-    private void HandleDrawnCard(GameObject card, bool freePlay, bool instant) {
+    private void HandleDrawnCard(GameObject card, bool freePlay, bool instant, bool hide) {
         if (PlacedDeckCards.Any()) {
             var placed = PlacedDeckCards.Last();
             Destroy(placed);
         }
+
+        var position = hide ? new Vector3(0, 0, 0) : HandPosition.position;
+        var rotation = hide ? new Quaternion(0, 0, 0, 0) : HandPosition.rotation;
         
-        var drawn = Instantiate(card, HandPosition.position, HandPosition.rotation);
+        var drawn = Instantiate(card, position, rotation);
 
         if (freePlay) drawn.GetCard().BrainsValue = 0;
         if (instant) drawn.GetCard().InstantPlay = true;
+        if (hide) drawn.transform.localScale = new Vector3(0, 0, 0);
         
         HandCards.Add(drawn);
         DeckCards.Remove(card);

@@ -31,10 +31,6 @@ public class DevOpponent : Opponent {
 
     public override void OtherPlayerPhaseComplete(PhaseId phase) {
         switch (phase) {
-            case PhaseId.STRATEGIC:
-                CurrentPhase = PhaseId.DEFENCE;
-                HandlePhase();
-                break;
             case PhaseId.DEFENCE:
                 CurrentPhase = PhaseId.BATTLE;
                 HandlePhase();
@@ -43,6 +39,12 @@ public class DevOpponent : Opponent {
     }
 
     public override void OtherPlayerPhase(PhaseId phase) => CurrentPhase = phase;
+
+    public override void HandleDefense() {
+        var controller = LevelController.Get();
+        controller.SetButtons(true);
+        controller.ExecuteDefensePhaseCommands(0);
+    }
 
     private void HandlePhase() {
         switch (CurrentPhase) {
@@ -128,9 +130,8 @@ public class DevOpponent : Opponent {
     }
 
     private IEnumerator HandleEndTurn() {
-        LevelController.Get().OtherPlayerPhase(PhaseId.END_TURN);
-
         var controller = LevelController.Get();
+        controller.OtherPlayerPhase(PhaseId.END_TURN);
 
         foreach (var brainScript in controller.BrainLocations.Select(brain => brain.GetComponent<Brains>())
                      .Where(brainScript => brainScript.Owner == 1)) {
@@ -140,7 +141,7 @@ public class DevOpponent : Opponent {
         yield return Wait();
 
         controller.SubtractBrains(controller.BrainsAmount);
-        LevelController.Get().OtherPlayerPhase(PhaseId.END_TURN);
-        LevelController.Get().StartTurn();
+        controller.OtherPlayerPhase(PhaseId.END_TURN);
+        controller.StartTurn();
     }
 }
