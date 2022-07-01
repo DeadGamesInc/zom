@@ -20,6 +20,16 @@ public class LocationBase : Entity {
         else
             SetSpawning();
     }
+    
+    protected override void Kill() {
+        var controller = LevelController.Get();
+        var map = MapBase.Get();
+        ActiveNode.Location = null;
+        foreach (var node in ActiveNode.BrainNodes) node.GetBrains().Kill();
+        controller.CreateEmptyLocation(map.Grid, MapPosition, ActiveNode);
+        controller.Locations.Remove(gameObject);
+        Destroy(gameObject);
+    }
 
     public void SpawnTick() {
         if (SpawnTime == 0) return;

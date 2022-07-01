@@ -29,7 +29,7 @@ public class Character : Entity {
     public MapNode MapPosition { get; private set; }
     public (int, int) NodePosition { get; private set; }
     public CharacterRoute Route { get; private set; }
-
+    
     public void Setup(MapNode node, int owner) {
         Owner = owner;
         var controller = LevelController.Get();
@@ -50,6 +50,11 @@ public class Character : Entity {
         if (IsOwnersTurn()) SetHighlight(true);
     }
 
+    protected override void Kill() {
+        LevelController.Get().Characters.Remove(gameObject);
+        Destroy(gameObject);
+    }
+    
     // Update is called once per frame
     void FixedUpdate() {
         if(_dashTarget.HasValue) {
@@ -270,7 +275,7 @@ public class Character : Entity {
             .GetMapNode().Location
             .GetLocationBase().Defenders
             .Remove(gameObject);
-        levelController.Characters.Remove(gameObject);
+        //levelController.Characters.Remove(gameObject);
     }
 
     public void SetHighlight(bool glow) {
