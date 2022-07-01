@@ -6,7 +6,7 @@ public class Map0 : MapBase {
         Width = 16;
         CellSize = 30;
         DistanceUnit = 4;
-
+        LocationNodes = new[] {  (8, 2), (14, 8), (8, 14), (2, 8) };
         base.Initialize();
     }
 

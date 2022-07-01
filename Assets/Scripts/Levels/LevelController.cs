@@ -224,7 +224,7 @@ public class LevelController : MonoBehaviour {
         CurrentDefenseCycleNode = defenseNode.gameObject;
         HighlightCharacters();
         while(PendingDefenseCycle) yield return null;
-
+        BattleFormation(defenseNode);
         // Should prob destroy camera after done panning
     }
 
@@ -242,10 +242,15 @@ public class LevelController : MonoBehaviour {
         yield return new WaitForSeconds(2);
 
         foreach (var attackCommand in attackCommands) {
+            Debug.Log(location.Defenders.Count);
             if (location.Defenders.Any()) attackCommand.Retarget(location.Defenders.First());
             yield return attackCommand.Source.GetCharacter().OnExecuteCommand(attackCommand);
             yield return new WaitForSeconds(2);
         }
+
+        // Cleanup
+        yield return ResetCharacters(defenseNode);
+        location.Defenders.Clear();
         
         PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
         DefendCamera.GetVirtualCamera().Priority = CameraInactive;
@@ -254,7 +259,7 @@ public class LevelController : MonoBehaviour {
     
     public void ExecuteBattlePhaseCommands(int owner) {
         var battleCycles = commands.Where(a => a.Owner == owner && a.Command == PlayerCommand.AttackLocation)
-            .GroupBy(command => command.Target).Select(commandGroup => ExecuteAttackCycle(commandGroup.ToArray()));
+            .GroupBy(command => command.Target).Select(commandGroup => ExecuteAttackCycle(commandGroup.ToArray())).ToList();
         _coroutineRunner.GetCoroutineRunner().ConsecutiveRun(battleCycles.ToList());
         
         // add to coroutine so it runs after battle commands
@@ -262,6 +267,65 @@ public class LevelController : MonoBehaviour {
             ExecuteCommand(command);
         }
         commands.Clear();
+    }
+
+    public void BattleFormation(MapNode node) {
+        Vector3 origin = _map.transform.position;
+        Vector3 nodePosition = node.transform.position;
+        Vector3 dir = (origin - nodePosition).normalized;
+        Vector3 perpendicularDir = Vector3.Cross(dir, Vector3.up);
+        
+        float padding = 20f;
+        GameObject[] defenders = node.Location.GetLocationBase().Defenders.ToArray();
+        GameObject[] attackers = commands
+            .Where(c => c.Target == node.Location && c.Command == PlayerCommand.AttackLocation)
+            .Select(c => c.Source)
+            .ToArray();
+        var bystanders = CharactersOnNode(node)
+            .Where(b => !defenders.Contains(b) && !attackers.Contains(b))
+            .ToArray();
+        GameObject[] p0Bystanders = bystanders
+            .Where(b => b.GetCharacter().Owner == 0)
+            .ToArray();
+        GameObject[] p1Bystanders = bystanders
+            .Where(b => b.GetCharacter().Owner == 1)
+            .ToArray();
+
+        Vector3 defenderOffset = nodePosition -(dir * padding) - padding * defenders.Length * perpendicularDir / 2;
+        Vector3 attackerOffset = nodePosition + (dir * padding) - padding * attackers.Length * perpendicularDir / 2;
+        float maxPlayers = defenders.Length > attackers.Length ? defenders.Length : attackers.Length;
+        Vector3 p0Offset = node.transform.position + padding * (maxPlayers + 1) * perpendicularDir / 2;
+        Vector3 p1Offset = nodePosition - padding * (maxPlayers + 1) * perpendicularDir / 2;
+
+        foreach (var (defender, index) in defenders.Select((d, i) => (d, i))) {
+            StartCoroutine(defender.GetCharacter().DashTowards(defenderOffset + (padding * index) * perpendicularDir));
+        }
+        
+        foreach (var (attacker, index) in attackers.Select((d, i) => (d, i))) {
+            StartCoroutine(attacker.GetCharacter().DashTowards(attacker.transform.position = attackerOffset + (padding * index) * perpendicularDir));
+        }
+
+        foreach (var (bystander, index) in p0Bystanders.Select((b, i) => (b, i))) {
+            StartCoroutine(bystander.GetCharacter().DashTowards(p0Offset + (padding * index) * dir));
+        }
+        
+        foreach (var (bystander, index) in p1Bystanders.Select((b, i) => (b, i))) {
+            StartCoroutine(bystander.GetCharacter().DashTowards(p1Offset + (padding * index) * dir));
+        }
+    }
+
+    public IEnumerator ResetCharacters(MapNode node) {
+        foreach (var (characterObject, index) in CharactersOnNode(node).Select((c, i) => (c, i))) {
+            var character = characterObject.GetCharacter();
+            character.Reposition(index);
+            character.Ui.SetActive(false);
+        }
+
+        yield return null;
+    }
+
+    public void RepositionCurrent() {
+        BattleFormation(CurrentDefenseCycleNode.GetMapNode());
     }
 
     public void ToggleCharacter(Character character) {
