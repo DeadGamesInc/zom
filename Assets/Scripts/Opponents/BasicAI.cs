@@ -171,6 +171,23 @@ public class BasicAI : Opponent {
             }
         }
 
+        var playableCharacters = controller.Characters.FindAll(a => a.GetCharacter().Owner == 1 && a.GetCharacter().Spawned);
+        var enemyLocations = controller.Locations.FindAll(a => a.GetLocationBase().Owner == 0 && a.GetLocationBase().Spawned);
+
+        foreach (var character in playableCharacters) {
+            if (!enemyLocations.Any()) break;
+
+            var onLocation = enemyLocations.Find(a => a.GetLocationBase().ActiveNode == character.GetCharacter().MapPosition);
+
+            if (onLocation != null) {
+                controller.QueueCommand(PlayerCommand.AttackLocation, character, onLocation, 1);
+                continue;
+            }
+            
+            var location = enemyLocations.First();
+            controller.QueueCommand(PlayerCommand.MoveCharacter, character, location.GetLocationBase().ActiveNode.gameObject, 1);
+        }
+
         yield return Wait();
         
         CurrentPhase = PhaseId.DEFENCE;

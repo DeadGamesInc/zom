@@ -208,6 +208,12 @@ public class LevelController : MonoBehaviour {
         currentCommandSource = null;
         SetStatusText("");
     }
+    
+    public void QueueCommand(PlayerCommand command, GameObject source, GameObject target, int owner) {
+        var queuedCommand = new QueuedCommand(source, target, command, owner);
+        source.GetCharacter().OnQueueCommand(queuedCommand);
+        commands.Add(queuedCommand);
+    }
 
     public void RequeueCommand(QueuedCommand command) {
         commands.Add(command);
@@ -639,6 +645,7 @@ public class LevelController : MonoBehaviour {
         else if (CurrentPhase == PhaseId.DEFENCE) {
             if (PendingDefenseCycle) {
                 EndDefenseCycle();
+                SetButtons(true);
             } else {
                 Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
                 CurrentPhase = PhaseId.BATTLE;
