@@ -100,11 +100,16 @@ public class DevOpponent : Opponent {
     }
 
     private IEnumerator HandleBattlePhase() {
-        LevelController.Get().OtherPlayerPhase(PhaseId.BATTLE);
-        LevelController.Get().ExecuteBattlePhaseCommands(1);
+        var controller = LevelController.Get();
+        controller.OtherPlayerPhase(PhaseId.BATTLE);
+        controller.ExecuteBattlePhaseCommands(1);
         yield return Wait();
-        CurrentPhase = PhaseId.DRAW;
-        HandlePhase();
+
+        if (controller.CheckGameOver()) controller.HandleGameOver();
+        else {
+            CurrentPhase = PhaseId.DRAW;
+            HandlePhase();
+        }
     }
     
     private void HandleDefensePhase() {

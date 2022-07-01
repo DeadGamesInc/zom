@@ -13,7 +13,8 @@ using UnityEngine.UI;
 
 public class LevelController : MonoBehaviour {
     [SerializeField] public LevelId Id;
-    [SerializeField] public GameObject EmptyLocation, StarterLocation, Opponent, EndTurnButton, DevMenu;
+    [SerializeField] public GameObject EmptyLocation, StarterLocation, Opponent, EndTurnButton, DevMenu, 
+            GameOverMenu, WinText, LoseText, ClaimButton;
     [SerializeField] public ProgressBar PlayerHealthBar, EnemyHealthBar;
     [SerializeField] public Sprite EndTurnButtonSprite, ConfirmDefendersButtonSprite;
     public GameObject PrimaryCamera;
@@ -105,6 +106,7 @@ public class LevelController : MonoBehaviour {
         if (_infoWindow != null) _infoWindow.SetActive(false);
         
         DevMenu.SetActive(false);
+        GameOverMenu.SetActive(false);
         
         foreach (var icon in InfoIcons) icon.SetActive(false);
 
@@ -118,6 +120,29 @@ public class LevelController : MonoBehaviour {
         CurrentPhase = PhaseId.SPAWN;
         SetButtons(false);
         HandlePhase();
+    }
+
+    public bool CheckGameOver() {
+        if (Round < 2) return false;
+        
+        float playerHealth = 0.0f, opponentHealth = 0.0f;
+        
+        foreach (var script in Locations.Select(location => location.GetLocationBase())) {
+            if (script.Owner == 0) playerHealth += script.Health;
+            else opponentHealth += script.Health;
+        }
+
+        return playerHealth == 0 || opponentHealth == 0;
+    }
+
+    public void HandleGameOver() {
+        var won = Locations.Select(location => location.GetLocationBase()).Where(script => script.Owner == 0).Sum(script => script.Health) > 0;
+        GameOverMenu.SetActive(true);
+        WinText.SetActive(won);
+        LoseText.SetActive(!won);
+        ClaimButton.SetActive(won);
+        CurrentPhase = PhaseId.GAME_OVER;
+        _phaseName.text = "GAME OVER";
     }
 
     private void UpdateHealthBars() {
@@ -144,7 +169,8 @@ public class LevelController : MonoBehaviour {
         var image = EndTurnButton.GetUIImage();
         image.sprite = CurrentPhase switch {
             PhaseId.STRATEGIC => EndTurnButtonSprite,
-            PhaseId.DEFENCE => ConfirmDefendersButtonSprite,
+            PhaseId.DEFENCE when PendingDefenseCycle => ConfirmDefendersButtonSprite,
+            PhaseId.DEFENCE when !PendingDefenseCycle => EndTurnButtonSprite,
             _ => image.sprite
         };
         
@@ -808,9 +834,13 @@ public class LevelController : MonoBehaviour {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.BATTLE);
             ExecuteBattlePhaseCommands(0);
             yield return Wait();
-            Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.BATTLE);
-            CurrentPhase = PhaseId.DRAW;
-            HandlePhase();
+
+            if (CheckGameOver()) HandleGameOver();
+            else {
+                Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.BATTLE);
+                CurrentPhase = PhaseId.DRAW;
+                HandlePhase();
+            }
         }
     }
 

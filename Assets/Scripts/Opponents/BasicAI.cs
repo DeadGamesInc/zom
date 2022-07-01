@@ -252,8 +252,12 @@ public class BasicAI : Opponent {
         controller.OtherPlayerPhase(PhaseId.BATTLE);
         controller.ExecuteBattlePhaseCommands(1);
         yield return Wait();
-        CurrentPhase = PhaseId.DRAW;
-        HandlePhase();
+        
+        if (controller.CheckGameOver()) controller.HandleGameOver();
+        else {
+            CurrentPhase = PhaseId.DRAW;
+            HandlePhase();
+        }
     }
 
     private IEnumerator HandleDrawPhase() {

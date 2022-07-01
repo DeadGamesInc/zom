@@ -13,6 +13,11 @@ public class DeckController : MonoBehaviour {
     private readonly List<GameObject> PlacedDeckCards = new();
     
     public void PlayedCard(GameObject card) => HandCards.Remove(card);
+
+    public void HandleReset() {
+        DeckCards = new();
+        HandCards = new();
+    }
     
     public void Shuffle() {
         var cards = DeckCards.ToList();
