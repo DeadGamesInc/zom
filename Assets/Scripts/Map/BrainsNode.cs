@@ -17,7 +17,7 @@ public class BrainsNode : MonoBehaviour {
         node.x = x;
         node.z = z;
         obj.transform.position = grid.GetWorldPosition(x, z);
-        obj.transform.localScale = new Vector3(SIZE, 0, SIZE);
+        obj.transform.localScale = new Vector3(SIZE, 0.00000001f, SIZE);
         mapNode.EmptyBrainNodes.Add(obj);
         
         return node;
