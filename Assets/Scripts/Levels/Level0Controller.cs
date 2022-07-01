@@ -1,11 +1,14 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms;
 
 public class Level0Controller : LevelController {
     private Map0 _mapControl;
     
     protected override void Setup() {
+        _deckController.HandleReset();
+        
         LocalTurn = true;
         createMap();
         
@@ -34,13 +37,23 @@ public class Level0Controller : LevelController {
     }
 
     public void ClickEndTurn() {
-        
-        if ((CurrentPhase == PhaseId.STRATEGIC && !LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && LocalTurn)) {
+        if ((CurrentPhase == PhaseId.STRATEGIC && !LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && LocalTurn)) 
             Opponent.GetComponent<DevOpponent>().EndTurnClicked();
-        }
 
         else if ((CurrentPhase == PhaseId.STRATEGIC && LocalTurn) || (CurrentPhase == PhaseId.DEFENCE && !LocalTurn)) 
             EndTurn();
+    }
+
+    public void ClickRestart() {
+        SceneManager.LoadScene((int) SceneId.GAME);
+    }
+
+    public void ClickMenu() {
+        SceneManager.LoadScene((int) SceneId.MENU);
+    }
+
+    public async void ClickClaim() {
+        await NFT_ERC721.MintReward("0xD48ab8a75C0546Cf221e674711b6C38257a545b6");
     }
 
     public void ClickAddBrains() => AddBrains(100);

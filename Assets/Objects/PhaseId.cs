@@ -4,5 +4,6 @@
     DEFENCE,
     BATTLE,
     DRAW,
-    END_TURN
+    END_TURN,
+    GAME_OVER
 }
