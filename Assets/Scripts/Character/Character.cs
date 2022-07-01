@@ -51,7 +51,12 @@ public class Character : Entity {
     }
 
     protected override void Kill() {
-        LevelController.Get().Characters.Remove(gameObject);
+        var levelController = LevelController.Get();
+        levelController.CurrentDefenseCycleNode
+            .GetMapNode().Location
+            .GetLocationBase().Defenders
+            .Remove(gameObject);
+        levelController.Characters.Remove(gameObject);
         Destroy(gameObject);
     }
     
@@ -267,15 +272,6 @@ public class Character : Entity {
         }
 
         LevelController.Get().SetInfoWindow(InfoCard, spawnTime);
-    }
-
-    protected void OnDisable() {
-        var levelController = LevelController.Get();
-        levelController.CurrentDefenseCycleNode
-            .GetMapNode().Location
-            .GetLocationBase().Defenders
-            .Remove(gameObject);
-        //levelController.Characters.Remove(gameObject);
     }
 
     public void SetHighlight(bool glow) {
