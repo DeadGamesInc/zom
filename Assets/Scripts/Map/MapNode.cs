@@ -18,7 +18,7 @@ public class MapNode : MonoBehaviour {
         node.Z = z;
         if (draw) {
             newGameObject.transform.position = grid.GetWorldPosition(x, z);
-            newGameObject.transform.localScale = new Vector3(SIZE, 0, SIZE);
+            newGameObject.transform.localScale = new Vector3(SIZE, 0.00000001f, SIZE);
         } else {
             newGameObject.transform.localScale = Vector3.zero;
         }
