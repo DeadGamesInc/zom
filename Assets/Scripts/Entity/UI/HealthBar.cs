@@ -13,6 +13,6 @@ public class HealthBar : MonoBehaviour {
     }
 
     public void Refresh() {
-        _healthBar.fillAmount = Target.Health / Target.MaxHealth;
+        if (_healthBar != null) _healthBar.fillAmount = Target.Health / Target.MaxHealth;
     }
 }
