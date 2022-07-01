@@ -275,7 +275,7 @@ public class Character : Entity {
             .GetMapNode().Location
             .GetLocationBase().Defenders
             .Remove(gameObject);
-        levelController.Characters.Remove(gameObject);
+        //levelController.Characters.Remove(gameObject);
     }
 
     public void SetHighlight(bool glow) {

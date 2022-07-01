@@ -25,6 +25,7 @@ public class LocationBase : Entity {
         var controller = LevelController.Get();
         var map = MapBase.Get();
         ActiveNode.Location = null;
+        foreach (var node in ActiveNode.BrainNodes) node.GetBrains().Kill();
         controller.CreateEmptyLocation(map.Grid, MapPosition, ActiveNode);
         controller.Locations.Remove(gameObject);
         Destroy(gameObject);

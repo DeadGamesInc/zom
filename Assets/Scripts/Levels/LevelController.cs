@@ -492,6 +492,7 @@ public class LevelController : MonoBehaviour {
         var script = brains.GetComponent<Brains>();
         script.Setup(nodeScript, _map.GetComponent<MapBase>(), owner, value);
         nodeScript.MapNode.EmptyBrainNodes.Remove(node);
+        nodeScript.MapNode.BrainNodes.Add(brains);
         Destroy(node);
         BrainLocations.Add(brains);
         return brains;
