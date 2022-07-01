@@ -1,7 +1,8 @@
 using UnityEngine;
 
 public class MapNode : MonoBehaviour {
-    public const int MAP_GRID_SIZE = 4;
+    public const int MAP_GRID_LENGTH = 4;
+    public const int MAP_GRID_WIDTH = 5;
     private const int SIZE = 15;
     public int X, Z;
     public MapNodeGrid PlayerGrid;
@@ -19,7 +20,7 @@ public class MapNode : MonoBehaviour {
             newGameObject.transform.localScale = Vector3.zero;
         }
 
-        node.PlayerGrid = new MapNodeGrid(MAP_GRID_SIZE, MAP_GRID_SIZE, 10, node);
+        node.PlayerGrid = new MapNodeGrid(MAP_GRID_WIDTH, MAP_GRID_LENGTH, 10, node);
         return node;
     }
 

@@ -40,11 +40,12 @@ public class LocationBase : Entity {
     public void OnMouseDown() {
         var levelController = LevelController.Get();
         var command = levelController.currentCommand;
-        var source = levelController.currentCommandSource.GetCharacter();
-        var currentTurnOwner = levelController.CurrentTurnOwner();
+
         switch (command) {
             case PlayerCommand.AttackLocation:
-                if (currentTurnOwner == source.Owner && currentTurnOwner != Owner)
+                var source = levelController.currentCommandSource.GetCharacter();
+                var currentTurnOwner = levelController.CurrentTurnOwner();
+                if (currentTurnOwner == source.Owner && currentTurnOwner != Owner )
                     levelController.QueueCommand(PlayerCommand.AttackLocation, gameObject);
                 break;
         }

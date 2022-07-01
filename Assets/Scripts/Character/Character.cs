@@ -22,7 +22,7 @@ public class Character : Entity {
     [SerializeField] public bool Spawned;
     [SerializeField] public int Owner;
     [SerializeField] public List<GameObject> EquippedItems = new();
-    [SerializeField] private Vector3 _dashTarget;
+    [SerializeField] private Vector3? _dashTarget;
 
     private static float characterTranslationSpeed = 3f;
 
@@ -52,13 +52,20 @@ public class Character : Entity {
 
     // Update is called once per frame
     void FixedUpdate() {
+        if(_dashTarget.HasValue) {
+            Dash();
+            return;
+        }
         switch (State) {
             case CharacterState.InTransit:
                 Move();
                 break;
-            case CharacterState.Attacking:
-                DashTowards();
-                break;
+            // case CharacterState.Attacking:
+            //     Dash();
+            //     break;
+            // case CharacterState.Attacking:
+            //     DashTowards();
+            //     break;
         }
     }
 
@@ -108,14 +115,14 @@ public class Character : Entity {
         }
     }
 
-    public void Reposition() {
-        (int, int) position = MapPosition.PlayerGrid.GetAvailableSpot(Owner);
-        transform.position = MapPosition.PlayerGrid.GetWorldPosition(position.Item1, position.Item2) + yOffset;
+    public void Reposition(int? index = null) {
+        (int, int) position = MapPosition.PlayerGrid.GetAvailableSpot(Owner, index);
+        NodePosition = position;
+        StartCoroutine(DashTowards(MapPosition.PlayerGrid.GetWorldPosition(position.Item1, position.Item2) + yOffset));
     }
 
-    public Null DashTowards() {
-        transform.position = Vector3.MoveTowards(transform.position, _dashTarget, 3f);
-        return null;
+    public void Dash() {
+        transform.position = Vector3.MoveTowards(transform.position, _dashTarget.GetValueOrDefault(), 3f);
     }
     
     public IEnumerator Attack(GameObject targetObject) {
@@ -133,7 +140,8 @@ public class Character : Entity {
         // Dash to original position
         _dashTarget = startingPos;
         while (transform.position != startingPos) yield return null;
-
+        _dashTarget = null;
+        
         // End attack
         State = CharacterState.Idle;
     }
@@ -163,6 +171,12 @@ public class Character : Entity {
                 CurrentCommand = command;
                 break;
         }
+    }
+
+    public IEnumerator DashTowards(Vector3 target) {
+        _dashTarget = target;
+        while (transform.position != target) yield return null;
+        _dashTarget = null;
     }
 
     private IEnumerator RequeueUnfinishedCommand(QueuedCommand command) {
@@ -212,6 +226,7 @@ public class Character : Entity {
                 if (Spawned) controller.ToggleCharacter(this);
                 break;
             case PhaseId.DEFENCE:
+                if (IsOwnersTurn()) return;
                 if (controller.PendingDefenseCycle) {
                     if (State == CharacterState.Defending) {
                         State = CharacterState.Idle;
@@ -249,8 +264,7 @@ public class Character : Entity {
         LevelController.Get().SetInfoWindow(InfoCard, spawnTime);
     }
 
-    protected void OnDestroy() {
-        base.OnDestroy();
+    protected void OnDisable() {
         var levelController = LevelController.Get();
         levelController.CurrentDefenseCycleNode
             .GetMapNode().Location

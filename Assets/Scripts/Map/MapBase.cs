@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class MapBase : MonoBehaviour {
     [SerializeField] public int Length, Width, DistanceUnit;
     [SerializeField] public float CellSize;
+    [SerializeField] public (int, int)[] LocationNodes;
 
     public MapGrid Grid { get; private set; }
     
