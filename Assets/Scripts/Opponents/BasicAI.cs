@@ -9,6 +9,7 @@ public class BasicAI : Opponent {
     [SerializeField] public DeckController DeckController;
 
     public int HarvestedBrains;
+    public int PendingBrains;
     
     public override void OtherPlayerPhase(PhaseId phase) => CurrentPhase = phase;
     
@@ -135,14 +136,14 @@ public class BasicAI : Opponent {
             }
         }
 
-        var totalBrains = 0;
         var pendingBrains = new List<GameObject>();
+        PendingBrains = 0;
         
         foreach (var brains in controller.BrainLocations.Where(a => a.GetBrains().Owner == 1)) {
             var script = brains.GetBrains();
             if (script.StoredBrains > 0) {
                 pendingBrains.Add(brains);
-                totalBrains += script.StoredBrains;
+                PendingBrains += script.StoredBrains;
             }
         }
         
@@ -152,8 +153,7 @@ public class BasicAI : Opponent {
             if (!controller.EmptyLocations.Any()) break;
             
             var script = card.GetCard();
-            if (script.BrainsValue <= totalBrains + HarvestedBrains) {
-                FindAndClaimBrains(pendingBrains, script.BrainsValue);
+            if (FindAndClaimBrains(pendingBrains, script.BrainsValue)) {
                 var location = controller.EmptyLocations.First();
                 PlayLocation(card, location, true);
             }
@@ -163,8 +163,7 @@ public class BasicAI : Opponent {
 
         foreach (var card in characterCards) {
             var script = card.GetCard();
-            if (script.BrainsValue <= totalBrains + HarvestedBrains) {
-                FindAndClaimBrains(pendingBrains, script.BrainsValue);
+            if (FindAndClaimBrains(pendingBrains, script.BrainsValue)) {
                 var location = controller.Locations.First(a => a.GetLocationBase().Owner == 1);
                 if (location == null) break;
                 PlayCharacter(card, location);
@@ -175,8 +174,12 @@ public class BasicAI : Opponent {
         var enemyLocations = controller.Locations.FindAll(a => a.GetLocationBase().Owner == 0 && a.GetLocationBase().Spawned);
 
         foreach (var character in playableCharacters) {
-            if (!enemyLocations.Any()) break;
+            var script = character.GetCharacter();
+            
+            var enemiesOnLocation = controller.Characters.Find(a => a.GetCharacter().Owner == 0 && a.GetCharacter().MapPosition == script.MapPosition);
 
+            if (enemiesOnLocation) continue;
+            
             var onLocation = enemyLocations.Find(a => a.GetLocationBase().ActiveNode == character.GetCharacter().MapPosition);
 
             if (onLocation != null) {
@@ -184,6 +187,7 @@ public class BasicAI : Opponent {
                 continue;
             }
             
+            if (!enemyLocations.Any()) continue;
             var location = enemyLocations.First();
             controller.QueueCommand(PlayerCommand.MoveCharacter, character, location.GetLocationBase().ActiveNode.gameObject, 1);
         }
@@ -194,24 +198,28 @@ public class BasicAI : Opponent {
         HandlePhase();
     }
 
-    private void FindAndClaimBrains(List<GameObject> pendingBrains, int needed) {
-        var claimed = 0;
-
+    private bool FindAndClaimBrains(List<GameObject> pendingBrains, int needed) {
+        if (needed > PendingBrains + HarvestedBrains) return false;
+        
         if (HarvestedBrains > needed) {
             HarvestedBrains -= needed;
-            return;
+            return true;
         }
         
         foreach (var pending in pendingBrains) {
             var script = pending.GetBrains();
-            if (script.StoredBrains < needed) continue;
             
-            claimed = script.StoredBrains - needed;
+            PendingBrains -= script.StoredBrains;
+            HarvestedBrains += script.StoredBrains;
             script.StoredBrains = 0;
-            break;
+
+            if (HarvestedBrains > needed) {
+                HarvestedBrains -= needed;
+                return true;
+            }
         }
 
-        HarvestedBrains += claimed;
+        return false;
     }
 
     private void PlayLocation(GameObject cardObject, GameObject locationObject, bool empty) {
@@ -279,6 +287,23 @@ public class BasicAI : Opponent {
     }
 
     private IEnumerator HandleDeclaringDefenders() {
+        var controller = LevelController.Get();
+        var attackerCommands = controller.commands.Where(a => a.Owner == 0 && a.Command == PlayerCommand.AttackLocation)
+            .GroupBy(command => command.Target).Select(commandGroup => commandGroup.ToList());
+
+        var characters = controller.Characters.FindAll(a => a.GetCharacter().Owner == 1).ToList();
+        
+        foreach (var commands in attackerCommands) {
+            var command = commands.First();
+            var location = command.Target.GetLocationBase();
+            var target = location.ActiveNode;
+            var defenders = characters.FindAll(a => a.GetCharacter().MapPosition == target);
+            foreach (var defender in defenders) {
+                defender.GetCharacter().State = CharacterState.Defending;
+                location.Defenders.Add(defender);
+            }
+        }
+        
         yield return Wait();
         LevelController.Get().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
     }
