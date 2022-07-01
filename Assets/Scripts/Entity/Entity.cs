@@ -8,6 +8,8 @@ public abstract class Entity : MonoBehaviour {
     public float Health;
     public GameObject Ui;
 
+    protected abstract void Kill();
+
     protected void Start() {
         Health = MaxHealth;
     }
@@ -15,7 +17,7 @@ public abstract class Entity : MonoBehaviour {
     public void Damage(float amount) {
         Health -= amount;
         Ui.GetEntityUI().HealthBar.GetComponent<HealthBar>().Refresh();
-        if(Health <= 0) Destroy(gameObject);
+        if(Health <= 0) Kill();
     }
 
     protected void OnDestroy() {

@@ -281,11 +281,11 @@ public class LevelController : MonoBehaviour {
 
         // Cleanup
         yield return ResetCharacters(defenseNode);
-        location.Defenders.Clear();
+        if (location != null) location.Defenders.Clear();
         
         PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
         DefendCamera.GetVirtualCamera().Priority = CameraInactive;
-        location.Ui.SetActive(false);
+        if (location != null) location.Ui.SetActive(false);
     }
     
     public void ExecuteBattlePhaseCommands(int owner) {
