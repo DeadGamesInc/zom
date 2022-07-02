@@ -110,7 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f32062aeabf745f8ba441f3c7e25b7dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 100
+  MaxHealth: 6
   Health: 0
   Ui: {fileID: 0}
   Owner: 0
@@ -118,5 +118,6 @@ MonoBehaviour:
   Spawned: 0
   ActiveNode: {fileID: 0}
   Card: {fileID: 0}
-  BasicLocation: 0
+  Defenders: []
+  StarterLocation: 0
   InfoCard: {fileID: 21300000, guid: dc290124dea77cb4ea7078eb29ae8cc2, type: 3}

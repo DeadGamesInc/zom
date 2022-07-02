@@ -99,14 +99,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 2
   Type: 0
-  BrainsValue: 3
-  SpawnTime: 1
+  BrainsValue: 1
   Name: Basic Zombie
   Series: RugZombie
-  MaxHealth: 0
-  Damage: 0
-  MaxRange: 0
   NervosTestnetNFT: 
+  InstantPlay: 0
   CardPreview: {fileID: 21300000, guid: fc073ab80f4236c47bcc1df30182c49d, type: 3}
   CharacterPrefab: {fileID: 7746896245369544704, guid: c385e4f69bcd0754ba9424645bc9ecaf, type: 3}
   LocationPrefab: {fileID: 0}

@@ -99,13 +99,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 3
   Type: 0
-  BrainsValue: 2
+  BrainsValue: 1
   Name: Slow Zombie
   Series: RugZombie
-  MaxHealth: 0
-  Damage: 0
-  MaxRange: 0
   NervosTestnetNFT: 
+  InstantPlay: 0
   CardPreview: {fileID: 21300000, guid: 9eb4152a791ebcf44962ed13f5ec4166, type: 3}
   CharacterPrefab: {fileID: 8345261161078099225, guid: 21fd837c4288db34880d6bbe424d688e, type: 3}
   LocationPrefab: {fileID: 0}

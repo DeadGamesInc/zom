@@ -99,14 +99,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 8
   Type: 0
-  BrainsValue: 7
-  SpawnTime: 2
+  BrainsValue: 3
   Name: Young Fool
   Series: RugZombie
-  MaxHealth: 0
-  Damage: 0
-  MaxRange: 0
   NervosTestnetNFT: 
+  InstantPlay: 0
   CardPreview: {fileID: 21300000, guid: defc58e25a505bf4bbbbeb1f151ecdbe, type: 3}
   CharacterPrefab: {fileID: 426298449937249434, guid: cc1eeca46bc3a8f4d9a5679b6371c226, type: 3}
   LocationPrefab: {fileID: 0}

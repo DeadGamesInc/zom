@@ -99,14 +99,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 5
   Type: 0
-  BrainsValue: 4
-  SpawnTime: 1
+  BrainsValue: 2
   Name: Dragon Farm
   Series: RugZombie
-  MaxHealth: 0
-  Damage: 0
-  MaxRange: 0
   NervosTestnetNFT: 
+  InstantPlay: 0
   CardPreview: {fileID: 21300000, guid: 222f7d13eb295f74d9756d7b34713281, type: 3}
   CharacterPrefab: {fileID: 452789242873338610, guid: f0dadddb970c8cd429c253f6b3f5c65d, type: 3}
   LocationPrefab: {fileID: 0}

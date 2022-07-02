@@ -99,14 +99,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 9
   Type: 0
-  BrainsValue: 4
-  SpawnTime: 1
+  BrainsValue: 3
   Name: Polar Ice Zombie
   Series: RugZombie
-  MaxHealth: 0
-  Damage: 0
-  MaxRange: 0
   NervosTestnetNFT: 
+  InstantPlay: 0
   CardPreview: {fileID: 21300000, guid: 84da9b4af49114546855b34d1e32a02b, type: 3}
   CharacterPrefab: {fileID: 2871946023116852452, guid: b8637c1df99389940a658740e170cd42, type: 3}
   LocationPrefab: {fileID: 0}
