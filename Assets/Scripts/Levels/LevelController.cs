@@ -137,10 +137,13 @@ public class LevelController : MonoBehaviour {
 
     public void HandleGameOver() {
         var won = Locations.Select(location => location.GetLocationBase()).Where(script => script.Owner == 0).Sum(script => script.Health) > 0;
+        var claimed = PlayerPrefs.GetInt("NFT_BALANCE_NERVOS_REWARD_1") > 100;
         GameOverMenu.SetActive(true);
         WinText.SetActive(won);
         LoseText.SetActive(!won);
-        ClaimButton.SetActive(won);
+        ClaimButton.SetActive(!won);
+        ClaimButton.GetComponentInChildren<TextMeshProUGUI>().text = !claimed ? "CLAIM NFT" : "ALREADY CLAIMED";
+        ClaimButton.GetComponent<Button>().interactable = !claimed;
         CurrentPhase = PhaseId.GAME_OVER;
         _phaseName.text = "GAME OVER";
     }
