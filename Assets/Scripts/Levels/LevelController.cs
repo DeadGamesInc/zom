@@ -17,7 +17,6 @@ public class LevelController : MonoBehaviour {
             GameOverMenu, WinText, LoseText, ClaimButton;
     [SerializeField] public ProgressBar PlayerHealthBar, EnemyHealthBar;
     [SerializeField] public Sprite EndTurnButtonSprite, ConfirmDefendersButtonSprite;
-    public GameObject PrimaryCamera;
     public GameObject ActionIndicator;
     public GameObject DefendCamera;
     public GameObject EntityUI;
@@ -257,8 +256,7 @@ public class LevelController : MonoBehaviour {
     }
 
     public void EndDefenseCycle() {
-        PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
-        DefendCamera.GetVirtualCamera().Priority = CameraInactive;
+        CameraController.Get().PrioritizePrimary();
         PendingDefenseCycle = false;
         SetButtons(false);
     }
@@ -273,8 +271,7 @@ public class LevelController : MonoBehaviour {
         // Camera setup
         DefendCamera  = DefenseCamera.Create(defenseNode.gameObject);
         var virtualCamera = DefendCamera.GetComponent<CinemachineVirtualCamera>();
-        PrimaryCamera.GetVirtualCamera().Priority = CameraInactive;
-        virtualCamera.Priority = CameraActive;
+        CameraController.Get().PrioritizeCamera(virtualCamera);
 
         // Wait until player declares defenders & ends defense cycle
         PendingDefenseCycle = true;
@@ -293,8 +290,7 @@ public class LevelController : MonoBehaviour {
         // Camera setup
         DefendCamera  = DefenseCamera.Create(defenseNode.gameObject);
         var virtualCamera = DefendCamera.GetComponent<CinemachineVirtualCamera>();
-        PrimaryCamera.GetVirtualCamera().Priority = CameraInactive;
-        virtualCamera.Priority = CameraActive;
+        CameraController.Get().PrioritizeCamera(virtualCamera);
         
         yield return new WaitForSeconds(2);
 
@@ -309,8 +305,7 @@ public class LevelController : MonoBehaviour {
         yield return ResetCharacters(defenseNode);
         if (location != null) location.Defenders.Clear();
         
-        PrimaryCamera.GetVirtualCamera().Priority = CameraActive;
-        DefendCamera.GetVirtualCamera().Priority = CameraInactive;
+        CameraController.Get().PrioritizeCamera(DefendCamera.GetVirtualCamera());
         if (location != null) location.Ui.SetActive(false);
     }
     
@@ -396,23 +391,16 @@ public class LevelController : MonoBehaviour {
     public void SelectCharacter(Character character) {
         if (selectedCharacter != null) throw new Exception("A character is already selected");
         CinemachineVirtualCamera characterCamera = character.Camera.GetComponent<CinemachineVirtualCamera>();
-        CinemachineVirtualCamera primaryCamera = PrimaryCamera.GetComponent<CinemachineVirtualCamera>();
-
+        CameraController.Get().PrioritizeCamera(characterCamera);
         selectedCharacter = character.gameObject;
-        characterCamera.Priority = CameraActive;
-        primaryCamera.Priority = CameraInactive;
         character.Ui.SetActive(true);
         character.Ui.GetCharacterUI().EnableChildren();
     }
     
     public void UnselectCharacter() {
         if (selectedCharacter == null) throw new Exception("No characters are selected");
-        CinemachineVirtualCamera characterCamera =
-            selectedCharacter.GetComponent<Character>().Camera.GetComponent<CinemachineVirtualCamera>();
-        CinemachineVirtualCamera primaryCamera = PrimaryCamera.GetComponent<CinemachineVirtualCamera>();
-
-        characterCamera.Priority = CameraInactive;
-        primaryCamera.Priority = CameraActive;
+        
+        CameraController.Get().PrioritizePrimary();
         Character character = selectedCharacter.GetCharacter();
         var uiObject = character.Ui;
         

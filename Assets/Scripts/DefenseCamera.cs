@@ -20,7 +20,7 @@ public class DefenseCamera : MonoBehaviour {
         virtualCamera.AddCinemachineComponent<CinemachineHardLookAt>();
         virtualCamera.Follow = defenseNode.transform;
         virtualCamera.LookAt = defenseNode.transform;
-        virtualCamera.Priority = 1;
+        virtualCamera.Priority = CameraController.INACTIVE;
 
         return cameraObject;
     }

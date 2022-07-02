@@ -22,14 +22,9 @@ public class MapNodeGrid : MapGrid {
         origin = LevelController.Get()._map.transform.position;
         angle = Vector3.Angle(origin - _position, Vector3.forward);
         dir = (origin - _position).normalized * cellSize;
-        // Vector3 perpendicularDir = Vector3.Cross(dir, Vector3.up);
-        // Quaternion facing = Quaternion.identity; // zero rotation
-        // Quaternion rotation = Quaternion.LookRotation(dir, Vector3.up);
+        
         for (int x = 0; x < gridArray.GetLength(0); x++) {
             for (int z = 0; z < gridArray.GetLength(1); z++) {
-                var node = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                node.transform.position = GetWorldPosition(x, z);
-                node.transform.localScale = new Vector3(7.5f, 0f, 7.5f);
 
                 if (z < _length - 1)
                     Debug.DrawLine(GetWorldPosition(x, z), GetWorldPosition(x, z + 1), Color.white, 1000f);
