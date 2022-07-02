@@ -174,11 +174,10 @@ public class BasicAI : Opponent {
         var enemyLocations = controller.Locations.FindAll(a => a.GetLocationBase().Owner == 0 && a.GetLocationBase().Spawned);
 
         foreach (var character in playableCharacters) {
-            var script = character.GetCharacter();
+            var queued = controller.commands.Where(a => a.Source == character);
+            if (queued.Any()) continue;
             
-            var enemiesOnLocation = controller.Characters.Find(a => a.GetCharacter().Owner == 0 && a.GetCharacter().MapPosition == script.MapPosition);
-
-            if (enemiesOnLocation) continue;
+            var script = character.GetCharacter();
             
             var onLocation = enemyLocations.Find(a => a.GetLocationBase().ActiveNode == character.GetCharacter().MapPosition);
 
@@ -186,6 +185,10 @@ public class BasicAI : Opponent {
                 controller.QueueCommand(PlayerCommand.AttackLocation, character, onLocation, 1);
                 continue;
             }
+            
+            var enemiesOnLocation = controller.Characters.Find(a => a.GetCharacter().Owner == 0 && a.GetCharacter().MapPosition == script.MapPosition);
+
+            if (enemiesOnLocation) continue;
             
             if (!enemyLocations.Any()) continue;
             var location = enemyLocations.First();

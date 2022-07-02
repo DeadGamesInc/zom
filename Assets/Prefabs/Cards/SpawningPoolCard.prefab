@@ -99,14 +99,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 1
   Type: 1
-  BrainsValue: 5
-  SpawnTime: 1
+  BrainsValue: 4
   Name: Spawning Pool
   Series: RugZombie
-  MaxHealth: 0
-  Damage: 0
-  MaxRange: 0
   NervosTestnetNFT: 
+  InstantPlay: 0
   CardPreview: {fileID: 21300000, guid: f23091dc3405b3c43be354f88330a627, type: 3}
   CharacterPrefab: {fileID: 0}
   LocationPrefab: {fileID: 6623007247121017795, guid: 548143ac23501db439e8f5810e8e4a7e, type: 3}

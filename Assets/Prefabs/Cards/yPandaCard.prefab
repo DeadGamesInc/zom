@@ -99,14 +99,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 6
   Type: 0
-  BrainsValue: 4
-  SpawnTime: 1
+  BrainsValue: 3
   Name: yPanda
   Series: RugZombie
-  MaxHealth: 0
-  Damage: 0
-  MaxRange: 0
   NervosTestnetNFT: 
+  InstantPlay: 0
   CardPreview: {fileID: 21300000, guid: f72af7b15d8c08e4bafd2939415be670, type: 3}
   CharacterPrefab: {fileID: 9102496475582203610, guid: 3ddb1e4a69858534e96b109bc480e6d5, type: 3}
   LocationPrefab: {fileID: 0}

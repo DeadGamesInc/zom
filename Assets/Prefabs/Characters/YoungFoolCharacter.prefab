@@ -47,10 +47,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd5430799b71f41a4ac5d074a5748bbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 100
+  MaxHealth: 2
   Health: 0
   Ui: {fileID: 0}
   MovementSpeed: 2
+  Damage: 3
   State: 0
   Camera: {fileID: 0}
   ActionIndicator: {fileID: 0}
@@ -58,7 +59,7 @@ MonoBehaviour:
   DistanceTravelledThisTurn: 0
   InfoCard: {fileID: 21300000, guid: e2b30a81655d5564295d5002ba815363, type: 3}
   Card: {fileID: 0}
-  SpawnTime: 0
+  SpawnTime: 2
   Spawned: 0
   Owner: 0
   EquippedItems: []

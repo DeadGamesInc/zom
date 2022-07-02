@@ -99,14 +99,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 0
   Type: 1
-  BrainsValue: 6
-  SpawnTime: 1
+  BrainsValue: 5
   Name: Graveyard
   Series: RugZombie
-  MaxHealth: 0
-  Damage: 0
-  MaxRange: 0
   NervosTestnetNFT: 
+  InstantPlay: 0
   CardPreview: {fileID: 21300000, guid: eb2e1f270d7542045afa411a92a9f7c1, type: 3}
   CharacterPrefab: {fileID: 0}
   LocationPrefab: {fileID: 6189811462899777865, guid: 85c365a1dfa954aeb88d86bf46efcd79, type: 3}
