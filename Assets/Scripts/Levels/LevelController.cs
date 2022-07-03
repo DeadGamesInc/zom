@@ -442,6 +442,7 @@ public class LevelController : MonoBehaviour {
 
     public void Update() {
         if (Input.GetKeyDown(KeyCode.F10)) DevMenu.SetActive(!DevMenu.activeInHierarchy);
+        if (Input.GetKeyDown(KeyCode.C)) CameraController.Get().Toggle();
     }
 
     public void FixedUpdate() {
