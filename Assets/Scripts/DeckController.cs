@@ -5,11 +5,11 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class DeckController : MonoBehaviour {
-    [SerializeField] public Material CardBack; 
     [SerializeField] public List<GameObject> DeckCards, HandCards = new();
     
     public Transform HandPosition, DeckPosition;
-
+    private readonly Vector3 _cardScale = new(0.3f, 0.3f, 0.3f);
+    
     private readonly List<GameObject> PlacedDeckCards = new();
     
     public void PlayedCard(GameObject card) => HandCards.Remove(card);
@@ -34,11 +34,11 @@ public class DeckController : MonoBehaviour {
         foreach (var card in PlacedDeckCards) Destroy(card);
 
         var position = DeckPosition.position;
-        
+
         foreach (var card in DeckCards) {
             var placed = Instantiate(card, position, DeckPosition.rotation);
-            var mesh = placed.GetComponent<MeshRenderer>();
-            mesh.material = CardBack;
+            placed.transform.localScale = _cardScale;
+            placed.GetCard().SetBack(true);
             var boxCollider = placed.GetComponent<BoxCollider2D>();
             boxCollider.enabled = false;
             PlacedDeckCards.Add(placed);
@@ -74,7 +74,8 @@ public class DeckController : MonoBehaviour {
 
         if (freePlay) drawn.GetCard().BrainsValue = 0;
         if (instant) drawn.GetCard().InstantPlay = true;
-        if (hide) drawn.transform.localScale = new Vector3(0, 0, 0);
+        
+        drawn.transform.localScale = hide ? new Vector3(0, 0, 0) : _cardScale;
         
         HandCards.Add(drawn);
         DeckCards.Remove(card);

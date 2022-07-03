@@ -12,8 +12,8 @@ public class GameController : MonoBehaviour {
     [SerializeField] public GameObject Player;
     [SerializeField] public Player PlayerScript;
     [SerializeField] public List<GameObject> CardDatabase = new();
-    
-    public readonly List<AvailableCard> AvailableCards = new();
+    [SerializeField] public readonly List<AvailableCard> AvailableCards = new();
+    [SerializeField] public SnapshotCamera SnapshotCamera;
 
     public static GameObject GetGameObject() => GameObject.Find("GameController");
     public static GameController Get() => GetGameObject().GetComponent<GameController>();
@@ -28,6 +28,7 @@ public class GameController : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
 
         PlayerScript = Player.GetComponent<Player>();
+        SnapshotCamera = SnapshotCamera.Create(31);
         SceneManager.activeSceneChanged += HandleSceneChanged;
 
         await Initialize();
