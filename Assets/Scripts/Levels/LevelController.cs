@@ -723,8 +723,8 @@ public class LevelController : MonoBehaviour {
     private void UpdateHandPosition() {
         var position = _handPosition.transform.position;
         position.x += 1f;
-        position.y += 0.01f;
-        position.z -= 0.01f;
+        position.y += 0.1f;
+        position.z -= 0.1f;
         _handPosition.transform.position = position;
     }
 
