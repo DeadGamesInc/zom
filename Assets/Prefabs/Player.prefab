@@ -57,6 +57,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eabbd8a9798208e4999acffcb4a79d9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CardBack: {fileID: 0}
   DeckCards: []
   HandCards: []
+  BackCard: {fileID: 3221010919295299509, guid: c65d5ad56c5cd6647a93e3c6242a299b, type: 3}
   HandPosition: {fileID: 0}
+  DeckPosition: {fileID: 0}

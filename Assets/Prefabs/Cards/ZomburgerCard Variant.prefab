@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &206243494884656597
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1580940772409124488, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_Name
+      value: ZomburgerCard Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124491, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: Id
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: Name
+      value: Zomburger
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: Type
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: NFTImage
+      value: 
+      objectReference: {fileID: 21300000, guid: b78864ff7d7c2f441b5f2a827cc76c61, type: 3}
+    - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: ItemPrefab
+      value: 
+      objectReference: {fileID: 4916484525639538001, guid: ff2ca4199bfcc3c49b341cbd136f9f3d, type: 3}
+    - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: BrainsValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: CardPreview
+      value: 
+      objectReference: {fileID: 21300000, guid: 2e828988efa1794469154c313cf6f5cc, type: 3}
+    - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: Description
+      value: EZ needs to write a description for this spot!
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}

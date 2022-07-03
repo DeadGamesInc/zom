@@ -45,19 +45,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b86851f83f6b834fbc6c1aebbc0d720, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DevBox: 0
   Player: {fileID: 0}
   PlayerScript: {fileID: 0}
   CardDatabase:
-  - {fileID: 8660183033899234, guid: dba9d4de335fabc4bb5c0706ae25e919, type: 3}
-  - {fileID: 5386700018244415908, guid: e3987c706f4759d42a3d94086b2f3616, type: 3}
-  - {fileID: 661838645713022529, guid: aab3c16794619f342a34ff47c28b901e, type: 3}
-  - {fileID: 2988311082754931828, guid: 0bf1afa0ab53cbc4fb5e76df490bc54c, type: 3}
-  - {fileID: 3090801822754757884, guid: 75c6eb206bb66ec43b91eef4926c206b, type: 3}
-  - {fileID: 1185721236005517809, guid: 5571f315131284f41b286d7b3f3be28b, type: 3}
-  - {fileID: 2752725996359459422, guid: 553a7851aa5520c42944d2c7da92ce1e, type: 3}
-  - {fileID: 1830119477153130559, guid: 67d7805552a0eb84ca509a46d8642b29, type: 3}
-  - {fileID: 7137776756402677780, guid: b2d1945bf7f6981419d40cae121601b2, type: 3}
-  - {fileID: 7051289986272907706, guid: 4df0b705b391dd9419b08de86db58c80, type: 3}
+  - {fileID: 822601098617080613, guid: ceaed45661386b64c94f89b6a87753be, type: 3}
+  - {fileID: 1363244138699163856, guid: 8808e51392ca7ad45a4175c2650e0981, type: 3}
+  - {fileID: 3497683391037821239, guid: a7651dcd3c9f611448aed4f9e89a9317, type: 3}
+  - {fileID: 4276647717471966866, guid: d4e47ababd0cee34a84020ee49ad7424, type: 3}
+  - {fileID: 748362340530398676, guid: 1ed5a88dd9fd6bb47a606664c4b4f577, type: 3}
+  - {fileID: 8507996046352840302, guid: e044936d7bf551240bb3b495a2a70d38, type: 3}
+  - {fileID: 6402456466514969369, guid: 01b03fce2751a004692cb504faebbc3d, type: 3}
+  - {fileID: 7852196444704334362, guid: ad51384d96d159f4cb0cbf81f06fc250, type: 3}
+  - {fileID: 4524996326266171077, guid: 882fe19e283f5ec45ad329ee19d94e63, type: 3}
+  - {fileID: 1669736071320396637, guid: 5e5e04864ffc86e4796e765003654925, type: 3}
 --- !u!114 &5769849320135439138
 MonoBehaviour:
   m_ObjectHideFlags: 0

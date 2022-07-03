@@ -9,6 +9,7 @@ using UnityEngine;
 public class Character : Entity {
     private MapBase map;
     [SerializeField] public int MovementSpeed = 1;
+    [SerializeField] public float Damage;
     [SerializeField] public CharacterState State;
     [SerializeField] public GameObject Camera;
     [SerializeField] public GameObject ActionIndicator;
@@ -145,7 +146,7 @@ public class Character : Entity {
         State = CharacterState.Attacking;
 
         while (transform.position != targetPos) yield return null;
-        target.Damage(40);
+        target.TakeDamage(Damage);
         
         // Dash to original position
         _dashTarget = startingPos;

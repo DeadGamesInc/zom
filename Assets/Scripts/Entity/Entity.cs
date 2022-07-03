@@ -14,7 +14,7 @@ public abstract class Entity : MonoBehaviour {
         Health = MaxHealth;
     }
 
-    public void Damage(float amount) {
+    public void TakeDamage(float amount) {
         Health -= amount;
         Ui.GetEntityUI().HealthBar.GetComponent<HealthBar>().Refresh();
         if(Health <= 0) Kill();

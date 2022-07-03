@@ -1,4 +1,6 @@
-﻿public enum CardId {
+﻿using System;
+
+public enum CardId {
     GRAVEYARD,
     SPAWNING_POOL,
     BASIC_ZOMBIE,
@@ -14,5 +16,7 @@
     ZOMBIE_HORDE,
     CHOMPERS,
     RUSTY_SPOON,
-    DATALAB
+    DATALAB,
+    
+    NONE = int.MaxValue
 }

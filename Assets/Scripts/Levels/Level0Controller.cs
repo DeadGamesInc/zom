@@ -1,7 +1,6 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms;
 
 public class Level0Controller : LevelController {
     private Map0 _mapControl;
@@ -10,7 +9,7 @@ public class Level0Controller : LevelController {
         _deckController.HandleReset();
         
         LocalTurn = true;
-        createMap();
+        CreateMap();
         
         foreach (var card in _gameController.AvailableCards) 
             for (var i = 1; i <= card.Quantity; i++) _deckController.DeckCards.Add(card.Card);
@@ -25,6 +24,12 @@ public class Level0Controller : LevelController {
             DrawCard();
         }
     }
+    
+    public void ClickRestart() => SceneManager.LoadScene((int) SceneId.GAME);
+    public void ClickMenu() => SceneManager.LoadScene((int) SceneId.MENU);
+    public void ClickBuffPlayer() => ApplyBuffs(0);
+    public void ClickBuffAI() => ApplyBuffs(1);
+    public async void ClickClaim() => await NFT_ERC721.MintReward("0xD48ab8a75C0546Cf221e674711b6C38257a545b6");
 
     public void ClickShuffle() {
         if (CurrentPhase != PhaseId.STRATEGIC) return;
@@ -44,16 +49,25 @@ public class Level0Controller : LevelController {
             EndTurn();
     }
 
-    public void ClickRestart() {
-        SceneManager.LoadScene((int) SceneId.GAME);
-    }
+    private void ApplyBuffs(int owner) {
+        foreach (var location in Locations.Where(a => a.GetLocationBase().Owner == owner)) {
+            var script = location.GetLocationBase();
+            script.MaxHealth = 100;
+            script.Health = 100;
+        }
 
-    public void ClickMenu() {
-        SceneManager.LoadScene((int) SceneId.MENU);
-    }
+        foreach (var character in Characters.Where(a => a.GetCharacter().Owner == owner)) {
+            var script = character.GetCharacter();
+            script.MaxHealth = 100;
+            script.Health = 100;
+            script.Damage = 100;
+        }
 
-    public async void ClickClaim() {
-        await NFT_ERC721.MintReward("0xD48ab8a75C0546Cf221e674711b6C38257a545b6");
+        foreach (var brains in BrainLocations.Where(a => a.GetBrains().Owner == owner)) {
+            var script = brains.GetBrains();
+            script.BrainsValue = 100;
+            script.StoredBrains = 100;
+        }
     }
 
     public void ClickAddBrains() => AddBrains(100);
@@ -125,14 +139,9 @@ public class Level0Controller : LevelController {
         return false;
     }
     
-    private void createMap() {
-        _map = new GameObject("Map");
-        _map.transform.position = new Vector3(0, 75, 0);
+    private void CreateMap() {
+        _map = new GameObject("Map") { transform = { position = new Vector3(0, 75, 0) } };
         _mapControl = _map.AddComponent<Map0>();
         _mapControl.Initialize();
-    }
-    
-    private Vector3 GetNodePosition(MapNode node) {
-        return _mapControl.GetNodeWorldPosition(MapNode.Create(node.X, node.Z));
     }
 }
