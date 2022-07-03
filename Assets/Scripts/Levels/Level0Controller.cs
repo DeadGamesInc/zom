@@ -103,7 +103,7 @@ public class Level0Controller : LevelController {
         }
         
         if (SelectedLocation != null && card.Type == CardType.CHARACTER && ownedLocation && !starterLocation && SelectedLocation.GetLocationBase().Spawned && SubtractBrains(card.BrainsValue)) {
-            var character = CreateCharacter(card.CharacterPrefab, SelectedLocation.GetLocationBase().ActiveNode, 1, card.InstantPlay);
+            var character = CreateCharacter(card.CharacterPrefab, SelectedLocation.GetLocationBase().ActiveNode, 1, card.SpawnTime, card.Health, card.Attack, card.MovementSpeed, card.InstantPlay);
             var script = character.GetCharacter();
             script.Card = SelectedCard;
             CardPlayed(false);
@@ -113,7 +113,7 @@ public class Level0Controller : LevelController {
         if (SelectedLocation != null && card.Type == CardType.LOCATION && starterLocation && ownedLocation && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 1, card.InstantPlay, false);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedLocation, map.Grid, location.MapPosition, location.ActiveNode, 1, card.SpawnTime, card.Health, card.InstantPlay, false);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;
@@ -122,7 +122,7 @@ public class Level0Controller : LevelController {
         if (SelectedEmptyLocation != null && card.Type == CardType.LOCATION && SubtractBrains(card.BrainsValue)) {
             var map = _map.GetComponent<MapBase>();
             var location = SelectedEmptyLocation.GetComponent<LocationBase>();
-            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 1, card.InstantPlay, true);
+            var locationObject = CreateLocation(card.LocationPrefab, SelectedEmptyLocation, map.Grid, location.MapPosition, location.ActiveNode, 1, card.SpawnTime, card.Health, card.InstantPlay, true);
             locationObject.GetLocationBase().Card = SelectedCard;
             CardPlayed(false);
             return true;

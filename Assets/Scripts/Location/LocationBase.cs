@@ -10,8 +10,10 @@ public class LocationBase : Entity {
     public GameObject Card;
     public List<GameObject> Defenders;
     
-    public void Setup(int owner) {
+    public void Setup(int owner, int spawnTime, float health) {
         Owner = owner;
+        SpawnTime = spawnTime;
+        Health = health;
         Ui = Instantiate(LevelController.Get().EntityUI);
         Ui.GetEntityUI().Target = gameObject;
         Ui.SetActive(false);

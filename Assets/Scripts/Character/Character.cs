@@ -31,12 +31,15 @@ public class Character : Entity {
     public (int, int) NodePosition { get; private set; }
     public CharacterRoute Route { get; private set; }
     
-    public void Setup(MapNode node, int owner) {
+    public void Setup(MapNode node, int owner, int spawnTime, float health, float damage, int movement) {
         Owner = owner;
+        SpawnTime = spawnTime;
+        Health = health;
+        Damage = damage;
+        MovementSpeed = movement;
+        Health = MaxHealth;
         var controller = LevelController.Get();
         map = controller._map.GetMapBase();
-        MaxHealth = 100;
-        Health = MaxHealth;
         Ui = Instantiate(controller.CharacterUi);
         CharacterUI characterUI = Ui.GetCharacterUI();
         characterUI.Target = gameObject;

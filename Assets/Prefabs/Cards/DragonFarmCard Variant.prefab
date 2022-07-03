@@ -96,6 +96,10 @@ PrefabInstance:
       value: EZ needs to write a description for this spot!
       objectReference: {fileID: 0}
     - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
+      propertyPath: MovementSpeed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1580940772409124492, guid: ae4c57acbcc649547b4744e1485549a3, type: 3}
       propertyPath: CharacterPrefab
       value: 
       objectReference: {fileID: 452789242873338610, guid: f0dadddb970c8cd429c253f6b3f5c65d, type: 3}

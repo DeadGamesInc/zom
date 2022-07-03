@@ -5,7 +5,8 @@ using UnityEngine;
 public class Card : MonoBehaviour {
     [SerializeField] public CardId Id;
     [SerializeField] public CardType Type;
-    [SerializeField] public int BrainsValue, Health, Attack, SpawnTime;
+    [SerializeField] public int BrainsValue, SpawnTime, MovementSpeed;
+    [SerializeField] public float Health, Attack;
     [SerializeField] public string Name, Description, Series, NervosTestnetNFT;
     [SerializeField] public bool InstantPlay;
     [SerializeField] public Sprite NFTImage, CardPreview, CardBlank, CardBack;
@@ -24,7 +25,7 @@ public class Card : MonoBehaviour {
         
         switch (Type) {
             case CardType.CHARACTER:
-                AttributeBox.text = $"HEALTH: {Health} - ATTACK: {Attack} - SPAWN: {SpawnTime}";
+                AttributeBox.text = $"HP: {Health:0} - ATK: {Attack:0} - SPN: {SpawnTime} - MV: {MovementSpeed}";
                 CostBox.text = BrainsValue.ToString();
                 break;
             case CardType.RESOURCE:
@@ -32,7 +33,7 @@ public class Card : MonoBehaviour {
                 CostBox.text = "";
                 break;
             case CardType.LOCATION:
-                AttributeBox.text = $"HEALTH: {Health} - SPAWN: {SpawnTime}";
+                AttributeBox.text = $"HEALTH: {Health:0} - SPAWN: {SpawnTime}";
                 CostBox.text = BrainsValue.ToString();
                 break;
             case CardType.ITEM:
