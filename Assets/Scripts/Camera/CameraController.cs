@@ -1,11 +1,13 @@
 using System;
 using Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour {
     public static int ACTIVE = 20;
     public static int INACTIVE = 0;
     [SerializeField] public CinemachineVirtualCamera PrimaryCamera;
+    [SerializeField] public CinemachineVirtualCamera FreeCamera;
     [SerializeField] public CinemachineVirtualCamera ActiveCamera;
 
     public static CameraController Get() {
@@ -18,12 +20,28 @@ public class CameraController : MonoBehaviour {
     }
 
     public void PrioritizeCamera(CinemachineVirtualCamera camera) {
-        ActiveCamera.Priority = INACTIVE;
+        if (ActiveCamera != null) ActiveCamera.Priority = INACTIVE;
+        if (ActiveCamera == FreeCamera && camera != FreeCamera)
+            ActiveCamera.gameObject.GetComponentInParent<FreeCamera>().InControl = false;
         camera.Priority = ACTIVE;
+        ActiveCamera = camera;
+    }
+
+    public void Toggle() {
+        if (ActiveCamera == PrimaryCamera) {
+            PrioritizeFreeCamera();
+        } else {
+            PrioritizePrimary();
+        }
     }
 
     public void PrioritizePrimary() {
         PrioritizeCamera(PrimaryCamera);
+    }
+
+    public void PrioritizeFreeCamera() {
+        PrioritizeCamera(FreeCamera);
+        FreeCamera.gameObject.GetComponentInParent<FreeCamera>().InControl = true;
     }
 
     // Start is called before the first frame update

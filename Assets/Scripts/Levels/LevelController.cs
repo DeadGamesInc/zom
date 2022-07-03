@@ -22,9 +22,6 @@ public class LevelController : MonoBehaviour {
     public GameObject EntityUI;
     public GameObject CharacterUi;
     private GameObject _coroutineRunner;
-    [SerializeField] public static Vector3 yOffset = new(0f, 5f, 0f);
-    [SerializeField] public static int CameraActive = 20;
-    [SerializeField] public static int CameraInactive = 0;
     [SerializeField] public int BrainsAmount, Round;
 
     public PhaseId CurrentPhase;
@@ -35,7 +32,7 @@ public class LevelController : MonoBehaviour {
     [SerializeField] public int StrategicPhaseLength = 90;
     [SerializeField] public Transform DiscardPosition;
     public bool PendingDefenseCycle = false; 
-    public GameObject CurrentDefenseCycleNode; 
+    public GameObject CurrentCycleNode; 
 
     [SerializeField] public List<GameObject> InfoIcons = new();
 
@@ -275,10 +272,9 @@ public class LevelController : MonoBehaviour {
 
         // Wait until player declares defenders & ends defense cycle
         PendingDefenseCycle = true;
-        CurrentDefenseCycleNode = defenseNode.gameObject;
+        CurrentCycleNode = defenseNode.gameObject;
         HighlightCharacters();
         while(PendingDefenseCycle) yield return null;
-        BattleFormation(defenseNode);
         // Should prob destroy camera after done panning
     }
 
@@ -291,11 +287,10 @@ public class LevelController : MonoBehaviour {
         DefendCamera  = DefenseCamera.Create(defenseNode.gameObject);
         var virtualCamera = DefendCamera.GetComponent<CinemachineVirtualCamera>();
         CameraController.Get().PrioritizeCamera(virtualCamera);
-        
+        CurrentCycleNode = defenseNode.gameObject;
         yield return new WaitForSeconds(2);
 
         foreach (var attackCommand in attackCommands) {
-            Debug.Log(location.Defenders.Count);
             if (location.Defenders.Any()) attackCommand.Retarget(location.Defenders.First());
             yield return attackCommand.Source.GetCharacter().OnExecuteCommand(attackCommand);
             yield return new WaitForSeconds(2);
@@ -305,8 +300,9 @@ public class LevelController : MonoBehaviour {
         yield return ResetCharacters(defenseNode);
         if (location != null) location.Defenders.Clear();
         
-        CameraController.Get().PrioritizeCamera(DefendCamera.GetVirtualCamera());
+        CameraController.Get().PrioritizePrimary();
         if (location != null) location.Ui.SetActive(false);
+        CurrentCycleNode = null;
     }
     
     public void ExecuteBattlePhaseCommands(int owner) {
@@ -327,7 +323,7 @@ public class LevelController : MonoBehaviour {
         Vector3 dir = (origin - nodePosition).normalized;
         Vector3 perpendicularDir = Vector3.Cross(dir, Vector3.up);
         
-        float padding = 20f;
+        float padding = 10;
         GameObject[] defenders = node.Location.GetLocationBase().Defenders.ToArray();
         GameObject[] attackers = commands
             .Where(c => c.Target == node.Location && c.Command == PlayerCommand.AttackLocation)
@@ -354,7 +350,7 @@ public class LevelController : MonoBehaviour {
         }
         
         foreach (var (attacker, index) in attackers.Select((d, i) => (d, i))) {
-            StartCoroutine(attacker.GetCharacter().DashTowards(attacker.transform.position = attackerOffset + (padding * index) * perpendicularDir));
+            StartCoroutine(attacker.GetCharacter().DashTowards(attackerOffset + (padding * index) * perpendicularDir));
         }
 
         foreach (var (bystander, index) in p0Bystanders.Select((b, i) => (b, i))) {
@@ -377,7 +373,7 @@ public class LevelController : MonoBehaviour {
     }
 
     public void RepositionCurrent() {
-        BattleFormation(CurrentDefenseCycleNode.GetMapNode());
+        BattleFormation(CurrentCycleNode.GetMapNode());
     }
 
     public void ToggleCharacter(Character character) {
@@ -432,7 +428,7 @@ public class LevelController : MonoBehaviour {
                 break;
             case PhaseId.DEFENCE:
                 if(!PendingDefenseCycle) return;
-                foreach (var character in CharactersOnNode(CurrentDefenseCycleNode.GetMapNode())
+                foreach (var character in CharactersOnNode(CurrentCycleNode.GetMapNode())
                              .Select(c => c.GetCharacter())
                              .Where(c => !c.IsOwnersTurn())) {
                     character.SetHighlight(true);
@@ -723,8 +719,8 @@ public class LevelController : MonoBehaviour {
         }
         else if (CurrentPhase == PhaseId.DEFENCE) {
             if (PendingDefenseCycle) {
-                EndDefenseCycle();
                 SetButtons(true);
+                EndDefenseCycle();
             } else {
                 Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
                 CurrentPhase = PhaseId.BATTLE;
@@ -807,8 +803,13 @@ public class LevelController : MonoBehaviour {
         if (LocalTurn) {
             if (_waitText != null) _waitText.SetActive(true);
             Opponent.GetOpponent().HandleDefense();
-        } 
-        else {
+
+            var attackCycles = commands.Where(c => c.Owner == 0 && c.Command == PlayerCommand.AttackLocation)
+                .GroupBy(command => command.Target);
+            foreach (var attackCycle in attackCycles) {
+                BattleFormation(attackCycle.Key.GetLocationBase().ActiveNode);
+            }
+        } else {
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
