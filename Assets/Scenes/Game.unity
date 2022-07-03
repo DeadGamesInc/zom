@@ -6914,6 +6914,10 @@ PrefabInstance:
       propertyPath: ZoomAmount.z
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 2240153211342749670, guid: a79c842e93bac470aa3e85a8b3bb480d, type: 3}
+      propertyPath: MovementSpeed
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2240153211342749671, guid: a79c842e93bac470aa3e85a8b3bb480d, type: 3}
       propertyPath: m_Name
       value: FreeCameraRig
