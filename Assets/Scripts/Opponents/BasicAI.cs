@@ -231,7 +231,7 @@ public class BasicAI : Opponent {
         
         var card = cardObject.GetCard();
         var location = locationObject.GetLocationBase();
-        var newLocationObject = controller.CreateLocation(card.LocationPrefab, locationObject, map.Grid, location.MapPosition, location.ActiveNode, 1, card.InstantPlay, empty);
+        var newLocationObject = controller.CreateLocation(card.LocationPrefab, locationObject, map.Grid, location.MapPosition, location.ActiveNode, 1, card.SpawnTime, card.Health, card.InstantPlay, empty);
         newLocationObject.GetLocationBase().Card = cardObject;
         DeckController.PlayedCard(cardObject);
     }
@@ -239,7 +239,7 @@ public class BasicAI : Opponent {
     private void PlayCharacter(GameObject cardObject, GameObject locationObject) {
         var controller = LevelController.Get();
         var card = cardObject.GetCard();
-        var character = controller.CreateCharacter(card.CharacterPrefab, locationObject.GetLocationBase().ActiveNode, 1, card.InstantPlay);
+        var character = controller.CreateCharacter(card.CharacterPrefab, locationObject.GetLocationBase().ActiveNode, 1, card.SpawnTime, card.Health, card.Attack, card.MovementSpeed, card.InstantPlay);
         var script = character.GetCharacter();
         script.Card = cardObject;
         DeckController.PlayedCard(cardObject);
