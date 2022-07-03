@@ -12,7 +12,7 @@ public class CharacterUI : EntityUI {
 
     // Start is called before the first frame update
     void Start() {
-        _camera = GameObject.Find("MainCamera");
+        _camera = GameObject.Find("CameraController");
         moveButton.GetComponent<CharacterUIButton>().Ui = gameObject;
         attackButton.GetComponent<CharacterUIButton>().Ui = gameObject;
         defendButton.GetComponent<CharacterUIButton>().Ui = gameObject;

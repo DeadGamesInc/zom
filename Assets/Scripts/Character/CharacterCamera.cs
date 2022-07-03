@@ -16,7 +16,7 @@ public class CharacterCamera : MonoBehaviour {
         virtualCamera.AddCinemachineComponent<CinemachineHardLookAt>();
         virtualCamera.Follow = character.transform;
         virtualCamera.LookAt = character.transform;
-        virtualCamera.Priority = 1;
+        virtualCamera.Priority = CameraController.INACTIVE;
 
         return cameraObject;
     }

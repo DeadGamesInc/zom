@@ -39,7 +39,7 @@ public class Character : Entity {
         Health = MaxHealth;
         Ui = Instantiate(controller.CharacterUi);
         CharacterUI characterUI = Ui.GetCharacterUI();
-            characterUI.Target = gameObject;
+        characterUI.Target = gameObject;
         characterUI.SetCharacterText(name);
         Ui.SetActive(false);
         if (SpawnTime == 0)
@@ -53,7 +53,7 @@ public class Character : Entity {
 
     protected override void Kill() {
         var levelController = LevelController.Get();
-        levelController.CurrentDefenseCycleNode
+        levelController.CurrentCycleNode
             .GetMapNode().Location
             .GetLocationBase().Defenders
             .Remove(gameObject);
@@ -245,7 +245,7 @@ public class Character : Entity {
                         Ui.SetActive(false);
                     } else {
                         LocationBase location = LevelController
-                            .Get().CurrentDefenseCycleNode
+                            .Get().CurrentCycleNode
                             .GetMapNode().Location
                             .GetLocationBase();
                         if (location.ActiveNode == MapPosition) {

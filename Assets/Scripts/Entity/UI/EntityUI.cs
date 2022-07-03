@@ -1,9 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class EntityUI : MonoBehaviour {
     [SerializeField] protected GameObject statusText;
@@ -13,7 +9,7 @@ public class EntityUI : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-        _camera = GameObject.Find("MainCamera");
+        _camera = GameObject.Find("CameraController");
         HealthBar.GetComponent<HealthBar>().Target = Target.GetEntity();
     }
     
