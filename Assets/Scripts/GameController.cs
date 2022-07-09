@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,8 +8,7 @@ public class GameController : MonoBehaviour {
     private static GameController _instance;
 
     [SerializeField] public bool DevBox;
-    [SerializeField] public GameObject Player;
-    [SerializeField] public Player PlayerScript;
+    [SerializeField] public GameObject PlayerObject;
     [SerializeField] public List<GameObject> CardDatabase = new();
     [SerializeField] public readonly List<AvailableCard> AvailableCards = new();
     [SerializeField] public SnapshotCamera SnapshotCamera;
@@ -27,7 +25,6 @@ public class GameController : MonoBehaviour {
         _instance = this;
         DontDestroyOnLoad(gameObject);
 
-        PlayerScript = Player.GetComponent<Player>();
         SnapshotCamera = SnapshotCamera.Create(31);
         SceneManager.activeSceneChanged += HandleSceneChanged;
 
@@ -61,7 +58,8 @@ public class GameController : MonoBehaviour {
     }
 
     private void HandleSceneChanged(Scene current, Scene next) {
-        var deckController = Player.GetComponent<DeckController>();
+        if (PlayerObject == null) PlayerObject = Player.GetGameObject();
+        var deckController = PlayerObject.GetComponent<DeckController>();
         deckController.HandPosition = GameObject.Find("HandPosition")?.transform;
         deckController.DeckPosition = GameObject.Find("DeckPosition")?.transform;
     }

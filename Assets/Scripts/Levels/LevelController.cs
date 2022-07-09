@@ -258,11 +258,10 @@ public class LevelController : MonoBehaviour {
     public void EndDefenseCycle() {
         CameraController.Get().PrioritizePrimary();
         PendingDefenseCycle = false;
-        SetButtons(false);
+        SetButtons(true);
     }
     
     public IEnumerator StartDefenseCycle(QueuedCommand[] attackCommands) {
-        SetButtons(true);
         // Setup
         QueuedCommand command = attackCommands.First();
         LocationBase location = command.Target.GetLocationBase();
@@ -275,6 +274,7 @@ public class LevelController : MonoBehaviour {
 
         // Wait until player declares defenders & ends defense cycle
         PendingDefenseCycle = true;
+        SetButtons(true);
         CurrentCycleNode = defenseNode.gameObject;
         HighlightCharacters();
         while(PendingDefenseCycle) yield return null;
