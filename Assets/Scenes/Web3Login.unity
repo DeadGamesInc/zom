@@ -236,7 +236,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000027657, y: -47}
+  m_AnchoredPosition: {x: 0, y: -191}
   m_SizeDelta: {x: 182.7773, y: 51.3521}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &17125824
@@ -571,7 +571,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000023842, y: -98.1575}
+  m_AnchoredPosition: {x: -19.218, y: -250}
   m_SizeDelta: {x: 144.3417, y: 26.9955}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &543587419
@@ -741,7 +741,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -17}
+  m_AnchoredPosition: {x: 0, y: -17.002}
   m_SizeDelta: {x: 350.488, y: 86.0923}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1182065184
@@ -1047,8 +1047,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.00001955, y: 83}
-  m_SizeDelta: {x: 587.7401, y: 154.388}
+  m_AnchoredPosition: {x: 0, y: 5.7144}
+  m_SizeDelta: {x: 1101.8513, y: 362.3832}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1486805028
 MonoBehaviour:
@@ -1070,7 +1070,14 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: You will be required to sign a message to login with your Web3 wallet.
+  m_text: 'This game utilizes NFTs and interacts with other blockchain resources.
+    Please login using the button below to connect your wallet.
+
+
+    You will be
+    required to sign a message, this is not a transaction and will not update anything
+    on chain. Your private keys are also not exposed or stored by the game in any
+    way.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 88a6680450707e84780b4b857a8af5e0, type: 2}
   m_sharedMaterial: {fileID: 5486582244316443750, guid: 88a6680450707e84780b4b857a8af5e0, type: 2}
@@ -1097,8 +1104,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1301,8 +1308,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 9, y: -0.50000095}
-  m_SizeDelta: {x: -28, y: -3}
+  m_AnchoredPosition: {x: 36, y: -0.0000009536743}
+  m_SizeDelta: {x: 19.4455, y: 13.1897}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1874018881
 MonoBehaviour:
@@ -1326,11 +1333,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 08634353bbe730e4bb53249ee37b48f9, type: 3}
-    m_FontSize: 20
+    m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 2
-    m_MaxSize: 40
+    m_MinSize: 0
+    m_MaxSize: 100
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
