@@ -9,7 +9,6 @@ public class MapNode : MonoBehaviour {
     public int X, Z;
     public MapNodeGrid PlayerGrid;
     [SerializeField] public GameObject Location;
-    [SerializeField] public List<GameObject> EmptyBrainNodes = new(), BrainNodes = new();
 
     public static MapNode Create(int x, int z, MapGrid grid = null, bool draw = false) {
         var newGameObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);

@@ -124,10 +124,10 @@ public class BasicAI : Opponent {
         foreach (var card in brainsCards) {
             foreach (var location in controller.Locations.Where(a => a.GetLocationControl().Owner == 1 && !a.GetLocationControl().StarterLocation)) {
                 var script = location.GetLocationControl();
-                if (!script.ActiveNode.EmptyBrainNodes.Any()) continue;
+                if (!script.EmptyBrainNodes.Any()) continue;
                 
                 var cardScript = card.GetCard();
-                var node = script.ActiveNode.EmptyBrainNodes.First();
+                var node = script.EmptyBrainNodes.First();
                 var brains = controller.CreateBrainsNode(cardScript.ResourcePrefab, node, 1, cardScript.BrainsValue);
                 brains.GetBrains().Card = card;
                 DeckController.PlayedCard(card);

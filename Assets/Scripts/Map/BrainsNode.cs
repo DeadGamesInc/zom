@@ -1,25 +1,19 @@
 using UnityEngine;
 
 public class BrainsNode : MonoBehaviour {
-    [SerializeField] public MapNode MapNode;
+    [SerializeField] public GameObject ParentLocation;
     
     private const int SIZE = 10;
-    public int x, z;
     
-    public override bool Equals(object obj) => obj is MapNode other && equals(other);
-    private bool equals(MapNode n) => x == n.X && z == n.Z;
-    public override int GetHashCode() => (x, z).GetHashCode();
-
-    public static BrainsNode Create(int x, int z, MapGrid grid, MapNode mapNode) {
+    public static BrainsNode Create(GameObject parentLocation, bool side) {
         var obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
         var node = obj.AddComponent<BrainsNode>();
-        node.MapNode = mapNode;
-        node.x = x;
-        node.z = z;
-        obj.transform.position = grid.GetWorldPosition(x, z);
+        node.ParentLocation = parentLocation;
+        var location = parentLocation.GetLocationBase();
+        var perpendicular = Vector3.Cross(location.DirectionVector, Vector3.up);
+        obj.transform.position = parentLocation.transform.position + perpendicular * (side ? 30f : -30f);
         obj.transform.localScale = new Vector3(SIZE, 0.00000001f, SIZE);
-        mapNode.EmptyBrainNodes.Add(obj);
-        
+        location.EmptyBrainNodes.Add(obj);
         return node;
     }
 

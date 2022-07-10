@@ -463,17 +463,19 @@ public class LevelController : MonoBehaviour {
         return Characters.Where(character => character.GetCharacter().MapPosition == node).ToArray();
     }
 
-    public void CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
+    public GameObject CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
         var locationObject = Instantiate(EmptyLocation);
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
         EmptyLocations.Add(locationObject);
+        return locationObject;
     }
 
-    public void CreateStarterLocation(MapGrid grid, (int, int) position, MapNode activeNode, int owner) {
+    public GameObject CreateStarterLocation(MapGrid grid, (int, int) position, MapNode activeNode, int owner) {
         var locationObject = Instantiate(StarterLocation);
         locationObject.GetLocationBase().Setup(owner, 0, 0f);
         ConfigureLocation(locationObject, grid, position, activeNode);
         Locations.Add(locationObject);
+        return locationObject;
     }
 
     public GameObject CreateCharacter(GameObject prefab, MapNode node, int owner, int spawnTime, float health, float damage, int movement, bool instant) {
@@ -504,10 +506,10 @@ public class LevelController : MonoBehaviour {
         var nodeScript = node.GetComponent<BrainsNode>();
         var brains = Instantiate(brainsPrefab, new Vector3(0, 0, 0), new Quaternion());
         var script = brains.GetComponent<Brains>();
-        script.Setup(nodeScript, _map.GetComponent<MapBase>(), owner, value);
-        nodeScript.MapNode.EmptyBrainNodes.Remove(node);
-        nodeScript.MapNode.BrainNodes.Add(brains);
-        Destroy(node);
+        script.Setup(nodeScript, owner, value);
+        nodeScript.ParentLocation.GetLocationBase().EmptyBrainNodes.Remove(node);
+        nodeScript.ParentLocation.GetLocationBase().BrainNodes.Add(brains);
+        node.SetActive(false);
         BrainLocations.Add(brains);
         return brains;
     }
@@ -517,7 +519,10 @@ public class LevelController : MonoBehaviour {
         var location = locationObject.GetComponent<LocationBase>();
         location.MapPosition = mapPosition;
         location.ActiveNode = activeNode;
-        locationObject.transform.position = grid.GetWorldPosition(mapPosition.Item1, mapPosition.Item2);
+        var origin = Get()._map.transform.position;
+        var initPos = grid.GetWorldPosition(mapPosition.Item1, mapPosition.Item2);
+        location.DirectionVector = (initPos - origin).normalized;
+        locationObject.transform.position = initPos + (location.DirectionVector * 20f);
         activeNode.Location = locationObject;
     }
 

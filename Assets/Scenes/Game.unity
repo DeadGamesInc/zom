@@ -5339,7 +5339,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _cameraController: {fileID: 1399539643}
   Offset: {x: -2.3, y: -14.55, z: 14.5}
-  FreeCameraOffset: {x: -2.3, y: -14.55, z: 14.5}
+  FreeCameraOffset: {x: -2.3, y: -17.22, z: 9.9}
   IsFreeCamera: 0
 --- !u!1 &1833011562
 GameObject:

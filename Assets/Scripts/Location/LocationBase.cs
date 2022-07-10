@@ -4,7 +4,9 @@ using UnityEngine;
 public class LocationBase : Entity {
     [SerializeField] public int Owner, SpawnTime;
     [SerializeField] public bool Spawned;
-    
+    [SerializeField] public Vector3 DirectionVector;
+    [SerializeField] public List<GameObject> EmptyBrainNodes = new(), BrainNodes = new();
+
     public MapNode ActiveNode;
     public (int, int) MapPosition;
     public GameObject Card;
@@ -21,13 +23,14 @@ public class LocationBase : Entity {
             SetSpawned();
         else
             SetSpawning();
+        
     }
     
     protected override void Kill() {
         var controller = LevelController.Get();
         var map = MapBase.Get();
         ActiveNode.Location = null;
-        foreach (var node in ActiveNode.BrainNodes) node.GetBrains().Kill();
+        foreach (var node in BrainNodes) node.GetBrains().Kill();
         controller.CreateEmptyLocation(map.Grid, MapPosition, ActiveNode);
         controller.Locations.Remove(gameObject);
         Destroy(gameObject);

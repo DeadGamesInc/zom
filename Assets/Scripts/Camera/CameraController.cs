@@ -27,12 +27,22 @@ public class CameraController : MonoBehaviour {
             ActiveCamera.gameObject.GetComponentInParent<FreeCamera>().InControl = false;
             HandPosition.Get().IsFreeCamera = false;
         }
-        
-        
 
         camera.Priority = ACTIVE;
         ActiveCamera = camera;
     }
+
+    public void TryRevokeFreeCameraControl() {
+        if (ActiveCamera != FreeCamera) return;
+        FreeCamera.gameObject.GetComponentInParent<FreeCamera>().InControl = false;
+    }
+
+    public void TryGiveFreeCameraControl() {
+        if (ActiveCamera != FreeCamera) return;
+        ActiveCamera.gameObject.GetComponentInParent<FreeCamera>().InControl = true;
+    }
+    
+    
 
     public void Toggle() {
         if (ActiveCamera == PrimaryCamera) {

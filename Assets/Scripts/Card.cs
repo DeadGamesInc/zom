@@ -67,6 +67,7 @@ public class Card : MonoBehaviour {
         StartScale = transformInfo.localScale;
         var targetScale = new Vector3(StartScale.x / 3, StartScale.y / 3, StartScale.z / 3);
         transformInfo.localScale = targetScale;
+        CameraController.Get().TryRevokeFreeCameraControl();
     }
 
     public void OnMouseDrag() {
@@ -86,5 +87,6 @@ public class Card : MonoBehaviour {
         
         controller.SetCardLock(false);
         controller.SetCard(null, null, "");
+        CameraController.Get().TryGiveFreeCameraControl();
     }
 }
