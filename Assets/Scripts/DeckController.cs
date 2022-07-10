@@ -67,7 +67,7 @@ public class DeckController : MonoBehaviour {
             Destroy(placed);
         }
 
-        var position = hide ? new Vector3(0, 0, 0) : HandPosition.position;
+        var position = hide ? new Vector3(0, 0, 0) : HandPosition.position + HandCards.Count * new Vector3(1f, 0.1f, -0.1f);
         var rotation = hide ? new Quaternion(0, 0, 0, 0) : HandPosition.rotation;
         
         var drawn = Instantiate(card, position, rotation);
@@ -79,5 +79,6 @@ public class DeckController : MonoBehaviour {
         
         HandCards.Add(drawn);
         DeckCards.Remove(card);
+        drawn.transform.parent = HandPosition;
     }
 }

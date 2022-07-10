@@ -12,20 +12,28 @@ public class Map0 : MapBase {
 
     protected override void InitializeLocations() {
         var controller = LevelController.Get();
-        controller.CreateStarterLocation(Grid, (8, 1), GetNode(8, 2), 0);
-        controller.CreateEmptyLocation(Grid, (15, 8), GetNode(14, 8));
-        controller.CreateStarterLocation(Grid, (8, 15), GetNode(8, 14), 1);
-        controller.CreateEmptyLocation(Grid, (1, 8), GetNode(2, 8));
+        var l1 = controller.CreateStarterLocation(Grid, (8, 1), GetNode(8, 2), 0);
+        BrainsNode.Create(l1, true);
+        BrainsNode.Create(l1, false);
+        var l2 = controller.CreateEmptyLocation(Grid, (15, 8), GetNode(14, 8));
+        BrainsNode.Create(l2, true);
+        BrainsNode.Create(l2, false);
+        var l3 = controller.CreateStarterLocation(Grid, (8, 15), GetNode(8, 14), 1);
+        BrainsNode.Create(l3, true);
+        BrainsNode.Create(l3, false);
+        var l4 = controller.CreateEmptyLocation(Grid, (1, 8), GetNode(2, 8));
+        BrainsNode.Create(l4, true);
+        BrainsNode.Create(l4, false);
     }
 
     protected override void InitializeBrainsNodes() {
-        BrainsNode.Create(7, 1, Grid, GetNode(8, 2));
-        BrainsNode.Create(9, 1, Grid, GetNode(8, 2));
-        BrainsNode.Create(15, 7, Grid, GetNode(14, 8));
-        BrainsNode.Create(15, 9, Grid, GetNode(14, 8));
-        BrainsNode.Create(7, 15, Grid, GetNode(8, 14));
-        BrainsNode.Create(9, 15, Grid, GetNode(8, 14));
-        BrainsNode.Create(1, 7, Grid, GetNode(2, 8));
-        BrainsNode.Create(1, 9, Grid, GetNode(2, 8));
+        // BrainsNode.Create(7, 1, Grid, GetNode(8, 2));
+        // BrainsNode.Create(9, 1, Grid, GetNode(8, 2));
+        // BrainsNode.Create(15, 7, Grid, GetNode(14, 8));
+        // BrainsNode.Create(15, 9, Grid, GetNode(14, 8));
+        // BrainsNode.Create(7, 15, Grid, GetNode(8, 14));
+        // BrainsNode.Create(9, 15, Grid, GetNode(8, 14));
+        // BrainsNode.Create(1, 7, Grid, GetNode(2, 8));
+        // BrainsNode.Create(1, 9, Grid, GetNode(2, 8));
     }
 }

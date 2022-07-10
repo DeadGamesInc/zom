@@ -3190,7 +3190,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.8876221, y: 1}
+    m_SensorSize: {x: 1.6849757, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -4305,7 +4305,7 @@ MonoBehaviour:
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
   m_UpdateMethod: 2
-  m_BlendUpdateMethod: 1
+  m_BlendUpdateMethod: 0
   m_DefaultBlend:
     m_Style: 2
     m_Time: 0.5
@@ -5302,6 +5302,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1829745936}
+  - component: {fileID: 1829745937}
   m_Layer: 0
   m_Name: HandPosition
   m_TagString: Untagged
@@ -5324,6 +5325,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 40, y: 0, z: 0}
+--- !u!114 &1829745937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1829745935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4ef2f7a33998444fb1826b5db3b5842, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _cameraController: {fileID: 1399539643}
+  Offset: {x: -2.3, y: -14.55, z: 14.5}
+  FreeCameraOffset: {x: -2.3, y: -17.22, z: 9.9}
+  IsFreeCamera: 0
 --- !u!1 &1833011562
 GameObject:
   m_ObjectHideFlags: 0
