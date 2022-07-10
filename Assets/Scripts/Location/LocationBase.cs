@@ -6,6 +6,7 @@ public class LocationBase : Entity {
     [SerializeField] public bool Spawned;
     [SerializeField] public Vector3 DirectionVector;
     [SerializeField] public List<GameObject> EmptyBrainNodes = new(), BrainNodes = new();
+    public FreeCameraProperties CameraPosition;
 
     public MapNode ActiveNode;
     public (int, int) MapPosition;
@@ -23,7 +24,6 @@ public class LocationBase : Entity {
             SetSpawned();
         else
             SetSpawning();
-        
     }
     
     protected override void Kill() {

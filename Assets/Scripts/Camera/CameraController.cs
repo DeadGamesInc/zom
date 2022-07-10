@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -42,8 +43,6 @@ public class CameraController : MonoBehaviour {
         ActiveCamera.gameObject.GetComponentInParent<FreeCamera>().InControl = true;
     }
     
-    
-
     public void Toggle() {
         if (ActiveCamera == PrimaryCamera) {
             PrioritizeFreeCamera();
@@ -63,7 +62,12 @@ public class CameraController : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-        PrioritizePrimary();
+        PrioritizeFreeCamera();
+        var cameraRig = FreeCamera.GetComponentInParent<FreeCamera>();
+        var startLocation = LevelController.Get().Locations.First().GetLocationBase();
+        cameraRig.newPosition = startLocation.CameraPosition.NewPosition;
+        cameraRig.newRotation = Quaternion.Euler(startLocation.CameraPosition.NewRotation);
+        cameraRig.newZoom = startLocation.CameraPosition.NewZoom;
     }
 
     // Update is called once per frame

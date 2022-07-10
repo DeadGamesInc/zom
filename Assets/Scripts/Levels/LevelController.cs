@@ -522,7 +522,7 @@ public class LevelController : MonoBehaviour {
         var origin = Get()._map.transform.position;
         var initPos = grid.GetWorldPosition(mapPosition.Item1, mapPosition.Item2);
         location.DirectionVector = (initPos - origin).normalized;
-        locationObject.transform.position = initPos + (location.DirectionVector * 20f);
+        locationObject.transform.position = initPos + (location.DirectionVector * 50f);
         activeNode.Location = locationObject;
     }
 
