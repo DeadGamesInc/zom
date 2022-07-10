@@ -21,8 +21,15 @@ public class CameraController : MonoBehaviour {
 
     public void PrioritizeCamera(CinemachineVirtualCamera camera) {
         if (ActiveCamera != null) ActiveCamera.Priority = INACTIVE;
-        if (ActiveCamera == FreeCamera && camera != FreeCamera)
+        if (camera == FreeCamera) {
+            HandPosition.Get().IsFreeCamera = true;
+        } else if (ActiveCamera == FreeCamera) {
             ActiveCamera.gameObject.GetComponentInParent<FreeCamera>().InControl = false;
+            HandPosition.Get().IsFreeCamera = false;
+        }
+        
+        
+
         camera.Priority = ACTIVE;
         ActiveCamera = camera;
     }

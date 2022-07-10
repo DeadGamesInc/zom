@@ -688,20 +688,20 @@ public class LevelController : MonoBehaviour {
 
     public void DrawCard(bool freePlay = false, bool instant = false) {
         if (!_deckController.DrawCard(freePlay, instant)) return;
-        UpdateHandPosition();
+        // UpdateHandPosition();
     }
 
     public void DrawCard(CardId id, bool freePlay = false, bool instant = false) {
         if (!_deckController.DrawCard(id, freePlay, instant)) return;
-        UpdateHandPosition();
+        // UpdateHandPosition();
     }
 
     private void ResetHandCardPositions() {
         if (!_deckController.HandCards.Any()) return;
-        _handPosition.transform.position = _initialHandPosition;
-        foreach (var card in _deckController.HandCards) {
-            card.transform.position = _handPosition.transform.position;
-            UpdateHandPosition();
+        Vector3 position = _handPosition.transform.position;
+        foreach (var (card, index) in _deckController.HandCards.Select((c, i) => (c, i))) {
+            card.transform.position = position + index * new Vector3(1f, 0.1f, -0.1f);
+            // UpdateHandPosition();
         }
     }
 
