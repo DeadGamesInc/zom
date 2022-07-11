@@ -49,6 +49,8 @@ public class LocationBase : Entity {
     private void SetSpawning() {
         gameObject.GetComponent<Renderer>().material.ChangeAlpha(0.25f);
         Spawned = false;
+        gameObject.GetEntity().Ui.SetActive(true);
+        gameObject.GetEntity().Ui.GetEntityUI().SetCharacterText("Spawning");
     }
 
     private void SetSpawned() {

@@ -17,6 +17,12 @@ public class EntityUI : MonoBehaviour {
     public void SetCharacterText(string text) {
         statusText.GetComponent<TextMeshProUGUI>().text = text;
     }
+    
+    public void Spawning() {
+        Health.SetActive(false);
+        HealthBar.SetActive(false);
+        statusText.GetComponent<TextMeshProUGUI>().text = "Spawning";
+    }
 
     // Update is called once per frame
     private void FixedUpdate() {
