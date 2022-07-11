@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Game.unity
     guid: 667b728b7b10f41d48236744c97c152d
   - enabled: 1
+    path: Assets/Scenes/Splash.unity
+    guid: d0ebd2840eb7846f0b430307ce75cd80
+  - enabled: 1
     path: Assets/Scenes/BarryDevBox.unity
     guid: 8845917f6ac0c584d9f8db7812ce2a34
   m_configObjects: {}

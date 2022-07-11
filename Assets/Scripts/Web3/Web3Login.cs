@@ -8,7 +8,7 @@ public class Web3Login : MonoBehaviour {
     public void Start() {
         if (!PlayerPrefs.HasKey("RememberMe") || !PlayerPrefs.HasKey("Account")) return;
         if (PlayerPrefs.GetInt("RememberMe") == 1 && !string.IsNullOrEmpty(PlayerPrefs.GetString("Account"))) 
-            SceneManager.LoadScene((int) SceneId.INIT);
+            SceneManager.LoadScene((int) SceneId.SPLASH);
     }
 
     public async void HandleLogin() {
@@ -23,7 +23,7 @@ public class Web3Login : MonoBehaviour {
             var remember = RememberMe.isOn ? 1 : 0;
             PlayerPrefs.SetString("Account", account);
             PlayerPrefs.SetInt("RememberMe", remember);
-            SceneManager.LoadScene((int) SceneId.INIT);
+            SceneManager.LoadScene((int) SceneId.SPLASH);
         }
     }
 }
