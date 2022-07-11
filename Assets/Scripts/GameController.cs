@@ -21,7 +21,7 @@ public class GameController : MonoBehaviour {
             Destroy(gameObject);
             return;
         }
-
+        
         _instance = this;
         DontDestroyOnLoad(gameObject);
 
