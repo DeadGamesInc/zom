@@ -16,11 +16,19 @@ public class CharacterUI : EntityUI {
         moveButton.GetComponent<CharacterUIButton>().Ui = gameObject;
         attackButton.GetComponent<CharacterUIButton>().Ui = gameObject;
         defendButton.GetComponent<CharacterUIButton>().Ui = gameObject;
-        GetComponentInChildren<HealthBar>().Target = Target.GetCharacter();
     }
     
     public void SetCharacterText(string text) {
         statusText.GetComponent<TextMeshProUGUI>().text = text;
+    }
+    
+    public void Spawning() {
+        Health.SetActive(false);
+        HealthBar.SetActive(false);
+        moveButton.SetActive(false);
+        attackButton.SetActive(false);
+        defendButton.SetActive(false);
+        statusText.GetComponent<TextMeshProUGUI>().text = "Spawning";
     }
     
     public void OnEnable() {

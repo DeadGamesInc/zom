@@ -44,6 +44,7 @@ public class Character : Entity {
         Ui = Instantiate(controller.CharacterUi);
         CharacterUI characterUI = Ui.GetCharacterUI();
         characterUI.Target = gameObject;
+        Ui.GetComponentInChildren<HealthBar>().Target = this;
         characterUI.SetCharacterText(name);
         Ui.SetActive(false);
         if (SpawnTime == 0)
@@ -100,11 +101,19 @@ public class Character : Entity {
     public void SetSpawning() {
         gameObject.GetComponent<Renderer>().material.ChangeAlpha(0.25f);
         Spawned = false;
+        var ui = gameObject.GetCharacter().Ui;
+        ui.SetActive(true);
+        ui.GetCharacterUI().Spawning();
     }
 
     public void SetSpawned() {
         gameObject.GetComponent<Renderer>().material.ChangeAlpha(1.0f);
         Spawned = true;
+        var ui = gameObject.GetCharacter().Ui;
+        ui.SetActive(true);
+        ui.GetCharacterUI().EnableChildren();
+        ui.GetCharacterUI().SetCharacterText(name);
+        ui.SetActive(false);
     }
 
     public void MoveTowards(MapNode target) {
@@ -251,6 +260,7 @@ public class Character : Entity {
     }
 
     public void OnMouseDown() {
+        if(!Spawned) return;
         var controller = LevelController.Get();
 
         switch (controller.CurrentPhase) {
@@ -295,21 +305,24 @@ public class Character : Entity {
         }
 
         LevelController.Get().SetInfoWindow(InfoCard, spawnTime);
-        if (controller.selectedCharacter != gameObject) {
+        if (controller.selectedCharacter != gameObject && Spawned) {
             Ui.SetActive(true);
             Ui.GetCharacterUI().OnlyShowTextAndHeath();
         }
     }
 
     public void OnMouseExit() {
+        if(!Spawned) return;
         var controller = LevelController.Get();
         controller.SetInfoWindow(null, "");
         controller.SelectedCharacter = null;
 
         if (controller.selectedCharacter == gameObject) return;
-        if (controller.selectedCharacter == gameObject &&
-            controller.CurrentPhase is PhaseId.DEFENCE or PhaseId.BATTLE) {
+
+        if (controller.CurrentPhase is PhaseId.DEFENCE or PhaseId.BATTLE && Owner == 0) {
             Ui.GetCharacterUI().HideTextAndHeath();
+            // if(controller.CurrentPhase == PhaseId.DEFENCE) Ui.GetCharacterUI().OnlyShowButton(PlayerCommand.DefendLocation);
+            // if(controller.CurrentPhase == PhaseId.BATTLE) Ui.GetCharacterUI().OnlyShowButton(PlayerCommand.AttackLocation);
             return;
         }
 
