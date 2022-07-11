@@ -137,7 +137,7 @@ public class LevelController : MonoBehaviour {
         GameOverMenu.SetActive(true);
         WinText.SetActive(won);
         LoseText.SetActive(!won);
-        ClaimButton.SetActive(!won);
+        ClaimButton.SetActive(won);
         ClaimButton.GetComponentInChildren<TextMeshProUGUI>().text = !claimed ? "CLAIM NFT" : "ALREADY CLAIMED";
         ClaimButton.GetComponent<Button>().interactable = !claimed;
         CurrentPhase = PhaseId.GAME_OVER;
