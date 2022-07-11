@@ -11,7 +11,7 @@ public class BrainsNode : MonoBehaviour {
         node.ParentLocation = parentLocation;
         var location = parentLocation.GetLocationBase();
         var perpendicular = Vector3.Cross(location.DirectionVector, Vector3.up);
-        obj.transform.position = parentLocation.transform.position + perpendicular * (side ? 30f : -30f);
+        obj.transform.position = parentLocation.transform.position + perpendicular * (side ? 40f : -40f);
         obj.transform.localScale = new Vector3(SIZE, 0.00000001f, SIZE);
         location.EmptyBrainNodes.Add(obj);
         return node;

@@ -4,13 +4,14 @@ using UnityEngine;
 public class EntityUI : MonoBehaviour {
     [SerializeField] protected GameObject statusText;
     [SerializeField] public GameObject HealthBar;
+    [SerializeField] public GameObject Health;
     [SerializeField] public GameObject Target;
     [SerializeField] public GameObject _camera;
 
     // Start is called before the first frame update
     void Start() {
         _camera = GameObject.Find("CameraController");
-        HealthBar.GetComponent<HealthBar>().Target = Target.GetEntity();
+        Health.GetComponent<HealthBar>().Target = Target.GetEntity();
     }
     
     public void SetCharacterText(string text) {

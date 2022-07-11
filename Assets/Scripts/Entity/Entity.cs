@@ -16,7 +16,7 @@ public abstract class Entity : MonoBehaviour {
 
     public void TakeDamage(float amount) {
         Health -= amount;
-        Ui.GetEntityUI().HealthBar.GetComponent<HealthBar>().Refresh();
+        Ui.GetEntityUI().Health.GetComponent<HealthBar>().Refresh();
         if(Health <= 0) Kill();
     }
 

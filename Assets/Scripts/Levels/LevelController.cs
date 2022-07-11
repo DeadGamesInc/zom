@@ -463,16 +463,17 @@ public class LevelController : MonoBehaviour {
         return Characters.Where(character => character.GetCharacter().MapPosition == node).ToArray();
     }
 
-    public GameObject CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
+    public GameObject CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode, int index) {
         var locationObject = Instantiate(EmptyLocation);
+        locationObject.GetLocationBase().Index = index;
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
         EmptyLocations.Add(locationObject);
         return locationObject;
     }
 
-    public GameObject CreateStarterLocation(MapGrid grid, (int, int) position, MapNode activeNode, int owner) {
+    public GameObject CreateStarterLocation(MapGrid grid, (int, int) position, MapNode activeNode, int owner, int index) {
         var locationObject = Instantiate(StarterLocation);
-        locationObject.GetLocationBase().Setup(owner, 0, 0f);
+        locationObject.GetLocationBase().Setup(owner, 0, 0f, index);
         ConfigureLocation(locationObject, grid, position, activeNode);
         Locations.Add(locationObject);
         return locationObject;
@@ -492,8 +493,15 @@ public class LevelController : MonoBehaviour {
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
         var script = locationObject.GetLocationBase();
         if (instant) spawnTime = 0;
-        script.Setup(owner, spawnTime, health);
+        script.Setup(owner, spawnTime, health, replaces.GetLocationBase().Index);
         if (replaces != null) {
+            locationObject.GetLocationBase().CameraPosition = replaces.GetLocationBase().CameraPosition;
+            locationObject.GetLocationBase().BrainNodes = replaces.GetLocationBase().BrainNodes;
+            locationObject.GetLocationBase().EmptyBrainNodes = replaces.GetLocationBase().EmptyBrainNodes;
+            foreach (var node in replaces.GetLocationBase().EmptyBrainNodes) {
+                node.GetComponent<BrainsNode>().ParentLocation = locationObject;
+            }
+            
             if (replacesEmpty) EmptyLocations.Remove(replaces);
             else Locations.Remove(replaces);
             Destroy(replaces);
@@ -522,7 +530,7 @@ public class LevelController : MonoBehaviour {
         var origin = Get()._map.transform.position;
         var initPos = grid.GetWorldPosition(mapPosition.Item1, mapPosition.Item2);
         location.DirectionVector = (initPos - origin).normalized;
-        locationObject.transform.position = initPos + (location.DirectionVector * 20f);
+        locationObject.transform.position = initPos + (location.DirectionVector * 50f);
         activeNode.Location = locationObject;
     }
 
@@ -705,7 +713,7 @@ public class LevelController : MonoBehaviour {
         if (!_deckController.HandCards.Any()) return;
         Vector3 position = _handPosition.transform.position;
         foreach (var (card, index) in _deckController.HandCards.Select((c, i) => (c, i))) {
-            card.transform.position = position + index * new Vector3(1f, 0.1f, -0.1f);
+            card.transform.localPosition = index * new Vector3(1f, 0.05f, -0.1f);
             // UpdateHandPosition();
         }
     }
@@ -722,6 +730,7 @@ public class LevelController : MonoBehaviour {
         _roundTimerBar.SetActive(false);
         SetButtons(false);
         if (CurrentPhase == PhaseId.STRATEGIC) {
+            CameraController.Get().PrioritizePrimary();
             Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.STRATEGIC);
             CurrentPhase = PhaseId.DEFENCE;
             HandlePhase();
@@ -819,6 +828,11 @@ public class LevelController : MonoBehaviour {
                 BattleFormation(attackCycle.Key.GetLocationBase().ActiveNode);
             }
         } else {
+            if(commands.All(c => c.Command != PlayerCommand.AttackLocation)) {
+                Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+                SetButtons(true);
+                return;
+            }
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);

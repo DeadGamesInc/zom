@@ -30,7 +30,7 @@ public class Character : Entity {
     public MapNode MapPosition { get; private set; }
     public (int, int) NodePosition { get; private set; }
     public CharacterRoute Route { get; private set; }
-    
+
     public void Setup(MapNode node, int owner, int spawnTime, float health, float damage, int movement) {
         Owner = owner;
         SpawnTime = spawnTime;
@@ -63,13 +63,14 @@ public class Character : Entity {
         levelController.Characters.Remove(gameObject);
         Destroy(gameObject);
     }
-    
+
     // Update is called once per frame
     void FixedUpdate() {
-        if(_dashTarget.HasValue) {
+        if (_dashTarget.HasValue) {
             Dash();
             return;
         }
+
         switch (State) {
             case CharacterState.InTransit:
                 Move();
@@ -138,33 +139,42 @@ public class Character : Entity {
     public void Dash() {
         transform.position = Vector3.MoveTowards(transform.position, _dashTarget.GetValueOrDefault(), 3f);
     }
-    
+
     public IEnumerator Attack(GameObject targetObject) {
-        Entity target = targetObject.GetEntity();
         Vector3 targetPos = targetObject.transform.position;
         Vector3 startingPos = transform.position;
-        
+
         // Start attack & dash to target
         _dashTarget = targetPos;
         State = CharacterState.Attacking;
 
         while (transform.position != targetPos) yield return null;
-        target.TakeDamage(Damage);
-        
+        if (targetObject.GetComponent<Character>())
+            targetObject.GetComponent<Character>().TakeDamage(Damage, this);
+        else
+            targetObject.GetEntity().TakeDamage(Damage);
+
         // Dash to original position
         _dashTarget = startingPos;
-        while (transform.position != startingPos) yield return null;
+        while (gameObject != null && transform.position != startingPos) yield return null;
         _dashTarget = null;
-        
+
         // End attack
         State = CharacterState.Idle;
+    }
+
+    public void TakeDamage(float amount, Character attacker) {
+        Debug.Log("calling native take damage");
+        if (attacker != null) attacker.TakeDamage(amount / 2f);
+
+        base.TakeDamage(amount);
     }
 
     public void DeclareDefender(LocationBase location) {
         location.Defenders.Add(gameObject);
         State = CharacterState.Defending;
     }
-    
+
     public void UndeclareDefender() {
         // Get queued defend command
         QueuedCommand command = LevelController.Get().commands.Find(command =>
@@ -211,6 +221,7 @@ public class Character : Entity {
                 } catch (MovementException e) {
                     Debug.LogError(e);
                 }
+
                 Ui.SetActive(false);
                 break;
             case PlayerCommand.AttackLocation:
@@ -233,7 +244,7 @@ public class Character : Entity {
 
     public void OnMouseDown() {
         var controller = LevelController.Get();
-        
+
         switch (controller.CurrentPhase) {
             case PhaseId.STRATEGIC:
                 if (!IsOwnersTurn()) return;
@@ -276,6 +287,23 @@ public class Character : Entity {
         }
 
         LevelController.Get().SetInfoWindow(InfoCard, spawnTime);
+        if (controller.selectedCharacter != gameObject) {
+            Ui.SetActive(true);
+            Ui.GetCharacterUI().OnlyShowTextAndHeath();
+        }
+    }
+
+    public void OnMouseExit() {
+        var controller = LevelController.Get();
+        controller.SetInfoWindow(null, "");
+        controller.SelectedCharacter = null;
+
+        if (controller.selectedCharacter == gameObject) return;
+        if (controller.selectedCharacter == gameObject && controller.CurrentPhase is PhaseId.DEFENCE or PhaseId.BATTLE) {
+            Ui.GetCharacterUI().HideTextAndHeath();
+            return;
+        }
+        Ui.SetActive(false);
     }
 
     public void SetHighlight(bool glow) {
@@ -287,12 +315,6 @@ public class Character : Entity {
             material.EnableKeyword("_EMISSION");
             material.SetColor("_EmissionColor", Color.black);
         }
-    }
-
-    public void OnMouseExit() {
-        var controller = LevelController.Get();
-        controller.SetInfoWindow(null, "");
-        controller.SelectedCharacter = null;
     }
 
     private void setMapPosition(MapNode node) {
