@@ -495,6 +495,8 @@ public class LevelController : MonoBehaviour {
         if (instant) spawnTime = 0;
         script.Setup(owner, spawnTime, health, replaces.GetLocationBase().Index);
         if (replaces != null) {
+            locationObject.GetLocationBase().BrainNodes = replaces.GetLocationBase().BrainNodes;
+            locationObject.GetLocationBase().EmptyBrainNodes = replaces.GetLocationBase().EmptyBrainNodes;
             foreach (var node in replaces.GetLocationBase().EmptyBrainNodes) {
                 node.GetComponent<BrainsNode>().ParentLocation = locationObject;
             }
@@ -710,7 +712,8 @@ public class LevelController : MonoBehaviour {
         if (!_deckController.HandCards.Any()) return;
         Vector3 position = _handPosition.transform.position;
         foreach (var (card, index) in _deckController.HandCards.Select((c, i) => (c, i))) {
-            card.transform.position = position + index * new Vector3(1f, 0.1f, -0.1f);
+            card.transform.localPosition = index * new Vector3(1f, 0.1f, -0.1f);
+            Debug.Log("'yooyoo'");
             // UpdateHandPosition();
         }
     }
