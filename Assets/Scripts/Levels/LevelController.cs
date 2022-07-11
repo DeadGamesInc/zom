@@ -311,12 +311,20 @@ public class LevelController : MonoBehaviour {
     public void ExecuteBattlePhaseCommands(int owner) {
         var battleCycles = commands.Where(a => a.Owner == owner && a.Command == PlayerCommand.AttackLocation)
             .GroupBy(command => command.Target).Select(commandGroup => ExecuteAttackCycle(commandGroup.ToArray())).ToList();
-        _coroutineRunner.GetCoroutineRunner().ConsecutiveRun(battleCycles.ToList());
         
-        // add to coroutine so it runs after battle commands
-        foreach (var command in commands.Where(a => a.Owner == owner && a.Command != PlayerCommand.AttackLocation)) {
-            ExecuteCommand(command);
+        
+        _coroutineRunner.GetCoroutineRunner().ConsecutiveRun(battleCycles.ToList());
+
+        try {
+            // add to coroutine so it runs after battle commands
+            foreach (var command in
+                     commands.Where(a => a.Owner == owner && a.Command != PlayerCommand.AttackLocation)) {
+                ExecuteCommand(command);
+            }
+        } catch (Exception e) { // catch error for characters killed when attacking
+            Debug.Log(e);
         }
+
         commands.Clear();
     }
 
