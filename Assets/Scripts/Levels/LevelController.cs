@@ -838,7 +838,7 @@ public class LevelController : MonoBehaviour {
         } else {
             if(commands.All(c => c.Command != PlayerCommand.AttackLocation)) {
                 Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
-                SetButtons(true);
+                SetButtons(false);
                 return;
             }
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
