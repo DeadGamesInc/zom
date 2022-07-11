@@ -22,6 +22,7 @@ public class Character : Entity {
     [SerializeField] public int SpawnTime;
     [SerializeField] public bool Spawned;
     [SerializeField] public int Owner;
+    [SerializeField] public float QueuedDamage = 0f;
     [SerializeField] public List<GameObject> EquippedItems = new();
     [SerializeField] private Vector3? _dashTarget;
 
@@ -70,6 +71,12 @@ public class Character : Entity {
             Dash();
             return;
         }
+        // only call if _dashTarget is null
+        if (QueuedDamage > 0) {
+            TakeDamage(QueuedDamage);
+            QueuedDamage = 0;
+        }
+
 
         switch (State) {
             case CharacterState.InTransit:
@@ -156,7 +163,9 @@ public class Character : Entity {
 
         // Dash to original position
         _dashTarget = startingPos;
-        while (gameObject != null && transform.position != startingPos) yield return null;
+
+        while (transform.position != startingPos) yield return null;
+
         _dashTarget = null;
 
         // End attack
@@ -164,8 +173,7 @@ public class Character : Entity {
     }
 
     public void TakeDamage(float amount, Character attacker) {
-        Debug.Log("calling native take damage");
-        if (attacker != null) attacker.TakeDamage(amount / 2f);
+        attacker.QueuedDamage += amount / 2f;
 
         base.TakeDamage(amount);
     }
@@ -299,10 +307,12 @@ public class Character : Entity {
         controller.SelectedCharacter = null;
 
         if (controller.selectedCharacter == gameObject) return;
-        if (controller.selectedCharacter == gameObject && controller.CurrentPhase is PhaseId.DEFENCE or PhaseId.BATTLE) {
+        if (controller.selectedCharacter == gameObject &&
+            controller.CurrentPhase is PhaseId.DEFENCE or PhaseId.BATTLE) {
             Ui.GetCharacterUI().HideTextAndHeath();
             return;
         }
+
         Ui.SetActive(false);
     }
 
