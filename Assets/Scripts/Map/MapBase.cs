@@ -6,6 +6,7 @@ public abstract class MapBase : MonoBehaviour {
     [SerializeField] public int Length, Width, DistanceUnit;
     [SerializeField] public float CellSize;
     [SerializeField] public (int, int)[] LocationNodes;
+    [SerializeField] public bool Initialized = false;
 
     public MapGrid Grid { get; private set; }
     
@@ -68,7 +69,7 @@ public abstract class MapBase : MonoBehaviour {
         _paths = InitializePaths();
         DrawPaths();
         InitializeLocations();
-        InitializeBrainsNodes();
+        Initialized = true;
     }
 
     private void DrawPaths() {

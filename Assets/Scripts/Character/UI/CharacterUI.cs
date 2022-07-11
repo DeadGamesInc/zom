@@ -35,6 +35,13 @@ public class CharacterUI : EntityUI {
         attackButton.transform.localPosition = new Vector3(13, 15f, 0);
         moveButton.transform.localPosition = new Vector3(-13f, 15f, 0);
     }
+
+    public void OnlyShowTextAndHeath() {
+        statusText.SetActive(true);
+        attackButton.SetActive(false);
+        moveButton.SetActive(false);
+        defendButton.SetActive(false);
+    }
     
     public void OnlyShowButton(PlayerCommand type) {
         switch (type) {

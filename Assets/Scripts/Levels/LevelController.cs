@@ -463,16 +463,17 @@ public class LevelController : MonoBehaviour {
         return Characters.Where(character => character.GetCharacter().MapPosition == node).ToArray();
     }
 
-    public GameObject CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode) {
+    public GameObject CreateEmptyLocation(MapGrid grid, (int, int) mapPosition, MapNode activeNode, int index) {
         var locationObject = Instantiate(EmptyLocation);
+        locationObject.GetLocationBase().Index = index;
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
         EmptyLocations.Add(locationObject);
         return locationObject;
     }
 
-    public GameObject CreateStarterLocation(MapGrid grid, (int, int) position, MapNode activeNode, int owner) {
+    public GameObject CreateStarterLocation(MapGrid grid, (int, int) position, MapNode activeNode, int owner, int index) {
         var locationObject = Instantiate(StarterLocation);
-        locationObject.GetLocationBase().Setup(owner, 0, 0f);
+        locationObject.GetLocationBase().Setup(owner, 0, 0f, index);
         ConfigureLocation(locationObject, grid, position, activeNode);
         Locations.Add(locationObject);
         return locationObject;
@@ -492,8 +493,12 @@ public class LevelController : MonoBehaviour {
         ConfigureLocation(locationObject, grid, mapPosition, activeNode);
         var script = locationObject.GetLocationBase();
         if (instant) spawnTime = 0;
-        script.Setup(owner, spawnTime, health);
+        script.Setup(owner, spawnTime, health, replaces.GetLocationBase().Index);
         if (replaces != null) {
+            foreach (var node in replaces.GetLocationBase().EmptyBrainNodes) {
+                node.GetComponent<BrainsNode>().ParentLocation = locationObject;
+            }
+            
             if (replacesEmpty) EmptyLocations.Remove(replaces);
             else Locations.Remove(replaces);
             Destroy(replaces);

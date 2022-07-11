@@ -119,6 +119,7 @@ MonoBehaviour:
   DirectionVector: {x: 0, y: 0, z: 0}
   EmptyBrainNodes: []
   BrainNodes: []
+  Index: 0
   ActiveNode: {fileID: 0}
   Card: {fileID: 0}
   Defenders: []

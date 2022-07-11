@@ -8,15 +8,17 @@ public class LocationControl : LocationBase {
         var basic = StarterLocation ? "STARTER " : "";
         var spawnTime = !Spawned ? $"{SpawnTime} turns before ready" : "";
         var controller = LevelController.Get();
-        controller.SetStatusText($"{basic}LOCATION SELECTED");
+        // controller.SetStatusText($"{basic}LOCATION SELECTED");
         controller.SetInfoWindow(InfoCard, spawnTime);
         if (Spawned) controller.SelectedLocation = gameObject;
+        Ui.SetActive(true);
     }
 
     public void OnMouseExit() {
         var controller = LevelController.Get();
-        controller.SetStatusText("");
+        // controller.SetStatusText("");
         controller.SetInfoWindow(null, "");
         if (Spawned) controller.SelectedLocation = null;
+        Ui.SetActive(false);
     }
 }

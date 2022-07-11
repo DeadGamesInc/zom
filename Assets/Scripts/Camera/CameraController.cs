@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq;
 using Cinemachine;
 using Unity.VisualScripting;
@@ -10,7 +11,8 @@ public class CameraController : MonoBehaviour {
     [SerializeField] public CinemachineVirtualCamera PrimaryCamera;
     [SerializeField] public CinemachineVirtualCamera FreeCamera;
     [SerializeField] public CinemachineVirtualCamera ActiveCamera;
-
+    public int LocationIndex;
+    
     public static CameraController Get() {
         GameObject cameraController = GameObject.Find("CameraController");
         if (cameraController != null) {
@@ -42,7 +44,7 @@ public class CameraController : MonoBehaviour {
         if (ActiveCamera != FreeCamera) return;
         ActiveCamera.gameObject.GetComponentInParent<FreeCamera>().InControl = true;
     }
-    
+
     public void Toggle() {
         if (ActiveCamera == PrimaryCamera) {
             PrioritizeFreeCamera();
@@ -62,12 +64,39 @@ public class CameraController : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
+        // PrioritizeFreeCamera();
+        StartCoroutine(InitializeFreeCamera());
+    }
+
+    public void FocusLocation(FreeCameraProperties props) {
         PrioritizeFreeCamera();
         var cameraRig = FreeCamera.GetComponentInParent<FreeCamera>();
+        cameraRig.newPosition = props.NewPosition;
+        cameraRig.newRotation = Quaternion.Euler(props.NewRotation);
+        cameraRig.newZoom = props.NewZoom;
+    }
+
+    public void Forwards() {
+        var lc = LevelController.Get();
+        var locations = lc.Locations.Concat(lc.EmptyLocations).OrderBy(l => l.GetLocationBase().Index).ToList();
+        var lastIndex = LocationIndex == locations.Count - 1;
+        LocationIndex = ActiveCamera != FreeCamera || lastIndex ? 0 : LocationIndex + 1;
+        FocusLocation(locations[LocationIndex].GetLocationBase().CameraPosition);
+    }
+
+    public void Backwards() {
+        var lc = LevelController.Get();
+        var locations = lc.Locations.Concat(lc.EmptyLocations).OrderBy(l => l.GetLocationBase().Index).ToList();
+        var firstIndex = LocationIndex == 0;
+        LocationIndex = ActiveCamera != FreeCamera || firstIndex ? locations.Count - 1 : LocationIndex - 1;
+        FocusLocation(locations[LocationIndex].GetLocationBase().CameraPosition);
+    }
+
+    private IEnumerator InitializeFreeCamera() {
+        var levelController = LevelController.Get();
+        while (levelController._map == null) yield return null;
         var startLocation = LevelController.Get().Locations.First().GetLocationBase();
-        cameraRig.newPosition = startLocation.CameraPosition.NewPosition;
-        cameraRig.newRotation = Quaternion.Euler(startLocation.CameraPosition.NewRotation);
-        cameraRig.newZoom = startLocation.CameraPosition.NewZoom;
+        FocusLocation(startLocation.CameraPosition);
     }
 
     // Update is called once per frame
