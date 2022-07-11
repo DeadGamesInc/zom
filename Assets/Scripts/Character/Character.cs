@@ -156,7 +156,7 @@ public class Character : Entity {
 
         // Dash to original position
         _dashTarget = startingPos;
-        while (transform.position != startingPos) yield return null;
+        while (gameObject != null && transform.position != startingPos) yield return null;
         _dashTarget = null;
 
         // End attack

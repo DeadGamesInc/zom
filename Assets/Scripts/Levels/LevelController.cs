@@ -730,6 +730,7 @@ public class LevelController : MonoBehaviour {
         _roundTimerBar.SetActive(false);
         SetButtons(false);
         if (CurrentPhase == PhaseId.STRATEGIC) {
+            CameraController.Get().PrioritizePrimary();
             Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.STRATEGIC);
             CurrentPhase = PhaseId.DEFENCE;
             HandlePhase();
@@ -827,6 +828,11 @@ public class LevelController : MonoBehaviour {
                 BattleFormation(attackCycle.Key.GetLocationBase().ActiveNode);
             }
         } else {
+            if(commands.All(c => c.Command != PlayerCommand.AttackLocation)) {
+                Opponent.GetOpponent().OtherPlayerPhaseComplete(PhaseId.DEFENCE);
+                SetButtons(true);
+                return;
+            }
             Opponent.GetOpponent().OtherPlayerPhase(PhaseId.DEFENCE);
             _roundTimerBar.SetActive(true);
             _roundEnd = DateTime.Now.AddSeconds(StrategicPhaseLength);
