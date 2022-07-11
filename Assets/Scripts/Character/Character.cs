@@ -141,7 +141,6 @@ public class Character : Entity {
     }
 
     public IEnumerator Attack(GameObject targetObject) {
-        Entity target = targetObject.GetEntity();
         Vector3 targetPos = targetObject.transform.position;
         Vector3 startingPos = transform.position;
 
@@ -150,7 +149,10 @@ public class Character : Entity {
         State = CharacterState.Attacking;
 
         while (transform.position != targetPos) yield return null;
-        target.TakeDamage(Damage);
+        if (targetObject.GetComponent<Character>())
+            targetObject.GetComponent<Character>().TakeDamage(Damage, this);
+        else
+            targetObject.GetEntity().TakeDamage(Damage);
 
         // Dash to original position
         _dashTarget = startingPos;
@@ -159,6 +161,13 @@ public class Character : Entity {
 
         // End attack
         State = CharacterState.Idle;
+    }
+
+    public void TakeDamage(float amount, Character attacker) {
+        Debug.Log("calling native take damage");
+        if (attacker != null) attacker.TakeDamage(amount / 2f);
+
+        base.TakeDamage(amount);
     }
 
     public void DeclareDefender(LocationBase location) {
@@ -288,7 +297,13 @@ public class Character : Entity {
         var controller = LevelController.Get();
         controller.SetInfoWindow(null, "");
         controller.SelectedCharacter = null;
-        if (controller.selectedCharacter != gameObject) Ui.SetActive(false);
+
+        if (controller.selectedCharacter == gameObject) return;
+        if (controller.selectedCharacter == gameObject && controller.CurrentPhase is PhaseId.DEFENCE or PhaseId.BATTLE) {
+            Ui.GetCharacterUI().HideTextAndHeath();
+            return;
+        }
+        Ui.SetActive(false);
     }
 
     public void SetHighlight(bool glow) {

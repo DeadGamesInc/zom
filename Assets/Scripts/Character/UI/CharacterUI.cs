@@ -43,6 +43,12 @@ public class CharacterUI : EntityUI {
         defendButton.SetActive(false);
     }
     
+    public void HideTextAndHeath() {
+        Health.SetActive(false);
+        HealthBar.SetActive(false);
+        statusText.SetActive(false);
+    }
+    
     public void OnlyShowButton(PlayerCommand type) {
         switch (type) {
             case PlayerCommand.AttackLocation:

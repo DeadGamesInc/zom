@@ -662,7 +662,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   statusText: {fileID: 4755741611815350735}
-  HealthBar: {fileID: 5558878939541942513}
+  HealthBar: {fileID: 4007132021102948483}
+  Health: {fileID: 5558878939541942513}
   Target: {fileID: 0}
   _camera: {fileID: 5303149562296964011}
   moveButton: {fileID: 5303149561084889447}
@@ -782,6 +783,11 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 6720521562740114668, guid: d54e3bddccfc947348373ab7a547cfa7, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: d54e3bddccfc947348373ab7a547cfa7, type: 3}
+--- !u!1 &4007132021102948483 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5215282833360474328, guid: d54e3bddccfc947348373ab7a547cfa7, type: 3}
+  m_PrefabInstance: {fileID: 9222344325274001499}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &5162924258364831082 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4060625150647653681, guid: d54e3bddccfc947348373ab7a547cfa7, type: 3}
