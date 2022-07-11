@@ -3,5 +3,6 @@ public enum SceneId{
     INIT = 1,
     MENU = 2,
     GAME = 3,
-    BARRY_DEV_BOX = 3
+    SPLASH = 4,
+    BARRY_DEV_BOX = 5
 }
