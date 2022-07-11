@@ -39,7 +39,7 @@ public class GameController : MonoBehaviour {
     private async Task HandleInitialize() {
         InitializeMultiplayer();
         await InitializeCards();
-        Thread.Sleep(500);
+        Thread.Sleep(1000);
     }
 
     private void InitializeMultiplayer() {
